@@ -1,0 +1,144 @@
+<div class="detail-container" *ngIf="!isLoading && article">
+
+  <nav class="breadcrumb">
+    <a routerLink="/patient/education">Espace Éducatif</a>
+    <span>›</span>
+    <span>{{ categoryLabels[article.category] }}</span>
+    <span>›</span>
+    <span class="current">{{ article.title }}</span>
+  </nav>
+
+  <div class="detail-layout">
+
+    <article class="article-main">
+
+      <header class="article-header">
+        <div class="article-meta-top">
+          <span class="category-badge">
+            {{ categoryIcons[article.category] }} {{ categoryLabels[article.category] }}
+          </span>
+          <span class="type-badge" [class]="article.contentType.toLowerCase()">
+            {{ article.contentType }}
+          </span>
+          <span class="difficulty-badge" [class]="article.difficultyLevel.toLowerCase()">
+            {{ difficultyLabels[article.difficultyLevel] }}
+          </span>
+        </div>
+
+        <h1 class="article-title">{{ article.title }}</h1>
+        <p class="article-subtitle" *ngIf="article.subtitle">{{ article.subtitle }}</p>
+
+        <div class="author-bar">
+          <div class="author-info">
+            <div class="author-avatar">
+              {{ article.authorName ? article.authorName.charAt(0) : 'D' }}
+            </div>
+            <div>
+              <strong>Dr. {{ article.authorName }}</strong>
+              <p>{{ article.createdAt | date:'dd MMMM yyyy':'':'fr' }}</p>
+            </div>
+          </div>
+          <div class="reading-time">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            {{ article.readingTime }} min de lecture
+          </div>
+        </div>
+
+        <div class="article-stats">
+          <div class="stat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <span>{{ formatCount(article.viewCount) }} vues</span>
+          </div>
+          <div class="stat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            <span>{{ formatCount(article.likeCount) }} j'aime</span>
+          </div>
+          <div class="stat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span>{{ formatCount(article.commentCount) }} commentaires</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="article-media" *ngIf="article.thumbnailUrl || article.videoUrl">
+        <video *ngIf="article.videoUrl" controls class="article-video">
+          <source [src]="article.videoUrl">
+        </video>
+        <img *ngIf="!article.videoUrl && article.thumbnailUrl"
+             [src]="article.thumbnailUrl" [alt]="article.title" class="article-image">
+      </div>
+
+      <div class="article-content" [innerHTML]="article.content"></div>
+
+      <div class="article-tags" *ngIf="article.tags">
+        <strong>Tags :</strong>
+        <span class="tag" *ngFor="let tag of article.tags.split(',')">
+          #{{ tag.trim() }}
+        </span>
+      </div>
+
+      <div class="action-bar">
+        <button class="action-btn like-btn" [class.active]="article.isLiked" (click)="onLike()">
+          <svg viewBox="0 0 24 24" [attr.fill]="article.isLiked ? 'currentColor' : 'none'" stroke="currentColor">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <span>{{ article.isLiked ? "Je n'aime plus" : "J'aime" }}</span>
+          <span class="count-badge">{{ formatCount(article.likeCount) }}</span>
+        </button>
+
+        <button class="action-btn bookmark-btn" [class.active]="article.isBookmarked" (click)="onBookmark()">
+          <svg viewBox="0 0 24 24" [attr.fill]="article.isBookmarked ? 'currentColor' : 'none'" stroke="currentColor">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span>{{ article.isBookmarked ? 'Sauvegardé' : 'Sauvegarder' }}</span>
+        </button>
+
+        <button class="action-btn share-btn" (click)="onShare()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="18" cy="5" r="3"/>
+            <circle cx="6" cy="12" r="3"/>
+            <circle cx="18" cy="19" r="3"/>
+            <path d="m8.59 13.51 6.83 3.98M15.41 6.51l-6.82 3.98"/>
+          </svg>
+          <span>Partager</span>
+        </button>
+      </div>
+
+      <app-comment-section
+        [contentId]="article.id"
+        [commentCount]="article.commentCount">
+      </app-comment-section>
+
+    </article>
+
+    <aside class="article-sidebar">
+      <div class="sticky-sidebar">
+        <div class="sidebar-card summary-card">
+          <h3>📋 Résumé</h3>
+          <p>{{ article.summary }}</p>
+        </div>
+        <div class="sidebar-card back-card">
+          <a routerLink="/patient/education" class="back-link">
+            ← Retour à l'espace éducatif
+          </a>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<div class="detail-loading" *ngIf="isLoading">
+  <div class="spinner"></div>
+  <p>Chargement de l'article...</p>
+</div>

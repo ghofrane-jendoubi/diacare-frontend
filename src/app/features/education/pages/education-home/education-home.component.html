@@ -1,0 +1,193 @@
+<div class="education-container">
+
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span>🎓</span> Espace Éducatif DiaCare
+      </div>
+      <h1 class="hero-title">
+        Gérez votre diabète<br>
+        <span class="gradient-text">avec les bonnes informations</span>
+      </h1>
+      <p class="hero-subtitle">
+        Articles, vidéos et guides élaborés par nos médecins et nutritionnistes 
+        pour vous aider au quotidien.
+      </p>
+
+      <!-- Barre de recherche -->
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" placeholder="Rechercher un article, une vidéo..." 
+               [(ngModel)]="searchQuery" 
+               (keyup.enter)="onSearch()"
+               (input)="searchQuery.length === 0 && onSearch()">
+        <button (click)="onSearch()">Rechercher</button>
+      </div>
+
+      <!-- Stats rapides -->
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-num">{{ totalElements }}+</span>
+          <span class="stat-label">Ressources</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num">6</span>
+          <span class="stat-label">Catégories</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num">Expert</span>
+          <span class="stat-label">Validé médicalement</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="floating-card card-1">
+        <span>💊</span>
+        <div>
+          <strong>Médicaments</strong>
+          <p>Comprendre votre traitement</p>
+        </div>
+      </div>
+      <div class="floating-card card-2">
+        <span>🥗</span>
+        <div>
+          <strong>Nutrition</strong>
+          <p>Plans alimentaires adaptés</p>
+        </div>
+      </div>
+      <div class="floating-card card-3">
+        <span>📊</span>
+        <div>
+          <strong>Surveillance</strong>
+          <p>Suivre sa glycémie</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Articles Featured (Carrousel) -->
+  <section class="featured-section" *ngIf="featuredArticles.length > 0">
+    <div class="section-header">
+      <h2>⭐ À la une</h2>
+      <span class="section-badge">Sélection de l'équipe médicale</span>
+    </div>
+    <div class="featured-grid">
+      <app-article-card 
+        *ngFor="let article of featuredArticles.slice(0,3)" 
+        [article]="article"
+        class="featured-card">
+      </app-article-card>
+    </div>
+  </section>
+
+  <!-- Filtres par catégorie -->
+  <section class="categories-section">
+    <div class="categories-scroll">
+      <button class="category-pill" 
+              [class.active]="selectedCategory === ''"
+              (click)="onCategorySelect('')">
+        🌐 Tout voir
+      </button>
+      <button *ngFor="let cat of categories"
+              class="category-pill"
+              [class.active]="selectedCategory === cat.key"
+              (click)="onCategorySelect(cat.key)">
+        {{ cat.icon }} {{ cat.label }}
+      </button>
+    </div>
+  </section>
+
+  <!-- Contenu principal : Articles + Sidebar -->
+  <div class="main-layout">
+
+    <!-- Grille d'articles -->
+    <div class="articles-main">
+
+      <!-- État de chargement -->
+      <div class="loading-grid" *ngIf="isLoading">
+        <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6]"></div>
+      </div>
+
+      <!-- Résultat de recherche -->
+      <div class="search-info" *ngIf="!isLoading && searchQuery">
+        <strong>{{ totalElements }}</strong> résultats pour "{{ searchQuery }}"
+      </div>
+
+      <!-- Grille d'articles -->
+      <div class="articles-grid" *ngIf="!isLoading && articles.length > 0">
+        <app-article-card 
+          *ngFor="let article of articles" 
+          [article]="article">
+        </app-article-card>
+      </div>
+
+      <!-- Aucun résultat -->
+      <div class="empty-state" *ngIf="!isLoading && articles.length === 0">
+        <div class="empty-icon">🔍</div>
+        <h3>Aucun résultat trouvé</h3>
+        <p>Essayez d'autres mots-clés ou explorez une autre catégorie</p>
+        <button (click)="onCategorySelect('')">Voir tous les articles</button>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" *ngIf="totalPages > 1">
+        <button class="page-btn" [disabled]="currentPage === 0" 
+                (click)="onPageChange(currentPage - 1)">← Précédent</button>
+        <button *ngFor="let p of pages" class="page-num" 
+                [class.active]="p === currentPage"
+                (click)="onPageChange(p)">{{ p + 1 }}</button>
+        <button class="page-btn" [disabled]="currentPage === totalPages - 1"
+                (click)="onPageChange(currentPage + 1)">Suivant →</button>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+      <!-- Articles les plus vus -->
+      <div class="sidebar-widget">
+        <h3 class="widget-title">🔥 Les plus populaires</h3>
+        <div class="popular-list">
+          <div class="popular-item" *ngFor="let article of mostViewed; let i = index"
+               [routerLink]="['/patient/education/article', article.id]">
+            <span class="rank">{{ i + 1 }}</span>
+            <div class="popular-info">
+              <p class="popular-title">{{ article.title }}</p>
+              <span class="popular-meta">👁 {{ article.viewCount }} vues</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Raccourcis catégories -->
+      <div class="sidebar-widget">
+        <h3 class="widget-title">📂 Catégories</h3>
+        <div class="category-list">
+          <button *ngFor="let cat of categories"
+                  class="category-link"
+                  [class.active]="selectedCategory === cat.key"
+                  (click)="onCategorySelect(cat.key)">
+            <span>{{ cat.icon }} {{ cat.label }}</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Lien vers mes favoris -->
+      <div class="sidebar-widget bookmark-widget">
+        <div class="bookmark-icon">🔖</div>
+        <h3>Mes articles sauvegardés</h3>
+        <p>Retrouvez rapidement vos articles favoris</p>
+        <button routerLink="/patient/education/my-bookmarks">Voir mes favoris</button>
+      </div>
+    </aside>
+  </div>
+</div>

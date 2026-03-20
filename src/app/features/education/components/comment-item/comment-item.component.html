@@ -1,0 +1,35 @@
+<div class="comment-item">
+  <div class="comment-avatar">
+    {{ comment.userName ? comment.userName.charAt(0) : 'U' }}
+  </div>
+  <div class="comment-body">
+    <div class="comment-header">
+      <strong class="comment-author">{{ comment.userName || 'Patient' }}</strong>
+      <span class="comment-time">{{ timeAgo(comment.createdAt) }}</span>
+    </div>
+    <p class="comment-text">{{ comment.commentText }}</p>
+    <div class="comment-actions">
+      <button class="reply-btn" (click)="showReplyForm = !showReplyForm">
+        ↩ Répondre
+      </button>
+    </div>
+
+    <div class="reply-form" *ngIf="showReplyForm">
+      <textarea [(ngModel)]="replyText" placeholder="Votre réponse..." rows="2"></textarea>
+      <div class="reply-actions">
+        <button class="cancel-btn" (click)="showReplyForm = false">Annuler</button>
+        <button class="submit-reply-btn" (click)="submitReply()" [disabled]="!replyText.trim()">
+          Publier
+        </button>
+      </div>
+    </div>
+
+    <div class="replies" *ngIf="comment.replies && comment.replies.length > 0">
+      <app-comment-item
+        *ngFor="let reply of comment.replies"
+        [comment]="reply"
+        [contentId]="contentId">
+      </app-comment-item>
+    </div>
+  </div>
+</div>
