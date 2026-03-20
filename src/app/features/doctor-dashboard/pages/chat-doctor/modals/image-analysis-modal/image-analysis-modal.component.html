@@ -1,0 +1,77 @@
+<div class="modal-overlay" (click)="close()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <!-- En-tête -->
+    <div class="modal-header">
+      <h2>
+        <i class="bi bi-cpu"></i>
+        Analyse d'image - DiaCare AI
+      </h2>
+      <button class="close-btn" (click)="close()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <!-- Corps -->
+    <div class="modal-body">
+      <!-- Image -->
+      <div class="image-section">
+        <img [src]="getFullUrl(imageUrl)" alt="Image à analyser" class="analyze-image">
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-section" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <p>Analyse en cours par l'IA...</p>
+        <p class="small">Modèle Deep Learning DiaCare</p>
+      </div>
+
+      <!-- Résultat -->
+      <div class="result-section" *ngIf="analysisResult && !isLoading">
+        <div class="result-badge" [class.diabetes]="analysisResult.prediction === 'Diabetes'"
+                                    [class.non-diabetes]="analysisResult.prediction === 'NonDiabetes'">
+          <div class="result-icon">
+            <i class="bi" [ngClass]="analysisResult.prediction === 'Diabetes' ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'"></i>
+          </div>
+          <div class="result-text">
+            <h3>{{ analysisResult.prediction === 'Diabetes' ? 'Diabète détecté' : 'Non diabétique' }}</h3>
+            <p>Confiance : <strong>{{ analysisResult.confidence }}%</strong></p>
+          </div>
+        </div>
+
+        <!-- Barre de confiance -->
+        <div class="confidence-bar">
+          <div class="bar-label">
+            <span>Faible risque</span>
+            <span>Haut risque</span>
+          </div>
+          <div class="bar-container">
+            <div class="bar-fill" [style.width.%]="analysisResult.confidence"
+                 [class.diabetes-bar]="analysisResult.prediction === 'Diabetes'"
+                 [class.non-diabetes-bar]="analysisResult.prediction === 'NonDiabetes'">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Erreur -->
+      <div class="error-section" *ngIf="error && !isLoading">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <p>{{ error }}</p>
+        <button class="btn-retry" (click)="retryAnalysis()">
+          <i class="bi bi-arrow-repeat"></i> Réessayer
+        </button>
+      </div>
+    </div>
+
+    <!-- Pied -->
+    <div class="modal-footer" *ngIf="analysisResult && !isLoading">
+      <button class="btn-send-result" (click)="openSendModal()">
+        <i class="bi bi-send"></i>
+        Envoyer le résultat au patient
+      </button>
+      <button class="btn-close" (click)="close()">
+        Fermer
+      </button>
+    </div>
+  </div>
+</div>

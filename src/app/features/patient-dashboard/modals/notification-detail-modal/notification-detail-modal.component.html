@@ -1,0 +1,91 @@
+<div class="modal-overlay" (click)="close()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <!-- En-tête -->
+    <div class="modal-header">
+      <h2>
+        <i class="bi" [ngClass]="getIcon(notification.title)"></i>
+        Détails de la notification
+      </h2>
+      <button class="close-btn" (click)="close()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <!-- Corps -->
+    <div class="modal-body">
+      <div class="notification-detail">
+        <div class="detail-header">
+          <span class="badge" [ngClass]="{
+            'badge-info': notification.title.includes('Rendez-vous'),
+            'badge-success': notification.title.includes('Résultat'),
+            'badge-warning': notification.title.includes('Rappel')
+          }">
+            {{ notification.title }}
+          </span>
+          <span class="date">{{ formatFullDate(notification.createdAt) }}</span>
+        </div>
+
+        <div class="detail-message">
+          <i class="bi bi-chat-quote"></i>
+          <p>{{ notification.message }}</p>
+        </div>
+
+        <!-- Informations du rendez-vous (si c'est une notification de rendez-vous) -->
+        <div class="appointment-info" *ngIf="notification.title.includes('Rendez-vous')">
+          <h3>Informations du rendez-vous</h3>
+          
+          <div class="info-grid">
+            <div class="info-item">
+              <i class="bi bi-calendar"></i>
+              <div>
+                <small>Date</small>
+                <strong>{{ extractAppointmentInfo(notification.message).date }}</strong>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <i class="bi bi-clock"></i>
+              <div>
+                <small>Heure</small>
+                <strong>{{ extractAppointmentInfo(notification.message).time }}</strong>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <i class="bi bi-person"></i>
+              <div>
+                <small>Médecin</small>
+                <strong>Dr. Karim El Fassi</strong>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <i class="bi bi-camera-video"></i>
+              <div>
+                <small>Type</small>
+                <strong>Consultation en ligne</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lien Google Meet -->
+          <div class="meet-link" *ngIf="notification.link === '/patient/appointments'">
+            <i class="bi bi-google"></i>
+            <span>https://meet.google.com/xxx-xxxx-xxx</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pied avec bouton Payer -->
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="close()">
+        Fermer
+      </button>
+      <button class="btn-primary" (click)="onPay()" *ngIf="notification.title.includes('Rendez-vous')">
+        <i class="bi bi-credit-card"></i>
+        Payer la consultation
+      </button>
+    </div>
+  </div>
+</div>

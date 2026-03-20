@@ -21,6 +21,7 @@ import { DoctorTopbarComponent } from './components/doctor-topbar/doctor-topbar.
 // Composants réutilisables publics
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { FooterComponent } from './components/footer/footer.component';
+import { PatientLayoutComponent } from './components/patient-layout/patient-layout.component';
 
 @NgModule({
   declarations: [
@@ -38,7 +39,8 @@ import { FooterComponent } from './components/footer/footer.component';
     DoctorTopbarComponent,
     // Public
     NavbarComponent,
-    FooterComponent
+    FooterComponent,
+    PatientLayoutComponent
   ],
   imports: [
     CommonModule,

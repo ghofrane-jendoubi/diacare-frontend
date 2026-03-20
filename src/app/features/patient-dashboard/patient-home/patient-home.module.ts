@@ -3,16 +3,14 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 import { PatientHomeComponent } from './patient-home.component';
-import { PatientHomeRoutingModule } from './patient-home-routing.module';
-import { SharedModule } from '../../shared/shared.module';
+import { SharedModule } from '../../../shared/shared.module';
 
 @NgModule({
   declarations: [PatientHomeComponent],
   imports: [
     CommonModule,
     RouterModule,
-    PatientHomeRoutingModule,
-    SharedModule
+    SharedModule  
   ]
 })
 export class PatientHomeModule { }

@@ -1,0 +1,157 @@
+<div class="chat-container">
+  <!-- En-tête du chat -->
+  <div class="chat-header" *ngIf="patient">
+    <button class="back-btn" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i>
+    </button>
+    <div class="patient-info">
+      <img [src]="getFullUrl(patient.profilePicture) || 'assets/images/default-patient.png'" 
+           alt="{{ patient.firstName }} {{ patient.lastName }}"
+           class="patient-avatar"
+           (error)="onImageError($event)">
+      <div class="patient-details">
+        <h3>{{ patient.firstName }} {{ patient.lastName }}</h3>
+        <p *ngIf="patient.diabetesType">Diabète {{ patient.diabetesType }}</p>
+        <p *ngIf="!patient.diabetesType">Patient</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="messages" #messagesContainer>
+    <div *ngIf="loading" class="loading">Chargement des messages...</div>
+    
+    <div *ngFor="let message of messages" 
+         class="message"
+         [class.my-message]="message.sender.id === currentDoctorId"
+         [class.their-message]="message.sender.id !== currentDoctorId">
+      
+      <div class="message-bubble">
+        <!-- Message texte -->
+        <div class="message-content" *ngIf="message.content">{{ message.content }}</div>
+        
+        <!-- Image envoyée -->
+        <div class="message-image" *ngIf="message.imageUrl">
+          <img [src]="getFullUrl(message.imageUrl)" 
+               alt="Image médicale" 
+               class="chat-image"
+               (click)="openImage(getFullUrl(message.imageUrl))"
+               (error)="onImageError($event)">
+          <button class="analyze-btn" (click)="analyzeImage(message.imageUrl)">
+            <i class="bi bi-cpu"></i> Analyser
+          </button>
+        </div>
+        
+        <!-- Audio message -->
+        <div class="message-audio" *ngIf="message.audioUrl">
+          <audio controls preload="metadata">
+            <source [src]="getFullUrl(message.audioUrl)" type="audio/webm">
+            <source [src]="getFullUrl(message.audioUrl)" type="audio/ogg">
+            Votre navigateur ne supporte pas l'audio.
+          </audio>
+          <span *ngIf="message.audioDuration" class="audio-duration">
+            {{ formatDuration(message.audioDuration) }}
+          </span>
+        </div>
+        
+        <div class="message-footer">
+          <span class="message-time">{{ formatTime(message.sentAt) }}</span>
+          <span class="message-status" *ngIf="message.sender.id === currentDoctorId">
+            <i *ngIf="message.seen" class="bi bi-check-all" title="Vu"></i>
+            <i *ngIf="!message.seen && message.delivered" class="bi bi-check" title="Livré"></i>
+            <i *ngIf="!message.delivered" class="bi bi-check" title="Envoyé"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="messages.length === 0 && !loading" class="no-messages">
+      <p>Aucun message. Commencez la conversation avec le patient !</p>
+    </div>
+  </div>
+
+  <!-- Zone de saisie avec options -->
+  <div class="message-input-area">
+    <!-- Bouton pour image -->
+    <button class="attach-btn" (click)="fileInput.click()" title="Joindre une image">
+      <i class="bi bi-image"></i>
+    </button>
+    <input #fileInput type="file" accept="image/*" (change)="onImageSelected($event)" style="display: none;">
+    
+    <!-- Bouton pour audio -->
+    <button class="attach-btn" (click)="startRecording()" *ngIf="!isRecording && !recordedAudio" title="Enregistrer un message vocal">
+      <i class="bi bi-mic"></i>
+    </button>
+    <button class="attach-btn recording" (click)="stopRecording()" *ngIf="isRecording" title="Arrêter l'enregistrement">
+      <i class="bi bi-stop-circle"></i>
+    </button>
+    
+    <input type="text" 
+           [(ngModel)]="newMessage" 
+           (keyup.enter)="sendMessage()"
+           placeholder="Écrivez votre message..."
+           class="message-input"
+           [disabled]="isRecording">
+    
+    <button class="send-btn" (click)="sendMessage()" 
+            [disabled]="(!newMessage.trim() && !selectedImage && !recordedAudio) || isRecording">
+      <i class="bi bi-send"></i>
+    </button>
+  </div>
+
+  <!-- Aperçu de l'image sélectionnée -->
+  <div class="file-preview" *ngIf="selectedImage">
+    <div class="preview-content">
+      <img [src]="imagePreview" alt="Aperçu">
+      <span class="file-name">{{ selectedImage.name }}</span>
+      <button class="remove-file" (click)="cancelImage()">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+  </div>
+  <!-- Modals -->
+<app-image-analysis-modal 
+  *ngIf="showAnalysisModal"
+  [imageUrl]="selectedImageForAnalysis"
+  [patientId]="patientId"
+  (closeModal)="showAnalysisModal = false"
+  (sendResult)="onAnalysisComplete($event)">
+</app-image-analysis-modal>
+
+<app-send-result-modal
+  *ngIf="showSendModal"
+  [analysisData]="analysisResultData"
+  [doctorId]="currentDoctorId"
+  (closeModal)="showSendModal = false"
+  (resultSent)="onResultSent($event)">
+</app-send-result-modal>
+
+
+  <!-- Statut d'enregistrement audio -->
+  <div class="recording-status" *ngIf="isRecording">
+    <div class="recording-indicator">
+      <span class="recording-dot"></span>
+      <span>Enregistrement en cours...</span>
+    </div>
+    <div class="recording-controls">
+      <button class="btn-stop-recording" (click)="stopRecording()">
+        <i class="bi bi-stop-circle"></i> Arrêter
+      </button>
+      <button class="btn-cancel-recording" (click)="cancelRecording()">
+        <i class="bi bi-x-circle"></i> Annuler
+      </button>
+    </div>
+  </div>
+
+  <!-- Message audio enregistré -->
+  <div class="audio-preview" *ngIf="recordedAudio && !isRecording">
+    <div class="preview-content">
+      <i class="bi bi-mic"></i>
+      <span>Message vocal ({{ formatDuration(audioDuration) }})</span>
+      <button class="remove-file" (click)="cancelAudio()">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+  </div>
+  
+</div>

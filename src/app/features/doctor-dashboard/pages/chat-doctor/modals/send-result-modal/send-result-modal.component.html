@@ -1,0 +1,64 @@
+<div class="modal-overlay" (click)="close()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <!-- En-tête -->
+    <div class="modal-header">
+      <h2>
+        <i class="bi bi-send"></i>
+        Envoyer le résultat au patient
+      </h2>
+      <button class="close-btn" (click)="close()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <!-- Corps -->
+    <div class="modal-body">
+      <!-- Résumé de l'analyse -->
+      <div class="analysis-summary">
+        <div class="result-badge" [class.diabetes]="analysisData.result.prediction === 'Diabetes'"
+                                    [class.non-diabetes]="analysisData.result.prediction === 'NonDiabetes'">
+          <div class="result-icon">
+            <i class="bi" [ngClass]="analysisData.result.prediction === 'Diabetes' ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'"></i>
+          </div>
+          <div>
+            <h4>{{ analysisData.result.prediction === 'Diabetes' ? 'Diabète détecté' : 'Non diabétique' }}</h4>
+            <p>Confiance: <strong>{{ analysisData.result.confidence }}%</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulaire -->
+      <form>
+        <div class="form-group">
+          <label>Message au patient</label>
+          <textarea [(ngModel)]="responseData.message" name="message" rows="3"
+                    placeholder="Expliquez le résultat au patient..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Recommandations / Ordonnance</label>
+          <textarea [(ngModel)]="responseData.prescription" name="prescription" rows="4"
+                    placeholder="Prescriptions, conseils, suivi..."></textarea>
+        </div>
+
+        <div class="form-group checkbox">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="responseData.includeImage" name="includeImage">
+            <span>Inclure l'image analysée dans le message</span>
+          </label>
+        </div>
+      </form>
+    </div>
+
+    <!-- Pied -->
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" (click)="close()">
+        Annuler
+      </button>
+      <button type="button" class="btn-send" (click)="sendResponse()" [disabled]="isSending">
+        <i class="bi" [ngClass]="isSending ? 'bi-hourglass-split' : 'bi-send'"></i>
+        {{ isSending ? 'Envoi...' : 'Envoyer au patient' }}
+      </button>
+    </div>
+  </div>
+</div>

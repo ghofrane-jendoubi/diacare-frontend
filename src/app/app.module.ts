@@ -2,20 +2,16 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-
+import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-
-
 import { HomeComponent } from './features/home/home.component';
-import { TestUsersComponent } from './test-users/test-users.component';
-import { HttpClientModule } from '@angular/common/http';
+import { AppointmentsComponent } from './features/doctor-dashboard/pages/appointments/appointments.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent,
-    TestUsersComponent 
+    HomeComponent
   ],
   imports: [
     BrowserModule,

@@ -13,16 +13,18 @@
     <ul class="nav-links">
       <ng-container *ngFor="let item of menuItems">
         <li>
-          <a [href]="item.link" 
-             [class.active]="activeSection === item.id"
-             (click)="scrollTo(item.id, $event)">
-            {{ item.label }}
-          </a>
+          <a [routerLink]="item.link" 
+   [class.active]="activeSection === item.id"
+   routerLinkActive="active"
+   (click)="closeMobileMenu()">
+  <i *ngIf="item.icon" [class]="item.icon"></i>
+  {{ item.label }}
+</a>
         </li>
       </ng-container>
     </ul>
 
-    <!-- Profil utilisateur -->
+    <!-- Profil utilisateur avec notifications -->
     <div class="nav-actions">
       <ng-container *ngIf="!isLoggedIn; else userMenu">
         <a routerLink="/login" class="btn btn-outline-primary">Se connecter</a>
@@ -30,20 +32,66 @@
       </ng-container>
       
       <ng-template #userMenu>
+        <!-- Icône de notifications -->
+        <div class="notifications-dropdown">
+          <button class="notification-icon" (click)="toggleNotifications()">
+            <i class="bi bi-bell"></i>
+            <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+          </button>
+          
+          <div class="notifications-menu" [class.show]="showNotifications">
+            <div class="notifications-header">
+              <h4>Notifications</h4>
+              <button *ngIf="notifications.length > 0" class="mark-read" (click)="markAllAsRead()">
+                Tout marquer comme lu
+              </button>
+            </div>
+            
+            <div class="notifications-list">
+              <div *ngFor="let notif of notifications" 
+                   class="notification-item"
+                   [class.unread]="!notif.read"
+                   (click)="openNotification(notif)">
+                <div class="notification-icon">
+                  <i class="bi" [ngClass]="getNotificationIcon(notif.title)"></i>
+                </div>
+                <div class="notification-content">
+                  <h5>{{ notif.title }}</h5>
+                  <p>{{ notif.message }}</p>
+                  <small>{{ formatTime(notif.createdAt) }}</small>
+                </div>
+                <button *ngIf="!notif.read" class="mark-read-btn" (click)="markAsRead(notif.id, $event)">
+                  <i class="bi bi-check"></i>
+                </button>
+              </div>
+              
+              <div *ngIf="notifications.length === 0" class="no-notifications">
+                <i class="bi bi-bell-slash"></i>
+                <p>Aucune notification</p>
+              </div>
+            </div>
+            
+            <div class="notifications-footer">
+              <a routerLink="/patient/notifications">Voir toutes les notifications</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Menu utilisateur -->
         <div class="user-menu">
           <button class="user-button" (click)="toggleUserMenu()">
             <div class="user-avatar">
-              <span>SM</span>
+              <span>{{ userInitials }}</span>
             </div>
-            <span class="user-name">Sophie Martin</span>
+            <span class="user-name">{{ userName }}</span>
             <i class="bi bi-chevron-down" [class.rotated]="isUserMenuOpen"></i>
           </button>
           
           <div class="dropdown-menu" [class.show]="isUserMenuOpen">
             <div class="dropdown-header">
               <div class="dropdown-user-info">
-                <strong>Sophie Martin</strong>
-                <span>sophie.m&#64;example.com</span>
+                <strong>{{ userName }}</strong>
+                <span>{{ userEmail }}</span>
               </div>
             </div>
             
@@ -76,13 +124,32 @@
     </button>
   </div>
 
-  <!-- Menu Mobile -->
+  <!-- Menu Mobile avec notifications -->
   <div class="mobile-menu" [class.open]="isMobileMenuOpen">
     <ng-container *ngFor="let item of menuItems">
       <a [href]="item.link" class="mobile-link" (click)="scrollTo(item.id, $event)">
         {{ item.label }}
       </a>
     </ng-container>
+    
+    <div class="mobile-notifications" *ngIf="isLoggedIn">
+      <div class="mobile-notifications-header">
+        <h4>Notifications</h4>
+        <span class="mobile-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      </div>
+      <div class="mobile-notifications-list">
+        <div *ngFor="let notif of notifications.slice(0, 3)" 
+             class="mobile-notification-item"
+             (click)="openNotification(notif)">
+          <i class="bi" [ngClass]="getNotificationIcon(notif.title)"></i>
+          <div>
+            <p>{{ notif.message | slice:0:50 }}...</p>
+            <small>{{ formatTime(notif.createdAt) }}</small>
+          </div>
+        </div>
+        <a routerLink="/notifications" class="mobile-view-all">Voir tout</a>
+      </div>
+    </div>
     
     <div class="mobile-buttons">
       <ng-container *ngIf="!isLoggedIn; else mobileUserMenu">
@@ -92,10 +159,10 @@
       
       <ng-template #mobileUserMenu>
         <div class="mobile-user-header">
-          <div class="mobile-user-avatar">SM</div>
+          <div class="mobile-user-avatar">{{ userInitials }}</div>
           <div class="mobile-user-info">
-            <strong>Sophie Martin</strong>
-            <span>sophie.m&#64;example.com</span>
+            <strong>{{ userName }}</strong>
+            <span>{{ userEmail }}</span>
           </div>
         </div>
         <a routerLink="/profile" class="btn btn-outline-primary w-100 mb-2">Mon profil</a>

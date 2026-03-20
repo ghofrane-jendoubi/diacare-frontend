@@ -1,0 +1,13 @@
+<app-navbar 
+  [menuItems]="patientMenuItems" 
+  [isLoggedIn]="true"
+  [userId]="1"
+  userName="Sophie Martin"
+  userEmail="sophie.m@example.com"
+  >
+</app-navbar>
+<div class="patient-content">
+  <router-outlet></router-outlet>
+</div>
+
+<app-footer></app-footer>

@@ -1,7 +1,4 @@
-<!-- Navbar spécifique patient avec menu adapté -->
-<app-navbar [menuItems]="patientMenuItems" [isLoggedIn]="true"></app-navbar>
-
-<!-- HERO SECTION (identique à la home) -->
+<!-- HERO SECTION -->
 <section id="accueil" class="hero" [style.backgroundImage]="'url(' + heroImage + ')'">
   <div class="hero-overlay"></div>
   <div class="hero-container">
@@ -79,7 +76,7 @@
           <li><i class="bi bi-check-circle-fill"></i> Médecins spécialistes</li>
           <li><i class="bi bi-check-circle-fill"></i> Ordonnances en ligne</li>
         </ul>
-        <a routerLink="/medecins" class="service-link">Voir les médecins →</a>
+        <a routerLink="/doctors" class="service-link">Voir les médecins →</a>
       </div>
 
       <!-- Nutrition -->
@@ -324,7 +321,3 @@
     </div>
   </div>
 </section>
-
-
-<!-- FOOTER -->
-<app-footer></app-footer>

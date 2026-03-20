@@ -1,0 +1,42 @@
+
+<!-- Contenu de la page -->
+<div class="doctors-container">
+  <div class="page-header">
+    <h1>Nos médecins spécialistes</h1>
+    <p>Choisissez un médecin pour commencer une consultation</p>
+  </div>
+
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Chargement des médecins...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && doctors.length === 0" class="no-doctors">
+    <p>Aucun médecin disponible pour le moment.</p>
+  </div>
+
+  <div class="doctors-grid" *ngIf="!loading && doctors.length > 0">
+    <div class="doctor-card" *ngFor="let doctor of doctors">
+      <div class="doctor-image">
+        <img [src]="doctor.profilePicture || 'assets/images/default-doctor.png'" 
+             alt="{{ doctor.firstName }} {{ doctor.lastName }}">
+        <div class="verified-badge" *ngIf="doctor.verified" title="Médecin certifié">✓</div>
+      </div>
+      
+      <div class="doctor-info">
+        <h3>Dr. {{ doctor.firstName }} {{ doctor.lastName }}</h3>
+        <p class="speciality">{{ getSpecialityLabel(doctor.speciality) }}</p>
+        <p class="fee">{{ doctor.consultationFee }} TND / consultation</p>
+      </div>
+
+      <button class="btn-contact" (click)="startConversation(doctor.id)">
+        <i class="bi bi-chat-dots"></i> Contacter
+      </button>
+    </div>
+  </div>
+</div>
+
