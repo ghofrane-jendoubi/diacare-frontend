@@ -5,10 +5,12 @@ import { RouterModule } from '@angular/router';
 
 import { NutritionnistDashboardComponent } from './nutritionnist-dashboard.component';
 import { NutritionnistDashboardRoutingModule } from './nutritionnist-dashboard-routing.module';
+import { PlanCreateComponent } from './pages/plan-create/plan-create.component';
 
 @NgModule({
   declarations: [
-    NutritionnistDashboardComponent
+    NutritionnistDashboardComponent,
+    PlanCreateComponent
   ],
   imports: [
     CommonModule,

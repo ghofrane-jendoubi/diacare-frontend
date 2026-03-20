@@ -1,0 +1,91 @@
+<!-- diet-plan-view.component.html -->
+<div class="plans-wrapper">
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div>
+      <h1><i class="bi bi-journal-text"></i> Mes plans alimentaires</h1>
+      <p>Plans personnalisés créés par votre nutritionniste</p>
+    </div>
+    <a routerLink="/patient/nutrition" class="btn-chat">
+      <i class="bi bi-cpu-fill"></i> Analyser un repas
+    </a>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner-border text-success"></div>
+    <p>Chargement de vos plans...</p>
+  </div>
+
+  <!-- Error -->
+  <div class="alert-error" *ngIf="error && !isLoading">
+    <i class="bi bi-exclamation-circle"></i> {{ error }}
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="!isLoading && plans.length === 0">
+    <i class="bi bi-journal-x"></i>
+    <h3>Aucun plan alimentaire</h3>
+    <p>Votre nutritionniste n'a pas encore créé de plan pour vous.</p>
+    <p>Utilisez l'analyse IA pour journaliser vos repas en attendant.</p>
+    <a routerLink="/patient/nutrition" class="btn-primary-green">Analyser un repas</a>
+  </div>
+
+  <!-- Plans layout -->
+  <div class="plans-layout" *ngIf="!isLoading && plans.length > 0">
+
+    <!-- Plans list sidebar -->
+    <div class="plans-list">
+      <h3 class="list-title">{{ plans.length }} plan(s)</h3>
+      <div class="plan-card-mini"
+           *ngFor="let plan of plans"
+           [class.active]="selectedPlan?.id === plan.id"
+           (click)="selectPlan(plan)">
+        <div class="plan-mini-icon">
+          <i class="bi bi-clipboard2-heart-fill"></i>
+        </div>
+        <div>
+          <div class="plan-mini-title">{{ plan.title }}</div>
+          <div class="plan-mini-meta">{{ plan.meals?.length || 0 }} repas · {{ plan.createdAt | date:'dd/MM/yyyy' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plan detail -->
+    <div class="plan-detail" *ngIf="selectedPlan">
+      <div class="detail-header">
+        <div>
+          <h2>{{ selectedPlan.title }}</h2>
+          <p class="detail-desc">{{ selectedPlan.description }}</p>
+        </div>
+        <div class="detail-meta">
+          <span><i class="bi bi-calendar3"></i> {{ selectedPlan.createdAt | date:'dd MMM yyyy' }}</span>
+          <span><i class="bi bi-egg-fried"></i> {{ selectedPlan.meals?.length || 0 }} repas</span>
+        </div>
+      </div>
+
+      <!-- Meals by type -->
+      <div class="meals-day">
+        <ng-container *ngFor="let type of mealOrder">
+          <div class="meal-section" *ngIf="hasMealsOfType(selectedPlan, type)">
+            <div class="meal-section-header">
+              <span class="meal-type-label">{{ getMealTypeLabel(type) }}</span>
+            </div>
+            <div class="meal-item" *ngFor="let meal of getMealsByType(selectedPlan, type)">
+              <div class="meal-food">{{ meal.food }}</div>
+              <div class="meal-cals" *ngIf="meal.calories">{{ meal.calories }} kcal</div>
+              <div class="meal-notes" *ngIf="meal.notes">{{ meal.notes }}</div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- No meals -->
+      <div class="no-meals" *ngIf="!selectedPlan.meals || selectedPlan.meals.length === 0">
+        <i class="bi bi-egg-fried"></i>
+        <p>Ce plan ne contient pas encore de repas.</p>
+      </div>
+    </div>
+  </div>
+</div>

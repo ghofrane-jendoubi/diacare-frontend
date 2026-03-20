@@ -1,0 +1,231 @@
+/* diet-plan-view.component.css */
+
+.plans-wrapper {
+  padding: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+
+.page-header h1 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #065f46;
+  margin-bottom: 4px;
+}
+
+.page-header p { font-size: 14px; color: #6b7280; margin: 0; }
+
+.btn-chat {
+  padding: 10px 20px;
+  background: #10b981;
+  color: white;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s;
+}
+
+.btn-chat:hover { background: #059669; color: white; }
+
+.loading-state {
+  text-align: center;
+  padding: 60px;
+  color: #6b7280;
+}
+
+.alert-error {
+  padding: 14px 18px;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+  color: #991b1b;
+  font-size: 14px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 40px;
+  color: #9ca3af;
+}
+
+.empty-state i { font-size: 48px; display: block; margin-bottom: 16px; color: #d1fae5; }
+.empty-state h3 { color: #374151; margin-bottom: 8px; }
+.empty-state p { font-size: 14px; margin-bottom: 6px; }
+
+.btn-primary-green {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 10px 24px;
+  background: #10b981;
+  color: white;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+/* Plans layout */
+.plans-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* Sidebar */
+.plans-list {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #d1fae5;
+}
+
+.list-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.plan-card-mini {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-bottom: 4px;
+}
+
+.plan-card-mini:hover { background: #f0fdf4; }
+.plan-card-mini.active { background: #d1fae5; }
+
+.plan-mini-icon {
+  width: 36px;
+  height: 36px;
+  background: #ecfdf5;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #10b981;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.plan-card-mini.active .plan-mini-icon {
+  background: #10b981;
+  color: white;
+}
+
+.plan-mini-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+  margin-bottom: 2px;
+}
+
+.plan-mini-meta { font-size: 12px; color: #9ca3af; }
+
+/* Detail panel */
+.plan-detail {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #d1fae5;
+  overflow: hidden;
+}
+
+.detail-header {
+  padding: 20px 24px;
+  background: #ecfdf5;
+  border-bottom: 1px solid #d1fae5;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.detail-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #065f46;
+  margin-bottom: 4px;
+}
+
+.detail-desc { font-size: 14px; color: #374151; margin: 0; }
+
+.detail-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: right;
+}
+
+.detail-meta span { font-size: 12px; color: #6b7280; }
+.detail-meta i { margin-right: 4px; color: #10b981; }
+
+/* Meals */
+.meals-day { padding: 20px 24px; }
+
+.meal-section { margin-bottom: 24px; }
+
+.meal-section-header {
+  margin-bottom: 10px;
+}
+
+.meal-type-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #065f46;
+  background: #ecfdf5;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.meal-item {
+  padding: 10px 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  border-left: 3px solid #10b981;
+}
+
+.meal-food {
+  font-size: 14px;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.meal-cals {
+  font-size: 12px;
+  color: #10b981;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.meal-notes {
+  font-size: 12px;
+  color: #6b7280;
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.no-meals {
+  text-align: center;
+  padding: 40px;
+  color: #9ca3af;
+}
+
+.no-meals i { font-size: 32px; display: block; margin-bottom: 8px; }
+.no-meals p { font-size: 14px; margin: 0; }

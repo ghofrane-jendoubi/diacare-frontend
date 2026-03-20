@@ -12,11 +12,12 @@ const routes: Routes = [
   { path: '', component: HomeComponent },
   
   // Espace patient
-  { 
-    path: 'patient', 
-    loadChildren: () => import('./features/patient-home/patient-home.module').then(m => m.PatientHomeModule)
+  {
+    path: 'patient',
+    loadChildren: () =>
+      import('./features/patient-dashboard/patient-dashboard.module')
+        .then(m => m.PatientDashboardModule)
   },
-  
   // Espace admin (avec layout)
   { 
     path: 'admin', 
@@ -44,6 +45,13 @@ const routes: Routes = [
     ]
   },
   { path: 'test-users', component: TestUsersComponent },
+
+  {
+    path: 'dashboard',
+    loadChildren: () =>
+      import('./features/patient-dashboard/patient-dashboard.module')
+        .then(m => m.PatientDashboardModule)
+  },
   
   // Redirection pour les routes non trouvées
   { path: '**', redirectTo: '' }
