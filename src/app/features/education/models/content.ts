@@ -18,13 +18,14 @@ export interface ContentSummary {
   createdAt: string;
   isLiked: boolean;
   isBookmarked: boolean;
+  isPublished?: boolean;
 }
 
 export interface ContentDetail extends ContentSummary {
   subtitle: string;
   content: string;
   videoUrl: string;
-  comments: EducationComment[];   // ← EducationComment au lieu de Comment
+  comments: EducationComment[];
 }
 
 export type ContentCategory =

@@ -1,10 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-doctor-sidebar',
   templateUrl: './doctor-sidebar.component.html',
-  styleUrl: './doctor-sidebar.component.css'
+  styleUrls: ['./doctor-sidebar.component.css']
 })
-export class DoctorSidebarComponent {
+export class DoctorSidebarComponent implements OnInit {
 
+  unreadMessages = 0;
+
+  ngOnInit() {
+    // Tu pourras connecter ça au service plus tard
+    this.unreadMessages = 0;
+  }
 }

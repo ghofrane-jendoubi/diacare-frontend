@@ -20,11 +20,13 @@
     </div>
   </div>
 
-  <!-- Menu Principal - avec hauteur calculée pour laisser place au footer -->
+  <!-- Menu Principal -->
   <div class="menu-wrapper">
     <ul class="nav flex-column px-3">
+
       <li class="nav-item mb-2">
-        <a routerLink="/doctor" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="nav-link text-white">
+        <a routerLink="/doctor" routerLinkActive="active"
+           [routerLinkActiveOptions]="{exact:true}" class="nav-link text-white">
           <i class="bi bi-speedometer2 me-3"></i>
           <span>Dashboard</span>
         </a>
@@ -62,7 +64,54 @@
         </a>
       </li>
 
-      <li class="nav-item mt-4">
+      <!-- SÉPARATEUR ESPACE ÉDUCATIF -->
+      <li class="nav-item mt-3 mb-1">
+        <hr class="bg-white opacity-25 mb-2">
+        <small class="text-white-50 px-1"
+               style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px;">
+          🎓 Espace Éducatif
+        </small>
+      </li>
+
+      <li class="nav-item mb-2">
+        <a routerLink="/doctor/education"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{exact:true}"
+           class="nav-link text-white">
+          <i class="bi bi-journal-richtext me-3"></i>
+          <span>Mes Publications</span>
+        </a>
+      </li>
+
+      <li class="nav-item mb-2">
+        <a routerLink="/doctor/education/new"
+           routerLinkActive="active"
+           class="nav-link text-white">
+          <i class="bi bi-plus-circle me-3"></i>
+          <span>Nouvel Article</span>
+        </a>
+      </li>
+
+      <li class="nav-item mb-2">
+        <a routerLink="/doctor/education/comments"
+           routerLinkActive="active"
+           class="nav-link text-white">
+          <i class="bi bi-chat-left-text me-3"></i>
+          <span>Commentaires</span>
+        </a>
+      </li>
+
+      <li class="nav-item mb-2">
+        <a routerLink="/doctor/education/messages"
+           routerLinkActive="active"
+           class="nav-link text-white">
+          <i class="bi bi-envelope me-3"></i>
+          <span>Messages Privés</span>
+        </a>
+      </li>
+
+      <!-- SÉPARATEUR -->
+      <li class="nav-item mt-3">
         <hr class="bg-white opacity-25">
       </li>
 
@@ -75,22 +124,15 @@
 
       <li class="nav-item mb-2">
         <a class="nav-link text-white-50" style="cursor: not-allowed;">
-          <i class="bi bi-envelope me-3"></i>
-          <span>Messages</span>
-          <span class="badge bg-danger ms-2">5</span>
-        </a>
-      </li>
-
-      <li class="nav-item mb-2">
-        <a class="nav-link text-white-50" style="cursor: not-allowed;">
           <i class="bi bi-geo-alt me-3"></i>
           <span>Visites à domicile</span>
         </a>
       </li>
+
     </ul>
   </div>
 
-  <!-- Footer avec Déconnexion - maintenant en bas de la sidebar -->
+  <!-- Footer -->
   <div class="sidebar-footer">
     <hr class="bg-white opacity-25 mx-3">
     <div class="px-3 py-3">

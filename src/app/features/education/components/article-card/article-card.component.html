@@ -1,83 +1,71 @@
 <div class="article-card" (click)="openDetail()">
 
-  <div class="card-badge" [class]="article.contentType.toLowerCase()">
-    <span *ngIf="article.contentType === 'VIDEO'">▶ Vidéo</span>
-    <span *ngIf="article.contentType === 'ARTICLE'">📄 Article</span>
-    <span *ngIf="article.contentType === 'INFOGRAPHIC'">📊 Infographie</span>
-    <span *ngIf="article.contentType === 'QUIZ'">❓ Quiz</span>
-  </div>
-
-  <div class="card-image">
+  <div class="card-img">
     <img [src]="article.thumbnailUrl || 'assets/education/default-thumb.jpg'"
          [alt]="article.title" loading="lazy">
-    <div class="card-overlay">
-      <span class="category-tag">
-        {{ categoryIcons[article.category] }} {{ categoryLabels[article.category] }}
-      </span>
-    </div>
+    <span class="badge-type" [class]="article.contentType.toLowerCase()">
+      <span *ngIf="article.contentType === 'ARTICLE'">📄 Article</span>
+      <span *ngIf="article.contentType === 'VIDEO'">▶ Vidéo</span>
+      <span *ngIf="article.contentType === 'INFOGRAPHIC'">📊 Infographie</span>
+      <span *ngIf="article.contentType === 'QUIZ'">❓ Quiz</span>
+    </span>
+    <span class="cat-pill">
+      {{ categoryIcons[article.category] }} {{ categoryLabels[article.category] }}
+    </span>
   </div>
 
   <div class="card-body">
     <h3 class="card-title">{{ article.title }}</h3>
     <p class="card-summary">{{ article.summary }}</p>
-
     <div class="card-tags" *ngIf="article.tags">
       <span class="tag" *ngFor="let tag of article.tags.split(',').slice(0,3)">
         #{{ tag.trim() }}
       </span>
     </div>
-
-    <div class="difficulty-badge"
-         [style.background-color]="getDifficultyColor() + '20'"
-         [style.color]="getDifficultyColor()">
+    <span class="diff-badge" [class]="article.difficultyLevel.toLowerCase()">
       {{ difficultyLabels[article.difficultyLevel] }}
-    </div>
+    </span>
   </div>
 
-  <div class="card-footer">
-    <div class="meta-info">
-      <span class="meta-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+  <div class="card-stats">
+    <div class="stats-row">
+      <span class="stat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
           <circle cx="12" cy="12" r="3"/>
         </svg>
-        {{ formatCount(article.viewCount) }}
+        <span class="stat-val">{{ formatCount(article.viewCount) }}</span>
       </span>
-      <span class="meta-item reading-time">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <span class="stat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"/>
           <polyline points="12 6 12 12 16 14"/>
         </svg>
-        {{ article.readingTime }} min
+        <span class="stat-val">{{ article.readingTime }} min</span>
       </span>
-      <span class="meta-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <span class="stat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
-        {{ formatCount(article.commentCount) }}
+        <span class="stat-val">{{ formatCount(article.commentCount) }}</span>
       </span>
     </div>
 
     <div class="card-actions">
-      <button class="action-btn like-btn"
-              [class.active]="article.isLiked"
-              (click)="onLike($event)"
-              [title]="article.isLiked ? 'Je n aime plus' : 'J aime'">
-        <svg viewBox="0 0 24 24"
-             [attr.fill]="article.isLiked ? 'currentColor' : 'none'"
-             stroke="currentColor">
+      <button class="action-btn"
+              [class.liked]="article.isLiked"
+              (click)="onLike($event)">
+        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+             [attr.fill]="article.isLiked ? 'currentColor' : 'none'">
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
         </svg>
-        <span>{{ formatCount(article.likeCount) }}</span>
+        {{ formatCount(article.likeCount) }}
       </button>
-
-      <button class="action-btn bookmark-btn"
-              [class.active]="article.isBookmarked"
-              (click)="onBookmark($event)"
-              [title]="article.isBookmarked ? 'Retirer des favoris' : 'Ajouter aux favoris'">
-        <svg viewBox="0 0 24 24"
-             [attr.fill]="article.isBookmarked ? 'currentColor' : 'none'"
-             stroke="currentColor">
+      <button class="action-btn"
+              [class.saved]="article.isBookmarked"
+              (click)="onBookmark($event)">
+        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+             [attr.fill]="article.isBookmarked ? 'currentColor' : 'none'">
           <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
         </svg>
       </button>

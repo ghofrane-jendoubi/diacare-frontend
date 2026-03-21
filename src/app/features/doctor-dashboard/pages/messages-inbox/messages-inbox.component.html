@@ -1,0 +1,85 @@
+<div class="inbox-container">
+
+  <div class="page-header">
+    <button class="btn-back" routerLink="/doctor/education">← Retour</button>
+    <h1>✉️ Messages privés</h1>
+    <span class="unread-badge" *ngIf="unreadCount > 0">
+      {{ unreadCount }} non lu(s)
+    </span>
+  </div>
+
+  <div class="inbox-layout">
+
+    <!-- Liste des messages -->
+    <div class="messages-list">
+
+      <div class="loading" *ngIf="isLoading">
+        <div class="spinner"></div>
+      </div>
+
+      <div class="empty-inbox" *ngIf="!isLoading && messages.length === 0">
+        <div class="empty-icon">📭</div>
+        <p>Aucun message reçu</p>
+      </div>
+
+      <div *ngFor="let msg of messages"
+           class="message-item"
+           [class.unread]="!msg.isRead"
+           [class.selected]="selectedMessage?.id === msg.id"
+           (click)="openMessage(msg)">
+        <div class="msg-avatar">
+          {{ msg.senderName ? msg.senderName.charAt(0) : 'P' }}
+        </div>
+        <div class="msg-preview">
+          <div class="msg-header">
+            <strong>{{ msg.senderName || 'Patient' }}</strong>
+            <span class="msg-time">{{ timeAgo(msg.createdAt) }}</span>
+          </div>
+          <p class="msg-snippet">{{ msg.message | slice:0:60 }}...</p>
+        </div>
+        <div class="unread-dot" *ngIf="!msg.isRead"></div>
+      </div>
+
+    </div>
+
+    <!-- Détail du message -->
+    <div class="message-detail" *ngIf="selectedMessage">
+      <div class="detail-header">
+        <div class="sender-info">
+          <div class="sender-avatar">
+            {{ selectedMessage.senderName ? selectedMessage.senderName.charAt(0) : 'P' }}
+          </div>
+          <div>
+            <strong>{{ selectedMessage.senderName }}</strong>
+            <span>{{ timeAgo(selectedMessage.createdAt) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="message-body">
+        <p>{{ selectedMessage.message }}</p>
+      </div>
+
+      <div class="reply-section">
+        <h4>Répondre à {{ selectedMessage.senderName }}</h4>
+        <textarea [(ngModel)]="replyText"
+                  placeholder="Votre réponse..."
+                  rows="4"></textarea>
+        <div class="reply-actions">
+          <button class="btn-cancel" (click)="selectedMessage = null">Fermer</button>
+          <button class="btn-reply" (click)="sendReply()"
+                  [disabled]="!replyText.trim()">
+            ✉️ Envoyer la réponse
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Aucun message sélectionné -->
+    <div class="no-selection" *ngIf="!selectedMessage && !isLoading">
+      <div class="no-select-icon">📨</div>
+      <p>Sélectionnez un message pour le lire</p>
+    </div>
+
+  </div>
+</div>

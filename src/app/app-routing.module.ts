@@ -64,6 +64,17 @@ const routes: Routes = [
       }
     ]
   },
+  {
+  path: 'doctor',
+  component: DoctorLayoutComponent,
+  children: [
+    {
+      path: '',
+      loadChildren: () => import('./features/doctor-dashboard/doctor-dashboard.module')
+        .then(m => m.DoctorDashboardModule)
+    }
+  ]
+},
 
   { path: 'test-users', component: TestUsersComponent },
 

@@ -7,7 +7,7 @@ import { EducationComment } from '../models/comment';  // ← EducationComment
 @Injectable({ providedIn: 'root' })
 export class EducationService {
 
-  private apiUrl = 'http://localhost:8081/api/education';
+  private apiUrl = 'http://localhost:8090/api/education';
 
   constructor(private http: HttpClient) {}
 

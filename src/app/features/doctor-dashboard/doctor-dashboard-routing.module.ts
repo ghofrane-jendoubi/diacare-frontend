@@ -1,16 +1,20 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { DoctorDashboardComponent } from './doctor-dashboard.component';
+import { EducationManagerComponent } from './pages/education-manager/education-manager.component';
+import { ArticleEditorComponent } from './pages/article-editor/article-editor.component';
+import { CommentsManagerComponent } from './pages/comments-manager/comments-manager.component';
+import { MessagesInboxComponent } from './pages/messages-inbox/messages-inbox.component';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: DoctorDashboardComponent
-  }
+  { path: 'education', component: EducationManagerComponent },
+  { path: 'education/new', component: ArticleEditorComponent },
+  { path: 'education/edit/:id', component: ArticleEditorComponent },
+  { path: 'education/comments', component: CommentsManagerComponent },
+  { path: 'education/messages', component: MessagesInboxComponent }
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class DoctorDashboardRoutingModule { }
+export class DoctorDashboardRoutingModule {}

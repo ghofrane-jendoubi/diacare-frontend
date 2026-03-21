@@ -1,0 +1,228 @@
+<div class="editor-container">
+
+  <div class="editor-header">
+    <button class="btn-back" (click)="cancel()">← Retour</button>
+    <div class="header-title">
+      <h1>{{ isEdit ? '✏️ Modifier la publication' : '📝 Nouvelle publication' }}</h1>
+      <p>{{ isEdit ? 'Modifiez votre article éducatif' : 'Créez un article pour vos patients' }}</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-preview" (click)="activePreview = !activePreview">
+        {{ activePreview ? '✏️ Éditer' : '👁 Aperçu' }}
+      </button>
+      <button class="btn-draft" (click)="saveDraft()" [disabled]="isSaving">
+        💾 Brouillon
+      </button>
+      <button class="btn-publish" (click)="saveArticle()" [disabled]="isSaving">
+        {{ isSaving ? '⏳ Sauvegarde...' : (isEdit ? '✅ Mettre à jour' : '🌐 Publier') }}
+      </button>
+    </div>
+  </div>
+
+  <div class="editor-layout">
+
+    <div class="editor-main">
+
+      <div class="field-group">
+        <label class="field-label">Titre <span class="required">*</span></label>
+        <input type="text" [(ngModel)]="form.title"
+               placeholder="Un titre accrocheur et informatif..."
+               class="input-title" maxlength="255">
+        <span class="field-hint">{{ form.title.length }}/255 caractères</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Sous-titre</label>
+        <input type="text" [(ngModel)]="form.subtitle"
+               placeholder="Une phrase d'introduction optionnelle..."
+               class="input-text" maxlength="500">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">
+          Résumé <span class="required">*</span>
+          <span class="field-hint">Affiché dans la liste des articles</span>
+        </label>
+        <textarea [(ngModel)]="form.summary"
+                  placeholder="Décrivez brièvement le contenu (2-3 phrases max)..."
+                  rows="3" class="input-text" maxlength="500"></textarea>
+        <span class="field-hint">{{ form.summary.length }}/500 caractères</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Contenu <span class="required">*</span></label>
+
+        <div class="content-toolbar">
+          <button type="button" class="toolbar-btn" (click)="insertHtml('h2')" title="Titre H2">H2</button>
+          <button type="button" class="toolbar-btn" (click)="insertHtml('h3')" title="Titre H3">H3</button>
+          <button type="button" class="toolbar-btn" (click)="insertHtml('p')" title="Paragraphe">¶</button>
+          <button type="button" class="toolbar-btn" (click)="insertHtml('ul')" title="Liste">☰</button>
+          <button type="button" class="toolbar-btn" (click)="insertHtml('blockquote')" title="Citation">❝</button>
+          <button type="button" class="toolbar-btn" (click)="insertHtml('strong')" title="Gras"><strong>B</strong></button>
+          <span class="toolbar-separator"></span>
+          <span class="toolbar-info">HTML supporté : h2, h3, p, ul, li, blockquote, strong</span>
+        </div>
+
+        <textarea [(ngModel)]="form.content"
+                  (ngModelChange)="estimateReadingTime()"
+                  placeholder="Rédigez votre contenu ici..."
+                  rows="18"
+                  class="input-content"></textarea>
+
+        <div class="content-footer">
+          <span class="word-count">{{ wordCount }} mots</span>
+          <span class="read-time">≈ {{ form.readingTime }} min de lecture</span>
+        </div>
+      </div>
+
+      <div class="preview-box" *ngIf="activePreview">
+        <div class="preview-header">
+          <h3>👁 Aperçu du contenu</h3>
+          <span class="preview-badge">Rendu HTML</span>
+        </div>
+        <div class="preview-content" [innerHTML]="form.content"></div>
+      </div>
+
+    </div>
+
+    <aside class="editor-sidebar">
+
+      <div class="sidebar-card">
+        <h3 class="card-title">📂 Classification</h3>
+
+        <div class="field-group">
+          <label class="field-label">Type de contenu</label>
+          <select [(ngModel)]="form.contentType" class="input-select">
+            <option *ngFor="let type of contentTypes" [value]="type.value">
+              {{ type.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Catégorie</label>
+          <select [(ngModel)]="form.category" class="input-select">
+            <option *ngFor="let cat of categories" [value]="cat.value">
+              {{ cat.icon }} {{ cat.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Niveau de difficulté</label>
+          <select [(ngModel)]="form.difficultyLevel" class="input-select">
+            <option *ngFor="let level of difficultyLevels" [value]="level.value">
+              {{ level.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Temps de lecture (minutes)</label>
+          <input type="number" [(ngModel)]="form.readingTime"
+                 min="1" max="120" class="input-text">
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <h3 class="card-title">🖼️ Image de couverture</h3>
+
+        <div class="field-group">
+          <label class="field-label">URL de l'image</label>
+          <input type="url" [(ngModel)]="form.thumbnailUrl"
+                 placeholder="https://images.unsplash.com/..."
+                 class="input-text">
+          <span class="field-hint">Recommandé : Unsplash, Pexels</span>
+        </div>
+
+        <div class="img-preview" *ngIf="form.thumbnailUrl">
+          <img [src]="form.thumbnailUrl" alt="Aperçu"
+               onerror="this.style.display='none'">
+        </div>
+
+        <div class="img-suggestions">
+          <p class="suggestion-title">Suggestions rapides :</p>
+          <div class="suggestion-grid">
+            <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=100"
+                 alt="Glycémie" class="suggestion-img" title="Glycémie"
+                 (click)="form.thumbnailUrl = 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600'">
+            <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=100"
+                 alt="Nutrition" class="suggestion-img" title="Nutrition"
+                 (click)="form.thumbnailUrl = 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600'">
+            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=100"
+                 alt="Sport" class="suggestion-img" title="Sport"
+                 (click)="form.thumbnailUrl = 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600'">
+            <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=100"
+                 alt="Médicaments" class="suggestion-img" title="Médicaments"
+                 (click)="form.thumbnailUrl = 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600'">
+            <img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=100"
+                 alt="Surveillance" class="suggestion-img" title="Surveillance"
+                 (click)="form.thumbnailUrl = 'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=600'">
+            <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=100"
+                 alt="Bien-être" class="suggestion-img" title="Bien-être"
+                 (click)="form.thumbnailUrl = 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600'">
+          </div>
+          <p class="suggestion-hint">Cliquez sur une image pour la sélectionner</p>
+        </div>
+      </div>
+
+      <div class="sidebar-card" *ngIf="form.contentType === 'VIDEO'">
+        <h3 class="card-title">🎥 Vidéo</h3>
+        <div class="field-group">
+          <label class="field-label">URL de la vidéo</label>
+          <input type="url" [(ngModel)]="form.videoUrl"
+                 placeholder="https://youtube.com/..."
+                 class="input-text">
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <h3 class="card-title">🏷️ Tags et Options</h3>
+
+        <div class="field-group">
+          <label class="field-label">Mots-clés</label>
+          <input type="text" [(ngModel)]="form.tags"
+                 placeholder="diabète, nutrition, conseil..."
+                 class="input-text">
+          <span class="field-hint">Séparés par des virgules</span>
+        </div>
+
+        <div class="options-group">
+          <label class="option-label">
+            <input type="checkbox" [(ngModel)]="form.isFeatured">
+            <div class="option-text">
+              <span>⭐ Mettre en avant</span>
+              <small>Apparaît dans la section "À la une"</small>
+            </div>
+          </label>
+
+          <label class="option-label">
+            <input type="checkbox" [(ngModel)]="form.isPublished">
+            <div class="option-text">
+              <span>🌐 Publier immédiatement</span>
+              <small>Visible par les patients dès la sauvegarde</small>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="sidebar-card" *ngIf="form.title">
+        <h3 class="card-title">📋 Aperçu rapide</h3>
+        <div class="article-preview-mini">
+          <img *ngIf="form.thumbnailUrl" [src]="form.thumbnailUrl"
+               alt="" onerror="this.style.display='none'">
+          <div class="preview-info">
+            <strong>{{ form.title.length > 50 ? (form.title | slice:0:50) + '...' : form.title }}</strong>
+            <div class="preview-meta">
+              <span>{{ form.readingTime }} min</span>
+              <span>•</span>
+              <span>{{ form.difficultyLevel === 'BEGINNER' ? 'Débutant' :
+                       form.difficultyLevel === 'INTERMEDIATE' ? 'Intermédiaire' : 'Avancé' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+</div>
