@@ -28,4 +28,9 @@ export class UploadService {
     
     return this.http.post(`${this.apiUrl}/audio`, formData);
   }
+  uploadDocument(file: File): Observable<any> {
+  const formData = new FormData();
+  formData.append('file', file, file.name);
+  return this.http.post(`${this.apiUrl}/document`, formData);
+}
 }

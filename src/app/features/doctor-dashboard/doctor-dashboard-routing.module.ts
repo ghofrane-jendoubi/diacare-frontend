@@ -11,6 +11,11 @@ const routes: Routes = [
     
   },
   {
+    path: 'chat',
+    component: ChatDoctorComponent
+  },
+
+  {
   path: 'chat/:patientId',
   component: ChatDoctorComponent
 },
