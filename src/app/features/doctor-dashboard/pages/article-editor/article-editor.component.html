@@ -21,6 +21,7 @@
 
   <div class="editor-layout">
 
+    <!-- FORMULAIRE PRINCIPAL -->
     <div class="editor-main">
 
       <div class="field-group">
@@ -51,24 +52,20 @@
 
       <div class="field-group">
         <label class="field-label">Contenu <span class="required">*</span></label>
-
         <div class="content-toolbar">
-          <button type="button" class="toolbar-btn" (click)="insertHtml('h2')" title="Titre H2">H2</button>
-          <button type="button" class="toolbar-btn" (click)="insertHtml('h3')" title="Titre H3">H3</button>
-          <button type="button" class="toolbar-btn" (click)="insertHtml('p')" title="Paragraphe">¶</button>
-          <button type="button" class="toolbar-btn" (click)="insertHtml('ul')" title="Liste">☰</button>
-          <button type="button" class="toolbar-btn" (click)="insertHtml('blockquote')" title="Citation">❝</button>
-          <button type="button" class="toolbar-btn" (click)="insertHtml('strong')" title="Gras"><strong>B</strong></button>
+          <button type="button" class="toolbar-btn" (click)="insertHtml('h2')">H2</button>
+          <button type="button" class="toolbar-btn" (click)="insertHtml('h3')">H3</button>
+          <button type="button" class="toolbar-btn" (click)="insertHtml('p')">¶</button>
+          <button type="button" class="toolbar-btn" (click)="insertHtml('ul')">☰</button>
+          <button type="button" class="toolbar-btn" (click)="insertHtml('blockquote')">❝</button>
+          <button type="button" class="toolbar-btn" (click)="insertHtml('strong')"><strong>B</strong></button>
           <span class="toolbar-separator"></span>
-          <span class="toolbar-info">HTML supporté : h2, h3, p, ul, li, blockquote, strong</span>
+          <span class="toolbar-info">HTML : h2, h3, p, ul, blockquote, strong</span>
         </div>
-
         <textarea [(ngModel)]="form.content"
                   (ngModelChange)="estimateReadingTime()"
                   placeholder="Rédigez votre contenu ici..."
-                  rows="18"
-                  class="input-content"></textarea>
-
+                  rows="18" class="input-content"></textarea>
         <div class="content-footer">
           <span class="word-count">{{ wordCount }} mots</span>
           <span class="read-time">≈ {{ form.readingTime }} min de lecture</span>
@@ -85,100 +82,190 @@
 
     </div>
 
+    <!-- SIDEBAR -->
     <aside class="editor-sidebar">
 
+      <!-- Classification -->
       <div class="sidebar-card">
         <h3 class="card-title">📂 Classification</h3>
-
         <div class="field-group">
           <label class="field-label">Type de contenu</label>
           <select [(ngModel)]="form.contentType" class="input-select">
-            <option *ngFor="let type of contentTypes" [value]="type.value">
-              {{ type.label }}
-            </option>
+            <option *ngFor="let type of contentTypes" [value]="type.value">{{ type.label }}</option>
           </select>
         </div>
-
         <div class="field-group">
           <label class="field-label">Catégorie</label>
           <select [(ngModel)]="form.category" class="input-select">
-            <option *ngFor="let cat of categories" [value]="cat.value">
-              {{ cat.icon }} {{ cat.label }}
-            </option>
+            <option *ngFor="let cat of categories" [value]="cat.value">{{ cat.icon }} {{ cat.label }}</option>
           </select>
         </div>
-
         <div class="field-group">
           <label class="field-label">Niveau de difficulté</label>
           <select [(ngModel)]="form.difficultyLevel" class="input-select">
-            <option *ngFor="let level of difficultyLevels" [value]="level.value">
-              {{ level.label }}
-            </option>
+            <option *ngFor="let level of difficultyLevels" [value]="level.value">{{ level.label }}</option>
           </select>
         </div>
-
         <div class="field-group">
-          <label class="field-label">Temps de lecture (minutes)</label>
-          <input type="number" [(ngModel)]="form.readingTime"
-                 min="1" max="120" class="input-text">
+          <label class="field-label">Temps de lecture (min)</label>
+          <input type="number" [(ngModel)]="form.readingTime" min="1" max="120" class="input-text">
         </div>
       </div>
 
+      <!-- IMAGE DE COUVERTURE -->
       <div class="sidebar-card">
         <h3 class="card-title">🖼️ Image de couverture</h3>
 
-        <div class="field-group">
+        <div class="media-tabs">
+          <button type="button" [class.active]="imageTab === 'suggest'" (click)="imageTab = 'suggest'">🖼️ Suggestions</button>
+          <button type="button" [class.active]="imageTab === 'unsplash'" (click)="imageTab = 'unsplash'">🔍 Unsplash</button>
+          <button type="button" [class.active]="imageTab === 'url'" (click)="imageTab = 'url'">🔗 URL</button>
+          <button type="button" [class.active]="imageTab === 'upload'" (click)="imageTab = 'upload'">💻 Mon PC</button>
+        </div>
+
+        <!-- Suggestions locales -->
+        <div *ngIf="imageTab === 'suggest'">
+          <div class="suggestion-grid">
+            <div *ngFor="let img of imageSuggestions"
+                 class="suggestion-item"
+                 [class.selected]="form.thumbnailUrl === img.url"
+                 (click)="selectSuggestion(img.url)">
+              <img [src]="img.thumb" [alt]="img.label">
+              <span>{{ img.label }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recherche Unsplash -->
+        <div *ngIf="imageTab === 'unsplash'">
+          <div class="unsplash-search">
+            <input type="text"
+                   [(ngModel)]="unsplashQuery"
+                   placeholder="Rechercher une image (ex: diabète, nutrition)..."
+                   class="input-text"
+                   (keyup.enter)="searchUnsplash()">
+            <button type="button" class="btn-unsplash-search"
+                    (click)="searchUnsplash()"
+                    [disabled]="isSearchingUnsplash">
+              {{ isSearchingUnsplash ? '⏳' : '🔍' }}
+            </button>
+          </div>
+
+          <button type="button" class="btn-auto-search"
+                  (click)="searchUnsplashByCategory()">
+            ✨ Images pour "{{ form.category }}"
+          </button>
+
+          <div class="unsplash-loading" *ngIf="isSearchingUnsplash">
+            <div class="mini-spinner"></div>
+            <span>Recherche en cours...</span>
+          </div>
+
+          <div class="unsplash-grid" *ngIf="unsplashResults.length > 0">
+            <div *ngFor="let img of unsplashResults"
+                 class="unsplash-item"
+                 [class.selected]="form.thumbnailUrl === img.urls.regular"
+                 (click)="selectUnsplashImage(img)">
+              <img [src]="img.urls.thumb" [alt]="img.alt_description">
+              <div class="unsplash-overlay">
+                <span>📷 {{ img.user.name }}</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="unsplash-credit" *ngIf="unsplashResults.length > 0">
+            Photos par <a href="https://unsplash.com" target="_blank">Unsplash</a>
+          </p>
+        </div>
+
+        <!-- URL manuelle -->
+        <div *ngIf="imageTab === 'url'" class="field-group">
           <label class="field-label">URL de l'image</label>
           <input type="url" [(ngModel)]="form.thumbnailUrl"
                  placeholder="https://images.unsplash.com/..."
                  class="input-text">
-          <span class="field-hint">Recommandé : Unsplash, Pexels</span>
+          <span class="field-hint">Unsplash, Pexels, ou toute URL d'image</span>
         </div>
 
-        <div class="img-preview" *ngIf="form.thumbnailUrl">
-          <img [src]="form.thumbnailUrl" alt="Aperçu"
-               onerror="this.style.display='none'">
-        </div>
-
-        <div class="img-suggestions">
-          <p class="suggestion-title">Suggestions rapides :</p>
-          <div class="suggestion-grid">
-            <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=100"
-                 alt="Glycémie" class="suggestion-img" title="Glycémie"
-                 (click)="form.thumbnailUrl = 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600'">
-            <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=100"
-                 alt="Nutrition" class="suggestion-img" title="Nutrition"
-                 (click)="form.thumbnailUrl = 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600'">
-            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=100"
-                 alt="Sport" class="suggestion-img" title="Sport"
-                 (click)="form.thumbnailUrl = 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600'">
-            <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=100"
-                 alt="Médicaments" class="suggestion-img" title="Médicaments"
-                 (click)="form.thumbnailUrl = 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600'">
-            <img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=100"
-                 alt="Surveillance" class="suggestion-img" title="Surveillance"
-                 (click)="form.thumbnailUrl = 'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=600'">
-            <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=100"
-                 alt="Bien-être" class="suggestion-img" title="Bien-être"
-                 (click)="form.thumbnailUrl = 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600'">
+        <!-- Upload depuis PC -->
+        <div *ngIf="imageTab === 'upload'">
+          <div class="upload-zone" (click)="imageUpload.click()">
+            <div class="upload-icon">📁</div>
+            <strong>Cliquez pour choisir une image</strong>
+            <span>JPG, PNG, WebP — Max 5 MB</span>
           </div>
-          <p class="suggestion-hint">Cliquez sur une image pour la sélectionner</p>
+          <input #imageUpload type="file" accept="image/*"
+                 (change)="onImageFileSelected($event)"
+                 style="display: none">
         </div>
+
+        <!-- Aperçu image -->
+        <div class="img-preview" *ngIf="form.thumbnailUrl && !imagePreviewError">
+          <img [src]="form.thumbnailUrl" alt="Aperçu" (error)="onImageError()">
+          <button type="button" class="remove-img" (click)="form.thumbnailUrl = ''">✕</button>
+        </div>
+        <div class="img-error" *ngIf="imagePreviewError">
+          ⚠️ Impossible de charger l'image
+        </div>
+
       </div>
 
+      <!-- VIDÉO -->
       <div class="sidebar-card" *ngIf="form.contentType === 'VIDEO'">
         <h3 class="card-title">🎥 Vidéo</h3>
-        <div class="field-group">
+
+        <div class="media-tabs">
+          <button type="button" [class.active]="videoTab === 'youtube'" (click)="videoTab = 'youtube'">▶️ YouTube</button>
+          <button type="button" [class.active]="videoTab === 'url'" (click)="videoTab = 'url'">🔗 URL directe</button>
+        </div>
+
+        <div *ngIf="videoTab === 'youtube'" class="field-group">
+          <label class="field-label">Lien YouTube</label>
+          <input type="url"
+                 [(ngModel)]="form.videoUrl"
+                 (ngModelChange)="onYoutubeLinkChange()"
+                 placeholder="https://www.youtube.com/watch?v=..."
+                 class="input-text">
+          <span class="field-hint">La miniature sera ajoutée automatiquement</span>
+
+          <div class="youtube-preview" *ngIf="getYoutubeEmbedUrl()">
+            <iframe [src]="getYoutubeEmbedUrl() | safe"
+                    frameborder="0"
+                    allowfullscreen
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope">
+            </iframe>
+          </div>
+
+          <div class="youtube-links">
+            <p class="field-hint">🔍 Rechercher sur YouTube :</p>
+            <div class="youtube-search-btns">
+              <a href="https://www.youtube.com/results?search_query=diabète+gestion"
+                 target="_blank" class="yt-link">Gestion diabète</a>
+              <a href="https://www.youtube.com/results?search_query=glycémie+surveillance"
+                 target="_blank" class="yt-link">Glycémie</a>
+              <a href="https://www.youtube.com/results?search_query=nutrition+diabète"
+                 target="_blank" class="yt-link">Nutrition</a>
+              <a href="https://www.youtube.com/results?search_query=insuline+injection"
+                 target="_blank" class="yt-link">Insuline</a>
+              <a href="https://www.youtube.com/results?search_query=exercice+diabète+type+2"
+                 target="_blank" class="yt-link">Exercice</a>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="videoTab === 'url'" class="field-group">
           <label class="field-label">URL de la vidéo</label>
           <input type="url" [(ngModel)]="form.videoUrl"
-                 placeholder="https://youtube.com/..."
+                 placeholder="https://..."
                  class="input-text">
+          <span class="field-hint">MP4, WebM ou lien de streaming direct</span>
         </div>
+
       </div>
 
+      <!-- Tags et Options -->
       <div class="sidebar-card">
         <h3 class="card-title">🏷️ Tags et Options</h3>
-
         <div class="field-group">
           <label class="field-label">Mots-clés</label>
           <input type="text" [(ngModel)]="form.tags"
@@ -186,7 +273,6 @@
                  class="input-text">
           <span class="field-hint">Séparés par des virgules</span>
         </div>
-
         <div class="options-group">
           <label class="option-label">
             <input type="checkbox" [(ngModel)]="form.isFeatured">
@@ -195,7 +281,6 @@
               <small>Apparaît dans la section "À la une"</small>
             </div>
           </label>
-
           <label class="option-label">
             <input type="checkbox" [(ngModel)]="form.isPublished">
             <div class="option-text">
@@ -206,11 +291,13 @@
         </div>
       </div>
 
+      <!-- Aperçu rapide -->
       <div class="sidebar-card" *ngIf="form.title">
         <h3 class="card-title">📋 Aperçu rapide</h3>
         <div class="article-preview-mini">
-          <img *ngIf="form.thumbnailUrl" [src]="form.thumbnailUrl"
-               alt="" onerror="this.style.display='none'">
+          <img *ngIf="form.thumbnailUrl && !imagePreviewError"
+               [src]="form.thumbnailUrl" alt=""
+               onerror="this.style.display='none'">
           <div class="preview-info">
             <strong>{{ form.title.length > 50 ? (form.title | slice:0:50) + '...' : form.title }}</strong>
             <div class="preview-meta">

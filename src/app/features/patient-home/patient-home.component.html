@@ -1,7 +1,7 @@
 <!-- Navbar spécifique patient avec menu adapté -->
 <app-navbar [menuItems]="patientMenuItems" [isLoggedIn]="true"></app-navbar>
 
-<!-- HERO SECTION (identique à la home) -->
+<!-- HERO SECTION -->
 <section id="accueil" class="hero" [style.backgroundImage]="'url(' + heroImage + ')'">
   <div class="hero-overlay"></div>
   <div class="hero-container">
@@ -16,8 +16,8 @@
       </h1>
 
       <p class="hero-description">
-        Connectez-vous avec des médecins spécialistes, consultez en ligne, 
-        suivez votre régime avec des nutritionnistes experts, 
+        Connectez-vous avec des médecins spécialistes, consultez en ligne,
+        suivez votre régime avec des nutritionnistes experts,
         le tout assisté par une intelligence artificielle de pointe.
       </p>
 
@@ -51,9 +51,7 @@
       </div>
     </div>
 
-    <div class="hero-visual">
-      
-    </div>
+    <div class="hero-visual"></div>
   </div>
 </section>
 
@@ -67,7 +65,7 @@
     </div>
 
     <div class="services-grid">
-      <!-- Contacter médecin -->
+
       <div class="service-card">
         <div class="service-icon" style="background: #e8f0fe">
           <i class="bi bi-camera-video-fill" style="color: #2563eb"></i>
@@ -82,7 +80,6 @@
         <a routerLink="/medecins" class="service-link">Voir les médecins →</a>
       </div>
 
-      <!-- Nutrition -->
       <div class="service-card">
         <div class="service-icon" style="background: #e6f7e6">
           <i class="bi bi-egg-fried" style="color: #10b981"></i>
@@ -97,22 +94,21 @@
         <a routerLink="/nutrition" class="service-link">Découvrir →</a>
       </div>
 
-      <!-- Espace éducatif -->
-      <div class="service-card">
-        <div class="service-icon" style="background: #fff2e5">
-          <i class="bi bi-book-fill" style="color: #f97316"></i>
-        </div>
-        <h3>Espace éducatif</h3>
-        <p>Vidéos, articles et ressources pour mieux comprendre votre diabète.</p>
-        <ul class="service-features">
-          <li><i class="bi bi-check-circle-fill"></i> Vidéos explicatives</li>
-          <li><i class="bi bi-check-circle-fill"></i> Articles médicaux</li>
-          <li><i class="bi bi-check-circle-fill"></i> Conseils d'experts</li>
-        </ul>
-        <a routerLink="/education" class="service-link">Apprendre →</a>
-      </div>
+      <!-- Carte Espace éducatif -->
+<div class="service-card">
+  <div class="service-icon" style="background: #fff2e5">
+    <i class="bi bi-book-fill" style="color: #f97316"></i>
+  </div>
+  <h3>Espace éducatif</h3>
+  <p>Vidéos, articles et ressources pour mieux comprendre votre diabète.</p>
+  <ul class="service-features">
+    <li><i class="bi bi-check-circle-fill"></i> Vidéos explicatives</li>
+    <li><i class="bi bi-check-circle-fill"></i> Articles médicaux</li>
+    <li><i class="bi bi-check-circle-fill"></i> Conseils d'experts</li>
+  </ul>
+  <a routerLink="/patient/education" class="service-link">Apprendre →</a>
+</div>
 
-      <!-- Géolocalisation -->
       <div class="service-card">
         <div class="service-icon" style="background: #e0f2fe">
           <i class="bi bi-geo-alt-fill" style="color: #0891b2"></i>
@@ -127,7 +123,6 @@
         <a routerLink="/geolocation" class="service-link">Rechercher →</a>
       </div>
 
-      <!-- Parapharmacie -->
       <div class="service-card">
         <div class="service-icon" style="background: #f3e8ff">
           <i class="bi bi-capsule-pill" style="color: #8b5cf6"></i>
@@ -142,8 +137,7 @@
         <a routerLink="/pharmacy" class="service-link">Acheter →</a>
       </div>
 
-      <!-- Chatbot -->
-      <div class="service-card">
+      <div class="service-card chatbot-card" (click)="scrollToChatbot()">
         <div class="service-icon" style="background: #dbeafe">
           <i class="bi bi-robot" style="color: #2563eb"></i>
         </div>
@@ -154,10 +148,9 @@
           <li><i class="bi bi-check-circle-fill"></i> Disponible 24/7</li>
           <li><i class="bi bi-check-circle-fill"></i> Spécialisé diabète</li>
         </ul>
-        <a routerLink="/chatbot" class="service-link">Discuter →</a>
+        <span class="service-link">Discuter maintenant →</span>
       </div>
 
-      <!-- Analyses IA -->
       <div class="service-card">
         <div class="service-icon" style="background: #dcfce7">
           <i class="bi bi-cpu" style="color: #16a34a"></i>
@@ -172,7 +165,6 @@
         <a routerLink="/ia-analyses" class="service-link">Découvrir →</a>
       </div>
 
-      <!-- Réclamations -->
       <div class="service-card">
         <div class="service-icon" style="background: #fee2e2">
           <i class="bi bi-exclamation-triangle-fill" style="color: #dc2626"></i>
@@ -186,6 +178,7 @@
         </ul>
         <a routerLink="/reclamations" class="service-link">Faire une réclamation →</a>
       </div>
+
     </div>
   </div>
 </section>
@@ -325,6 +318,8 @@
   </div>
 </section>
 
-
 <!-- FOOTER -->
 <app-footer></app-footer>
+
+<!-- ===== CHATBOT FLOTTANT ===== -->
+<app-chatbot></app-chatbot>

@@ -1,0 +1,85 @@
+<!-- Bouton flottant -->
+<div class="chatbot-wrapper">
+
+  <button class="chat-fab" (click)="toggleChat()" [class.open]="isOpen">
+    <span class="fab-icon" *ngIf="!isOpen">💬</span>
+    <span class="fab-icon" *ngIf="isOpen">✕</span>
+    <span class="fab-badge" *ngIf="!isOpen && messages.length > 1">
+      {{ messages.length - 1 }}
+    </span>
+  </button>
+
+  <!-- Fenêtre chat -->
+  <div class="chat-window" [class.open]="isOpen">
+
+    <!-- Header -->
+    <div class="chat-header">
+      <div class="bot-info">
+        <div class="bot-avatar">🤖</div>
+        <div>
+          <strong>DiaCare Assistant</strong>
+          <span class="bot-status">● En ligne</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-clear" (click)="clearChat()" title="Effacer la conversation">🗑️</button>
+        <button class="btn-close" (click)="toggleChat()">✕</button>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-messages" #messagesContainer>
+
+      <div *ngFor="let msg of messages"
+           class="message-wrapper"
+           [class.patient]="msg.sender === 'PATIENT'"
+           [class.bot]="msg.sender === 'BOT'">
+
+        <div class="message-avatar" *ngIf="msg.sender === 'BOT'">🤖</div>
+
+        <div class="message-bubble"
+             [innerHTML]="formatMessage(msg.message)">
+        </div>
+
+        <div class="message-avatar patient-av" *ngIf="msg.sender === 'PATIENT'">P</div>
+      </div>
+
+      <!-- Typing indicator -->
+      <div class="message-wrapper bot" *ngIf="isTyping">
+        <div class="message-avatar">🤖</div>
+        <div class="typing-indicator">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Réponses rapides -->
+    <div class="quick-replies" *ngIf="messages.length <= 2">
+      <p class="quick-title">Questions fréquentes :</p>
+      <div class="quick-grid">
+        <button *ngFor="let reply of quickReplies"
+                class="quick-btn"
+                (click)="sendQuickReply(reply)">
+          {{ reply }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input">
+      <textarea
+        [(ngModel)]="userMessage"
+        (keydown)="onEnter($event)"
+        placeholder="Posez votre question..."
+        rows="1">
+      </textarea>
+      <button class="send-btn"
+              (click)="sendMessage()"
+              [disabled]="!userMessage.trim() || isTyping">
+        ➤
+      </button>
+    </div>
+
+  </div>
+</div>

@@ -1,7 +1,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
+import { SharedModule } from '../../shared/shared.module';
+
 import { EducationRoutingModule } from './education-routing.module';
 import { EducationHomeComponent } from './pages/education-home/education-home.component';
 import { ArticleDetailComponent } from './pages/article-detail/article-detail.component';
@@ -14,11 +17,22 @@ import { HeroBannerComponent } from './components/hero-banner/hero-banner.compon
 
 @NgModule({
   declarations: [
-    EducationHomeComponent, ArticleDetailComponent, MyBookmarksComponent,
-    ArticleCardComponent, ArticleFiltersComponent, CommentSectionComponent,
-    CommentItemComponent, HeroBannerComponent
+    EducationHomeComponent,
+    ArticleDetailComponent,
+    MyBookmarksComponent,
+    ArticleCardComponent,
+    ArticleFiltersComponent,
+    CommentSectionComponent,
+    CommentItemComponent,
+    HeroBannerComponent
   ],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule,
-            HttpClientModule, EducationRoutingModule]
+  imports: [
+    CommonModule,
+    FormsModule,
+    HttpClientModule,
+    RouterModule,
+    EducationRoutingModule,
+    SharedModule
+  ]
 })
 export class EducationModule {}

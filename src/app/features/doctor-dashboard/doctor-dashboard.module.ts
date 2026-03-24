@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
+import { SharedModule } from '../../shared/shared.module';
 
 import { DoctorDashboardRoutingModule } from './doctor-dashboard-routing.module';
 import { EducationManagerComponent } from './pages/education-manager/education-manager.component';
@@ -23,6 +24,7 @@ import { MessagesInboxComponent } from './pages/messages-inbox/messages-inbox.co
     ReactiveFormsModule,
     RouterModule,
     HttpClientModule,
+    SharedModule,
     DoctorDashboardRoutingModule
   ]
 })

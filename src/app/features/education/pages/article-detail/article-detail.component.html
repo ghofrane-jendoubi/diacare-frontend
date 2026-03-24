@@ -70,12 +70,33 @@
         </div>
       </header>
 
+      <!-- ===== MEDIA ===== -->
       <div class="article-media" *ngIf="article.thumbnailUrl || article.videoUrl">
-        <video *ngIf="article.videoUrl" controls class="article-video">
+
+        <!-- YouTube iframe -->
+        <div class="youtube-container"
+             *ngIf="article.videoUrl && isYoutubeUrl(article.videoUrl)">
+          <iframe [src]="getYoutubeEmbedUrl(article.videoUrl) | safe"
+                  frameborder="0"
+                  allowfullscreen
+                  allow="accelerometer; autoplay; clipboard-write;
+                         encrypted-media; gyroscope; picture-in-picture">
+          </iframe>
+        </div>
+
+        <!-- Vidéo directe MP4 -->
+        <video *ngIf="article.videoUrl && !isYoutubeUrl(article.videoUrl)"
+               controls class="article-video">
           <source [src]="article.videoUrl">
+          Votre navigateur ne supporte pas la vidéo.
         </video>
+
+        <!-- Image de couverture -->
         <img *ngIf="!article.videoUrl && article.thumbnailUrl"
-             [src]="article.thumbnailUrl" [alt]="article.title" class="article-image">
+             [src]="article.thumbnailUrl"
+             [alt]="article.title"
+             class="article-image">
+
       </div>
 
       <div class="article-content" [innerHTML]="article.content"></div>
