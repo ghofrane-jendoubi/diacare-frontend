@@ -1,49 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-export interface FoodAnalysisResult {
-  foods: FoodItem[];
-  rawText: string;
-  analysisDate?: string;
-}
-
-export interface FoodItem {
-  name: string;
-  calories: number;
-  carbs: number;
-  protein: number;
-  fat: number;
-  fiber: number;
-  sugar?: number;
-}
-
-export interface FoodEntry {
-  id?: number;
-  text: string;
-  analysisResult?: string;
-  patientId?: number;
-  createdAt?: string;
-  parsedResult?: FoodAnalysisResult;
-}
-
-export interface DietMeal {
-  id?: number;
-  mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
-  food: string;
-  calories?: number;
-  notes?: string;
-}
-
-export interface DietPlan {
-  id?: number;
-  title: string;
-  description: string;
-  patientId: number;
-  nutritionistId?: number;
-  meals?: DietMeal[];
-  createdAt?: string;
-}
+import { DietPlan, DietMeal, FoodItem, FoodEntry, FoodAnalysisResult, Patient } from '../models/diet-plan.model';
 
 @Injectable({
   providedIn: 'root'
@@ -53,23 +11,16 @@ export class NutritionService {
 
   constructor(private http: HttpClient) {}
 
-private getHeaders(): HttpHeaders {
-  let token = '';
-  if (typeof window !== 'undefined') {
-    token = localStorage.getItem('token') || '';
+  private getHeaders(): HttpHeaders {
+    const token = (typeof window !== 'undefined') ? localStorage.getItem('token') || '' : '';
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
   }
-  return new HttpHeaders({
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
-  });
-}
 
-  // ─── PATIENT: Food Tracking ───────────────────────────────────────────────
+  // ── PATIENT: Food Tracking ────────────────────────────────────────
 
-  /**
-   * POST /api/food
-   * Patient submits text → Spring calls Flask ML → returns food analysis
-   */
   analyzeFood(text: string, patientId: number): Observable<FoodEntry> {
     return this.http.post<FoodEntry>(
       `${this.apiUrl}/foods`,
@@ -78,95 +29,91 @@ private getHeaders(): HttpHeaders {
     );
   }
 
-  /**
-   * GET /api/food
-   * Get all food entries for the logged-in patient
-   */
+  analyzeFoodImage(base64: string, patientId: number): Observable<FoodEntry> {
+    return this.http.post<FoodEntry>(
+      `${this.apiUrl}/foods/analyze-image`,
+      { image: base64, patientId },
+      { headers: this.getHeaders() }
+    );
+  }
+
   getFoodHistory(): Observable<FoodEntry[]> {
-    return this.http.get<FoodEntry[]>(
-      `${this.apiUrl}/foods`,
-      { headers: this.getHeaders() }
-    );
+    return this.http.get<FoodEntry[]>(`${this.apiUrl}/foods`, { headers: this.getHeaders() });
   }
 
-  // ─── PATIENT: Diet Plans ──────────────────────────────────────────────────
+  getFoodHistoryByPatient(patientId: number): Observable<FoodEntry[]> {
+    return this.http.get<FoodEntry[]>(`${this.apiUrl}/foods/patient/${patientId}`, { headers: this.getHeaders() });
+  }
 
-  /**
-   * GET /api/diet/patient/:id
-   * Patient retrieves their assigned diet plans
-   */
+  // ── NUTRITION PROFILE ───────────────────────────────────────────
+
+  getNutritionProfile(patientId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/nutrition-profile/patient/${patientId}`, { headers: this.getHeaders() });
+  }
+
+  saveNutritionProfile(profile: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/nutrition-profile`, profile, { headers: this.getHeaders() });
+  }
+
+  deleteNutritionProfile(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/nutrition-profile/${id}`, { headers: this.getHeaders() });
+  }
+
+  // ── DIET PLANS ────────────────────────────────────────────────
+
   getPatientDietPlans(patientId: number): Observable<DietPlan[]> {
-    return this.http.get<DietPlan[]>(
-      `${this.apiUrl}/diet/patient/${patientId}`,
-      { headers: this.getHeaders() }
-    );
+    return this.http.get<DietPlan[]>(`${this.apiUrl}/diet/patient/${patientId}`, { headers: this.getHeaders() });
   }
 
-  // ─── NUTRITIONIST: Plan Management ───────────────────────────────────────
-
-  /**
-   * POST /api/diet/create
-   * Nutritionist creates a new diet plan for a patient
-   */
   createDietPlan(plan: DietPlan): Observable<DietPlan> {
-    return this.http.post<DietPlan>(
-      `${this.apiUrl}/diet/create`,
-      plan,
-      { headers: this.getHeaders() }
-    );
+    return this.http.post<DietPlan>(`${this.apiUrl}/diet/create`, plan, { headers: this.getHeaders() });
   }
 
-  /**
-   * POST /api/diet/add-meal
-   * Add a meal to an existing diet plan
-   */
   addMealToPlan(dietPlanId: number, meal: DietMeal): Observable<DietPlan> {
-    return this.http.post<DietPlan>(
-      `${this.apiUrl}/diet/add-meal`,
-      { dietPlanId, ...meal },
-      { headers: this.getHeaders() }
-    );
+    return this.http.post<DietPlan>(`${this.apiUrl}/diet/add-meal`, { dietPlanId, ...meal }, { headers: this.getHeaders() });
   }
 
-  /**
-   * GET /api/diet/all  (to implement in backend if needed)
-   * Nutritionist retrieves all plans they created
-   */
   getNutritionistPlans(): Observable<DietPlan[]> {
-    return this.http.get<DietPlan[]>(
-      `${this.apiUrl}/diet/my-plans`,
-      { headers: this.getHeaders() }
-    );
+    return this.http.get<DietPlan[]>(`${this.apiUrl}/diet/my-plans`, { headers: this.getHeaders() });
   }
 
-  // ─── HELPERS ──────────────────────────────────────────────────────────────
+  // ── PATIENT MANAGEMENT (NUTRITIONIST) ──────────────────────────
 
-  /**
-   * Parse the JSON string stored in FoodEntry.analysisResult
-   */
- parseAnalysisResult(entry: FoodEntry): FoodAnalysisResult | null {
-  try {
-    if (!entry.analysisResult) return null;
-    const raw = JSON.parse(entry.analysisResult);
-
-    // Flask retourne "foods_detected" → on mappe vers "foods"
-    const foods: FoodItem[] = (raw.foods_detected || []).map((f: any) => ({
-      name: f.food,           // "food" → "name"
-      calories: f.calories,
-      carbs: f.carbs,
-      protein: f.protein,
-      fat: f.fat,
-      fiber: f.fibre,         // "fibre" → "fiber"
-    }));
-
-    return {
-      foods,
-      rawText: raw.text || entry.text
-    };
-  } catch {
-    return null;
+  getAllPatients(): Observable<Patient[]> {
+    return this.http.get<Patient[]>(`${this.apiUrl}/nutritionist/patients`, { headers: this.getHeaders() });
   }
-}
+
+  getPatientById(id: number): Observable<Patient> {
+    return this.http.get<Patient>(`${this.apiUrl}/nutritionist/patients/${id}`, { headers: this.getHeaders() });
+  }
+
+  // ── HELPERS ────────────────────────────────────────────────────
+
+  parseAnalysisResult(entry: FoodEntry): FoodAnalysisResult | null {
+    try {
+      if (!entry.analysisResult) return null;
+      const raw = JSON.parse(entry.analysisResult);
+      const foods: FoodItem[] = (raw.foods_detected || []).map((f: any) => ({
+        name: f.food,
+        calories: f.calories,
+        carbs: f.carbs,
+        protein: f.protein,
+        fat: f.fat,
+        fiber: f.fibre,
+      }));
+      return { foods, rawText: raw.text || entry.text };
+    } catch {
+      return null;
+    }
+  }
+
+  extractFoodsFromClarifai(response: any): string[] {
+    const concepts = response?.outputs?.[0]?.data?.concepts || [];
+    return concepts
+      .filter((c: any) => c.value > 0.85)
+      .map((c: any) => c.name)
+      .slice(0, 5);
+  }
 
   getMealTypeLabel(type: string): string {
     const labels: Record<string, string> = {
@@ -178,9 +125,6 @@ private getHeaders(): HttpHeaders {
     return labels[type] || type;
   }
 
-  /**
-   * Calculate total macros for a food analysis
-   */
   getTotals(foods: FoodItem[]): FoodItem {
     return foods.reduce((acc, f) => ({
       name: 'Total',
@@ -190,5 +134,19 @@ private getHeaders(): HttpHeaders {
       fat: acc.fat + (f.fat || 0),
       fiber: acc.fiber + (f.fiber || 0),
     }), { name: 'Total', calories: 0, carbs: 0, protein: 0, fat: 0, fiber: 0 });
+  }
+
+  getBMIClass(bmi: number): string {
+    if (bmi < 18.5) return 'underweight';
+    if (bmi < 25) return 'normal';
+    if (bmi < 30) return 'overweight';
+    return 'obese';
+  }
+
+  getBMILabel(bmi: number): string {
+    if (bmi < 18.5) return 'Insuffisance pondérale';
+    if (bmi < 25) return 'Poids normal';
+    if (bmi < 30) return 'Surpoids';
+    return 'Obésité';
   }
 }

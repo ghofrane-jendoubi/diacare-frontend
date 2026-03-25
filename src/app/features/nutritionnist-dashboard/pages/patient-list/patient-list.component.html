@@ -1,0 +1,135 @@
+<!-- Patient List Component - S'affiche dans le router-outlet du dashboard -->
+<div class="patient-list-wrapper">
+  <!-- En-tête avec stats rapides -->
+  <div class="patient-list-header">
+    <div class="header-info">
+      <h2>
+        <i class="bi bi-people-fill text-success me-2"></i>
+        Gestion des Patients
+      </h2>
+      <p class="text-muted mb-0">Consultez et gérez vos patients diabétiques</p>
+    </div>
+    <div class="header-stats">
+      <div class="stat-chip">
+        <i class="bi bi-person-check"></i>
+        <span>{{ patients.length }} patients</span>
+      </div>
+      <div class="stat-chip warning" *ngIf="getActiveAlertsCount() > 0">
+        <i class="bi bi-exclamation-triangle"></i>
+        <span>{{ getActiveAlertsCount() }} alertes</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres et recherche -->
+  <div class="filters-bar">
+    <div class="search-input-wrapper">
+      <i class="bi bi-search"></i>
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Rechercher par nom ou email..."
+        [(ngModel)]="searchTerm"
+        (input)="filterPatients()"
+      />
+    </div>
+    <select class="filter-select" [(ngModel)]="selectedDiabetesType" (change)="filterPatients()">
+      <option value="">📊 Tous les types</option>
+      <option value="TYPE_1">🔵 Type 1</option>
+      <option value="TYPE_2">🟢 Type 2</option>
+      <option value="GESTATIONNEL">🟣 Gestationnel</option>
+    </select>
+    <button class="btn-refresh" (click)="loadPatients()">
+      <i class="bi bi-arrow-repeat"></i>
+      Actualiser
+    </button>
+  </div>
+
+  <!-- Grille des patients -->
+  <div class="patients-grid" *ngIf="!isLoading; else loading">
+    <div *ngFor="let patient of filteredPatients" class="patient-card" (click)="viewPatient(patient.id)">
+      <div class="card-header-section">
+        <div class="patient-avatar" [ngStyle]="{'background': getAvatarColor(patient.diabetesType)}">
+          {{ patient.name.charAt(0) }}
+        </div>
+        <div class="patient-info">
+          <h4 class="patient-name">{{ patient.name }}</h4>
+          <p class="patient-email">{{ patient.email }}</p>
+        </div>
+        <span class="status-badge" [ngClass]="patient.status">
+          {{ patient.status === 'active' ? 'Actif' : patient.status === 'warning' ? '⚠️ Attention' : '✅ Bon' }}
+        </span>
+      </div>
+
+      <!-- Statistiques rapides -->
+      <div class="patient-stats">
+        <div class="stat-item">
+          <i class="bi bi-calendar-heart"></i>
+          <div>
+            <span class="stat-label">Âge</span>
+            <strong>{{ patient.age }} ans</strong>
+          </div>
+        </div>
+        <div class="stat-item">
+          <i class="bi bi-activity"></i>
+          <div>
+            <span class="stat-label">IMC</span>
+            <strong [ngClass]="getBMIClass(patient.bmi)">{{ patient.bmi | number:'1.1-1' }}</strong>
+          </div>
+        </div>
+        <div class="stat-item">
+          <i class="bi bi-droplet"></i>
+          <div>
+            <span class="stat-label">HbA1c</span>
+            <strong [class.high]="patient.hba1c > 7">{{ patient.hba1c }}%</strong>
+          </div>
+        </div>
+        <div class="stat-item">
+          <i class="bi bi-heart-pulse"></i>
+          <div>
+            <span class="stat-label">Glycémie</span>
+            <strong>{{ patient.glucoseLevel }} g/L</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Type diabète et actions -->
+      <div class="card-footer">
+        <div class="diabetes-badge" [ngClass]="patient.diabetesType.toLowerCase().replace('_', '-')">
+          <i class="bi bi-droplet-half"></i>
+          {{ patient.diabetesType === 'TYPE_1' ? 'Type 1' : patient.diabetesType === 'TYPE_2' ? 'Type 2' : 'Gestationnel' }}
+        </div>
+        <div class="action-buttons">
+          <button class="action-btn" (click)="viewPatient(patient.id); $event.stopPropagation()" title="Voir détails">
+            <i class="bi bi-eye"></i>
+            <span>Détails</span>
+          </button>
+          <button class="action-btn" (click)="createMealPlan(patient.id); $event.stopPropagation()" title="Créer plan">
+            <i class="bi bi-journal-plus"></i>
+            <span>Plan</span>
+          </button>
+          <button class="action-btn" (click)="startChat(patient.id); $event.stopPropagation()" title="Chat">
+            <i class="bi bi-chat-dots"></i>
+            <span>Chat</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message si aucun patient -->
+    <div *ngIf="filteredPatients.length === 0" class="empty-state">
+      <i class="bi bi-inbox"></i>
+      <h5>Aucun patient trouvé</h5>
+      <p class="text-muted">Aucun patient ne correspond à vos critères de recherche</p>
+    </div>
+  </div>
+
+  <ng-template #loading>
+    <div class="loading-state">
+      <div class="spinner-border text-success" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-3 text-muted">Chargement de la liste des patients...</p>
+    </div>
+  </ng-template>
+</div>

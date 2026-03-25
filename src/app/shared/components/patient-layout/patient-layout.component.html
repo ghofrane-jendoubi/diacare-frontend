@@ -1,0 +1,16 @@
+<app-navbar 
+  [menuItems]="patientMenuItems" 
+  [isLoggedIn]="true"
+  [userId]="1"
+  userName="Sophie Martin"
+  userEmail="sophie.m@example.com"
+  >
+</app-navbar>
+
+<!-- Tabs nutrition — visibles seulement sur /patient/nutrition, /patient/my-plans, /patient/profile -->
+<app-nutrition-tabs *ngIf="showNutritionTabs"></app-nutrition-tabs>
+<div class="patient-content">
+  <router-outlet></router-outlet>
+</div>
+
+<app-footer></app-footer>

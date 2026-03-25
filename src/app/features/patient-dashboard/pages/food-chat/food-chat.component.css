@@ -3,11 +3,12 @@
 .food-chat-wrapper {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 110px); /* ← réduit de 160px à 130px */
   background: #f0faf5;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 4px 24px rgba(16, 185, 129, 0.08);
+  margin: 16px 24px;
 }
 
 /* ─── Header ─────────────────────────────────────────── */
@@ -43,6 +44,60 @@
   font-weight: 600;
   color: #065f46;
   margin: 0 0 2px;
+}
+.photo-btn {
+  width: 44px;
+  height: 44px;
+  background: #ecfdf5;
+  border: 1px solid #10b981;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #10b981;
+  font-size: 18px;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.photo-btn:hover { background: #d1fae5; }
+.photo-btn.loading { opacity: 0.6; cursor: not-allowed; }
+
+.image-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 10px 14px;
+  background: #f0fdf4;
+  border-radius: 10px;
+  border: 1px solid #a7f3d0;
+}
+
+.image-preview img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #10b981;
+}
+
+.preview-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.preview-info span {
+  font-size: 13px;
+  color: #065f46;
+  font-weight: 500;
+}
+
+.preview-info small {
+  font-size: 11px;
+  color: #6b7280;
 }
 
 .status-dot {
@@ -355,6 +410,40 @@
 }
 
 .diabetes-tip i { color: #f97316; margin-top: 1px; flex-shrink: 0; }
+.diabetes-tip {
+  margin: 0 12px 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.diabetes-tip.danger {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+}
+.diabetes-tip.danger i { color: #ef4444; font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+
+.diabetes-tip.warning {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #92400e;
+}
+.diabetes-tip.warning i { color: #f97316; font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+
+.diabetes-tip.success {
+  background: #f0fdf4;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+}
+.diabetes-tip.success i { color: #10b981; font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+
+.diabetes-tip p { margin: 4px 0 2px; font-size: 13px; }
+.diabetes-tip small { opacity: 0.8; font-size: 12px; }
+.diabetes-tip strong { font-size: 14px; }
 
 /* ─── Input area ───────────────────────────────────────── */
 .input-area {

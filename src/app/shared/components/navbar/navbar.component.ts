@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 export class NavbarComponent {
   @Input() menuItems: any[] = [];
   @Input() isLoggedIn: boolean = false;
+   @Input() userId!: number;
   
   isScrolled = false;
   isMobileMenuOpen = false;

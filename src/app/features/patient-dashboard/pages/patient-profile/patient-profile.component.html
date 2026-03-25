@@ -1,0 +1,203 @@
+<!-- patient-profile.component.html -->
+<div class="profile-wrapper">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1><i class="bi bi-person-heart"></i> Mon profil médical</h1>
+      <p>Ces informations aident votre nutritionniste à personnaliser votre plan alimentaire</p>
+    </div>
+   <button class="btn-edit" *ngIf="!isEditing" (click)="editProfile()">
+    <i class="bi bi-pencil-fill"></i> Modifier
+  </button>
+  <button class="btn-delete" *ngIf="!isEditing && profileId" (click)="deleteProfile()">
+    <i class="bi bi-trash-fill"></i> Supprimer
+  </button>
+  </div>
+
+  <!-- Success alert -->
+  <div class="alert-success" *ngIf="saved">
+    <i class="bi bi-check-circle-fill"></i> Profil sauvegardé avec succès !
+  </div>
+
+  <div class="profile-layout">
+
+    <!-- ── Formulaire ──────────────────────────────── -->
+    <div class="form-card">
+      <div class="form-card-header">
+        <h3><i class="bi bi-clipboard2-pulse-fill"></i> Informations médicales</h3>
+      </div>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label><i class="bi bi-activity"></i> Poids (kg)</label>
+          <input type="number" [(ngModel)]="profile.weight"
+                 [disabled]="!isEditing"
+                 placeholder="ex: 75"
+                 class="form-input" min="30" max="250">
+        </div>
+
+        <div class="form-group">
+          <label><i class="bi bi-rulers"></i> Taille (cm)</label>
+          <input type="number" [(ngModel)]="profile.height"
+                 [disabled]="!isEditing"
+                 placeholder="ex: 170"
+                 class="form-input" min="100" max="250">
+        </div>
+
+        <div class="form-group">
+          <label><i class="bi bi-calendar3"></i> Âge</label>
+          <input type="number" [(ngModel)]="profile.age"
+                 [disabled]="!isEditing"
+                 placeholder="ex: 45"
+                 class="form-input" min="1" max="120">
+        </div>
+
+        <div class="form-group">
+          <label><i class="bi bi-gender-ambiguous"></i> Sexe</label>
+          <select [(ngModel)]="profile.gender"
+                  [disabled]="!isEditing"
+                  class="form-input">
+            <option value="male">Homme</option>
+            <option value="female">Femme</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label><i class="bi bi-droplet-fill"></i> Type de diabète</label>
+          <select [(ngModel)]="profile.diabetesType"
+                  [disabled]="!isEditing"
+                  class="form-input">
+            <option value="type1">Type 1</option>
+            <option value="type2">Type 2</option>
+            <option value="gestational">Gestationnel</option>
+            <option value="prediabetes">Pré-diabète</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label><i class="bi bi-bicycle"></i> Niveau d'activité</label>
+          <select [(ngModel)]="profile.activityLevel"
+                  [disabled]="!isEditing"
+                  class="form-input">
+            <option value="sedentary">Sédentaire</option>
+            <option value="light">Légèrement actif</option>
+            <option value="moderate">Modérément actif</option>
+            <option value="active">Très actif</option>
+          </select>
+        </div>
+
+        <div class="form-group full-width">
+          <label><i class="bi bi-graph-up-arrow"></i> HbA1c % (dernier résultat)</label>
+          <input type="number" [(ngModel)]="profile.hba1c"
+                 [disabled]="!isEditing"
+                 placeholder="ex: 7.2" step="0.1"
+                 class="form-input" min="4" max="15">
+          <span class="input-hint">
+            Normal &lt; 5.7% · Pré-diabète 5.7–6.4% · Diabète ≥ 6.5%
+          </span>
+        </div>
+
+      </div>
+
+      <button class="btn-save" *ngIf="isEditing"
+              (click)="saveProfile()"
+              [disabled]="!profile.weight || !profile.height || !profile.age">
+        <i class="bi bi-check2-circle"></i> Sauvegarder mon profil
+      </button>
+    </div>
+
+    <!-- ── Résultats ────────────────────────────────── -->
+    <div class="results-panel">
+
+      <!-- Empty state -->
+      <div class="empty-results" *ngIf="imc === null">
+        <i class="bi bi-calculator"></i>
+        <p>Remplissez votre profil pour voir vos résultats calculés automatiquement</p>
+      </div>
+
+      <!-- IMC Card -->
+      <div class="result-card" *ngIf="imc !== null">
+        <h3><i class="bi bi-speedometer2"></i> Indice de Masse Corporelle</h3>
+
+        <div class="imc-display">
+          <div class="imc-value" [style.color]="imcColor">{{ imc }}</div>
+          <div class="imc-category" [style.color]="imcColor">{{ imcCategory }}</div>
+        </div>
+
+        <div class="imc-scale">
+          <div class="scale-bar">
+            <div class="scale-fill"
+                 [style.width.%]="getImcPercent()"
+                 [style.background]="imcColor">
+            </div>
+          </div>
+          <div class="scale-labels">
+            <span>18.5</span>
+            <span>25</span>
+            <span>30</span>
+            <span>40</span>
+          </div>
+        </div>
+
+        <div class="imc-alert" *ngIf="imc !== null && imc >= 25">
+          <i class="bi bi-info-circle-fill"></i>
+          Un IMC élevé augmente le risque de complications diabétiques. Consultez votre nutritionniste.
+        </div>
+      </div>
+
+      <!-- Besoins nutritionnels -->
+      <div class="result-card" *ngIf="dailyCalories">
+        <h3><i class="bi bi-egg-fried"></i> Besoins journaliers recommandés</h3>
+
+        <div class="needs-grid">
+          <div class="need-item calories">
+            <div class="need-emoji">🔥</div>
+            <div class="need-value">{{ dailyCalories }}</div>
+            <div class="need-label">kcal / jour</div>
+          </div>
+          <div class="need-item carbs">
+            <div class="need-emoji">🌾</div>
+            <div class="need-value">{{ dailyCarbs }}</div>
+            <div class="need-label">g glucides / jour</div>
+          </div>
+          <div class="need-item meal">
+            <div class="need-emoji">🍽️</div>
+            <div class="need-value">{{ carbsPerMeal }}</div>
+            <div class="need-label">g glucides / repas</div>
+          </div>
+        </div>
+
+        <div class="nutrition-note">
+          <i class="bi bi-lightbulb-fill"></i>
+          Limite glucides diabète type 2 : <strong>45–60g par repas</strong>
+        </div>
+      </div>
+
+      <!-- HbA1c -->
+      <div class="result-card" *ngIf="profile.hba1c">
+        <h3><i class="bi bi-heart-pulse-fill"></i> Statut HbA1c</h3>
+
+        <div class="hba1c-status" [class]="getHba1cStatus()">
+          <div class="hba1c-value">{{ profile.hba1c }}%</div>
+          <div class="hba1c-info">
+            <ng-container *ngIf="getHba1cStatus() === 'normal'">
+              <strong>✅ Normal</strong>
+              <p>Votre taux est dans la normale. Continuez vos bonnes habitudes !</p>
+            </ng-container>
+            <ng-container *ngIf="getHba1cStatus() === 'prediabetes'">
+              <strong>⚠️ Pré-diabète</strong>
+              <p>Surveillez votre alimentation et faites de l'exercice régulièrement.</p>
+            </ng-container>
+            <ng-container *ngIf="getHba1cStatus() === 'diabetes'">
+              <strong>🔴 Diabète — suivi requis</strong>
+              <p>Consultez votre médecin et respectez strictement votre plan alimentaire.</p>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -27,7 +27,7 @@
       <!-- Messages -->
       <div class="messages-container" id="chat-messages">
 
-        <!-- Example prompts (shown only if no messages from patient yet) -->
+        <!-- Example prompts -->
         <div class="examples-row" *ngIf="messages.length <= 1">
           <p class="examples-label">Essayez un exemple :</p>
           <div class="examples-chips">
@@ -84,11 +84,10 @@
                 </thead>
                 <tbody>
                   <tr *ngFor="let food of msg.result.foods">
+                    <td><span class="food-name">{{ food.name }}</span></td>
                     <td>
-                      <span class="food-name">{{ food.name }}</span>
-                    </td>
-                    <td>
-                      <span class="calorie-badge" [style.background]="getCalorieColor(food.calories) + '20'"
+                      <span class="calorie-badge"
+                            [style.background]="getCalorieColor(food.calories) + '20'"
                             [style.color]="getCalorieColor(food.calories)">
                         {{ food.calories | number:'1.0-0' }}
                       </span>
@@ -143,39 +142,112 @@
               </div>
             </div>
 
-            <!-- Diabetes tip -->
-            <div class="diabetes-tip" *ngIf="getTotals(msg.result.foods).carbs > 60">
-              <i class="bi bi-exclamation-triangle-fill"></i>
-              Attention : apport glucidique élevé ({{ getTotals(msg.result.foods).carbs | number:'1.0-0' }}g). Pensez à surveiller votre glycémie.
-            </div>
+            <!-- Alertes glucides diabète -->
+            <ng-container *ngIf="msg.type === 'ai' && msg.result">
+
+              <!-- 🔴 Danger > 45g -->
+              <div class="diabetes-tip danger"
+                   *ngIf="getTotals(msg.result!.foods).carbs > 45">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <div>
+                  <strong>⚠️ Alerte glycémique !</strong>
+                  <p>Glucides détectés : <strong>{{ getTotals(msg.result!.foods).carbs | number:'1.0-0' }}g</strong>
+                     — dépasse la limite recommandée (45g/repas) pour diabétique.</p>
+                  <small>💡 Réduisez les féculents et privilégiez légumes verts et protéines.</small>
+                </div>
+              </div>
+
+              <!-- 🟡 Attention 30-45g -->
+              <div class="diabetes-tip warning"
+                   *ngIf="getTotals(msg.result!.foods).carbs > 30 && getTotals(msg.result!.foods).carbs <= 45">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                <div>
+                  <strong>Attention aux glucides</strong>
+                  <p>Glucides : <strong>{{ getTotals(msg.result!.foods).carbs | number:'1.0-0' }}g</strong>
+                     — proche de la limite recommandée (45g).</p>
+                  <small>💡 Surveillez votre glycémie après ce repas.</small>
+                </div>
+              </div>
+
+              <!-- 🟢 OK <= 30g -->
+              <div class="diabetes-tip success"
+                   *ngIf="getTotals(msg.result!.foods).carbs <= 30">
+                <i class="bi bi-check-circle-fill"></i>
+                <div>
+                  <strong>Repas équilibré ✓</strong>
+                  <p>Glucides : <strong>{{ getTotals(msg.result!.foods).carbs | number:'1.0-0' }}g</strong>
+                     — dans les limites recommandées pour diabétique.</p>
+                </div>
+              </div>
+
+            </ng-container>
           </div>
 
           <!-- Patient avatar -->
-          <div class="msg-avatar patient-avatar-sm" *ngIf="msg.type === 'patient'">
+          <div class="msg-avatar patient-avatar-sm"
+               *ngIf="msg.type !== 'ai' && msg.type !== 'loading'">
             <i class="bi bi-person-fill"></i>
           </div>
-        </div>
 
+        </div>
       </div>
 
-      <!-- Input area -->
+      <!-- ── Input area UNIQUE (texte + photo) ────────────────── -->
       <div class="input-area">
         <div class="input-row">
+
+          <!-- Bouton photo Clarifai -->
+          <label class="photo-btn" [class.loading]="isAnalyzingImage"
+                 title="Analyser une photo de repas">
+            <input type="file"
+                   accept="image/*"
+                   (change)="onImageUpload($event)"
+                   [disabled]="isAnalyzingImage || isLoading"
+                   style="display:none">
+            <span *ngIf="!isAnalyzingImage">
+              <i class="bi bi-camera-fill"></i>
+            </span>
+            <span *ngIf="isAnalyzingImage"
+                  class="spinner-border spinner-border-sm">
+            </span>
+          </label>
+
+          <!-- Textarea -->
           <textarea
             class="chat-input"
             [(ngModel)]="userInput"
             (keydown)="onKeyDown($event)"
-            placeholder="Décrivez ce que vous avez mangé en anglais... ex: I ate rice and chicken"
+            placeholder="Décrivez ce que vous avez mangé... ou 📸 envoyez une photo"
             rows="2"
-            [disabled]="isLoading">
+            [disabled]="isLoading || isAnalyzingImage">
           </textarea>
-          <button class="send-btn" (click)="sendMessage()" [disabled]="!userInput.trim() || isLoading">
+
+          <!-- Bouton envoyer -->
+          <button class="send-btn"
+                  (click)="sendMessage()"
+                  [disabled]="!userInput.trim() || isLoading || isAnalyzingImage">
             <span *ngIf="!isLoading"><i class="bi bi-send-fill"></i></span>
-            <span *ngIf="isLoading" class="spinner-border spinner-border-sm"></span>
+            <span *ngIf="isLoading"
+                  class="spinner-border spinner-border-sm">
+            </span>
           </button>
+
         </div>
-        <p class="input-hint">Entrée pour envoyer · Shift+Entrée pour nouvelle ligne · En anglais uniquement</p>
+
+        <!-- Preview image -->
+        <div class="image-preview" *ngIf="imagePreview">
+          <img [src]="imagePreview" alt="Aperçu repas">
+          <div class="preview-info">
+            <span><i class="bi bi-cpu-fill"></i> Clarifai analyse votre repas...</span>
+            <small>Détection automatique des aliments par IA</small>
+          </div>
+        </div>
+
+        <p class="input-hint">
+          Entrée pour envoyer · Shift+Entrée pour nouvelle ligne · 📸 Photo pour analyse IA
+        </p>
       </div>
+
     </div>
 
     <!-- History Sidebar -->

@@ -1,6 +1,7 @@
 // plan-create.component.ts
 import { Component, OnInit } from '@angular/core';
-import { NutritionService, DietPlan, DietMeal } from '../../../../services/nutrition.service';
+import { NutritionService} from '../../../../services/nutrition.service';
+import { DietPlan, DietMeal, FoodItem, FoodEntry, FoodAnalysisResult } from '../../../../models/diet-plan.model';
 
 interface PatientOption {
   id: number;

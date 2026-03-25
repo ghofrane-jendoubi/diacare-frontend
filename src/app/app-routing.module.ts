@@ -4,7 +4,8 @@ import { AdminLayoutComponent } from './shared/components/admin-layout/admin-lay
 import { DoctorLayoutComponent } from './shared/components/doctor-layout/doctor-layout.component';
 import { NutritionnistLayoutComponent } from './shared/components/nutritionnist-layout/nutritionnist-layout.component';
 import { HomeComponent } from './features/home/home.component';
-import { TestUsersComponent } from './test-users/test-users.component';
+import { PatientLayoutComponent } from './shared/components/patient-layout/patient-layout.component';
+
 
 const routes: Routes = [
   
@@ -12,13 +13,14 @@ const routes: Routes = [
   { path: '', component: HomeComponent },
   
   // Espace patient
-  {
-    path: 'patient',
-    loadChildren: () =>
-      import('./features/patient-dashboard/patient-dashboard.module')
-        .then(m => m.PatientDashboardModule)
-  },
-  // Espace admin (avec layout)
+ {
+  path: 'patient',
+  component: PatientLayoutComponent,
+  children: [
+    { path: '', loadChildren: () => import('./features/patient-dashboard/patient-dashboard.module').then(m => m.PatientDashboardModule) }
+  ]
+},
+  // Espace admin
   { 
     path: 'admin', 
     component: AdminLayoutComponent,
@@ -30,11 +32,12 @@ const routes: Routes = [
   // Espace médecin (avec layout)
   { 
     path: 'doctor', 
-    component: DoctorLayoutComponent, 
+    component: DoctorLayoutComponent,
     children: [
       { path: '', loadChildren: () => import('./features/doctor-dashboard/doctor-dashboard.module').then(m => m.DoctorDashboardModule) }
     ]
   },
+  
   
   // Espace nutritionniste (avec layout)
   { 
@@ -44,13 +47,12 @@ const routes: Routes = [
       { path: '', loadChildren: () => import('./features/nutritionnist-dashboard/nutritionnist-dashboard.module').then(m => m.NutritionnistDashboardModule) }
     ]
   },
-  { path: 'test-users', component: TestUsersComponent },
-
-  {
-    path: 'dashboard',
-    loadChildren: () =>
-      import('./features/patient-dashboard/patient-dashboard.module')
-        .then(m => m.PatientDashboardModule)
+  { 
+    path: 'nutritionnist', 
+    component: NutritionnistLayoutComponent,
+    children: [
+      { path: '', loadChildren: () => import('./features/nutritionnist-dashboard/nutritionnist-dashboard.module').then(m => m.NutritionnistDashboardModule) }
+    ]
   },
   
   // Redirection pour les routes non trouvées
@@ -58,7 +60,13 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, {
+    initialNavigation: 'enabledBlocking', // Garde cette ligne
+    errorHandler: (error) => {
+      console.error('Navigation error:', error);
+      // Ignorer l'erreur de rendu serveur
+    }
+  })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

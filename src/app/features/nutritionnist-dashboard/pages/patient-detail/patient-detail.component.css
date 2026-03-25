@@ -1,0 +1,318 @@
+/* patient-detail.component.css */
+
+.detail-wrapper {
+  padding: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* ── Header ─────────────────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.btn-back {
+  padding: 8px 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #374151;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s;
+}
+.btn-back:hover { background: #f3f4f6; }
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.patient-avatar {
+  width: 48px;
+  height: 48px;
+  background: #ecfdf5;
+  border: 2px solid #10b981;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #10b981;
+}
+
+.page-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #065f46;
+  margin: 0;
+}
+
+.badge-diabetes {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.btn-create-plan {
+  padding: 10px 20px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  transition: background 0.2s;
+  margin-left: auto;
+}
+.btn-create-plan:hover { background: #059669; }
+
+/* ── Tabs ────────────────────────────────────────── */
+.tabs-bar {
+  display: flex;
+  gap: 4px;
+  background: #f3f4f6;
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  background: white;
+  color: #065f46;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.badge-count {
+  background: #10b981;
+  color: white;
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 11px;
+}
+
+/* ── Tab content ─────────────────────────────────── */
+.tab-content { animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ── Profile grid ────────────────────────────────── */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.info-card, .imc-card, .hba1c-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #d1fae5;
+  padding: 20px;
+}
+
+.info-card h3, .imc-card h3, .hba1c-card h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-list { display: flex; flex-direction: column; gap: 10px; }
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+.info-item:last-child { border-bottom: none; }
+
+.info-label { font-size: 13px; color: #6b7280; }
+.info-value { font-size: 14px; font-weight: 500; color: #1f2937; }
+
+/* IMC */
+.imc-value { font-size: 48px; font-weight: 800; text-align: center; }
+.imc-category { font-size: 15px; font-weight: 500; text-align: center; margin-bottom: 12px; }
+
+.imc-bar {
+  height: 8px;
+  background: #f3f4f6;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.imc-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+
+.imc-alert {
+  padding: 10px 12px;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #991b1b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* HbA1c */
+.hba1c-display {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 10px;
+}
+.hba1c-display.normal { background: #f0fdf4; border: 1px solid #a7f3d0; }
+.hba1c-display.prediabetes { background: #fff7ed; border: 1px solid #fed7aa; }
+.hba1c-display.diabetes { background: #fef2f2; border: 1px solid #fca5a5; }
+
+.hba1c-val { font-size: 32px; font-weight: 800; }
+.normal .hba1c-val { color: #10b981; }
+.prediabetes .hba1c-val { color: #f97316; }
+.diabetes .hba1c-val { color: #ef4444; }
+
+.hba1c-label { font-size: 14px; font-weight: 500; }
+
+/* ── History ─────────────────────────────────────── */
+.loading-state {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  background: white;
+  border-radius: 16px;
+  border: 1px dashed #d1fae5;
+  color: #9ca3af;
+}
+
+.empty-state i { font-size: 40px; display: block; margin-bottom: 12px; color: #d1fae5; }
+.empty-state p { margin: 0; font-size: 14px; }
+
+.history-list { display: flex; flex-direction: column; gap: 12px; }
+
+.history-entry {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  gap: 12px;
+}
+
+.entry-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #374151;
+  font-size: 14px;
+}
+
+.entry-meta i { color: #10b981; }
+.entry-text { font-weight: 500; }
+
+.entry-date { font-size: 12px; color: #9ca3af; flex-shrink: 0; }
+
+.entry-results { padding: 14px 16px; }
+
+.foods-detected {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.food-chip {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.macros-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.macro-item {
+  text-align: center;
+  padding: 8px;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.macro-label { font-size: 11px; color: #6b7280; display: block; }
+.macro-value { font-size: 14px; font-weight: 600; color: #1f2937; }
+
+.carbs-alert {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.carbs-alert.danger { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
+.carbs-alert.warning { background: #fff7ed; color: #92400e; border: 1px solid #fed7aa; }
+.carbs-alert.success { background: #f0fdf4; color: #065f46; border: 1px solid #a7f3d0; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .profile-grid { grid-template-columns: 1fr; }
+  .macros-summary { grid-template-columns: repeat(2, 1fr); }
+}

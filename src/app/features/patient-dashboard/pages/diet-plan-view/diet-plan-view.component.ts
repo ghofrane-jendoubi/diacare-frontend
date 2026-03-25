@@ -1,6 +1,9 @@
 // diet-plan-view.component.ts
-import { Component, OnInit } from '@angular/core';
-import { NutritionService, DietPlan } from '../../../../services/nutrition.service';
+import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { NutritionService} from '../../../../services/nutrition.service';
+import { DietPlan, DietMeal, FoodItem, FoodEntry, FoodAnalysisResult } from '../../../../models/diet-plan.model';
+import { isPlatformBrowser } from '@angular/common';
+
 
 @Component({
   selector: 'app-diet-plan-view',
@@ -19,12 +22,15 @@ export class DietPlanViewComponent implements OnInit {
   mealOrder = ['breakfast', 'lunch', 'dinner', 'snack'];
 
   constructor(
-    private nutritionService: NutritionService
-  ) {}
+  private nutritionService: NutritionService,
+  @Inject(PLATFORM_ID) private platformId: Object
+) {}
 
-  ngOnInit(): void {
+ngOnInit(): void {
+  if (isPlatformBrowser(this.platformId)) {
     this.loadPlans();
   }
+}
 
   loadPlans(): void {
     this.isLoading = true;
