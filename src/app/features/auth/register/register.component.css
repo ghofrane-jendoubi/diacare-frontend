@@ -1,0 +1,48 @@
+.register-page {
+  min-height: 100vh; background: #f8fafc;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.register-card {
+  background: white; border-radius: 20px; padding: 40px;
+  width: 100%; max-width: 420px; border: 0.5px solid #e2e8f0;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+.card-header { text-align: center; margin-bottom: 28px; }
+.logo {
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, #1e3a5f, #2563eb);
+  border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; color: white; font-weight: 800;
+  font-size: 18px; margin: 0 auto 12px;
+}
+.card-header h2 { font-size: 22px; font-weight: 700; color: #1e293b; }
+.card-header p { font-size: 14px; color: #64748b; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+.form-input {
+  width: 100%; padding: 11px 14px;
+  border: 0.5px solid #e2e8f0; border-radius: 10px;
+  font-size: 14px; outline: none; color: #1e293b;
+  background: white; box-sizing: border-box;
+}
+.form-input:focus { border-color: #2563eb; }
+.role-selector { display: flex; gap: 10px; }
+.role-selector button {
+  flex: 1; padding: 10px; border: 0.5px solid #e2e8f0;
+  border-radius: 10px; background: white; font-size: 14px;
+  cursor: pointer; transition: all 0.15s;
+}
+.role-selector button.active {
+  background: #eff6ff; color: #2563eb; border-color: #2563eb;
+}
+.error-msg { background: #fef2f2; color: #dc2626; border: 0.5px solid #fca5a5; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; }
+.success-msg { background: #f0fdf4; color: #16a34a; border: 0.5px solid #86efac; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; }
+.btn-register {
+  width: 100%; padding: 13px;
+  background: linear-gradient(135deg, #1e3a5f, #2563eb);
+  color: white; border: none; border-radius: 10px;
+  font-size: 15px; font-weight: 600; cursor: pointer;
+}
+.btn-register:disabled { opacity: 0.5; cursor: not-allowed; }
+.login-link { text-align: center; font-size: 13px; color: #64748b; margin-top: 16px; }
+.login-link a { color: #2563eb; font-weight: 600; text-decoration: none; }

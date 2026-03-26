@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { DoctorEducationService } from '../../services/doctor-education.service';
 import { DoctorStats } from '../../models/doctor-education.model';
 import { ContentSummary } from '../../../education/models/content';
+import { AuthService } from '../../../../shared/services/auth.service';
 
 @Component({
   selector: 'app-education-manager',
@@ -21,7 +22,8 @@ export class EducationManagerComponent implements OnInit {
 
   constructor(
     private doctorService: DoctorEducationService,
-    private router: Router
+    private router: Router,
+    public auth: AuthService
   ) {}
 
   ngOnInit() {
@@ -77,5 +79,13 @@ export class EducationManagerComponent implements OnInit {
     if (!count) return '0';
     if (count >= 1000) return (count / 1000).toFixed(1) + 'k';
     return count.toString();
+  }
+
+  get currentUserName(): string {
+    return this.auth.currentUser?.name || '';
+  }
+
+  get currentUserFirstName(): string {
+    return this.auth.currentUser?.name?.split(' ')[0] || '';
   }
 }

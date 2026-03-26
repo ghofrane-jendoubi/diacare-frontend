@@ -528,10 +528,24 @@ body {
 .service-features li {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: var(--gray-600);
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
+}
+
+.card-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.service-card.edu-card {
+  cursor: pointer;
+}
+
+.service-card.edu-card h3 {
+  margin-top: 0;
 }
 
 .service-features i {

@@ -1,1 +1,175 @@
+<nav class="navbar" *ngIf="!isAuthPage">
+  <!-- Left: Logo and Brand -->
+  <div class="navbar-section navbar-brand">
+    <div class="nav-logo" routerLink="/">
+      <div class="logo-icon">DC</div>
+      <div class="brand-text">
+        <div class="brand-name">DiaCare</div>
+        <div class="brand-tagline">Healthcare Platform</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Center: Navigation Links -->
+  <div class="navbar-section navbar-center">
+    <!-- Public Navigation -->
+    <div class="nav-links public-nav" *ngIf="!auth.isLoggedIn">
+      <a href="#services" class="nav-link">Services</a>
+      <a href="#comment-ca-marche" class="nav-link">Comment ça marche</a>
+      <a href="#temoignages" class="nav-link">Témoignages</a>
+      <a href="#contact" class="nav-link">Contact</a>
+    </div>
+
+    <!-- Patient Navigation -->
+    <div class="nav-links patient-nav" *ngIf="auth.isLoggedIn && auth.isPatient">
+      <a routerLink="/patient" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
+        <i class="bi bi-house-fill"></i>
+        <span>Accueil</span>
+      </a>
+      <a routerLink="/patient/education" routerLinkActive="active" class="nav-link">
+        <i class="bi bi-book-fill"></i>
+        <span>Éducation</span>
+      </a>
+      <a routerLink="/patient/forum" routerLinkActive="active" class="nav-link">
+        <i class="bi bi-chat-dots-fill"></i>
+        <span>Communauté</span>
+      </a>
+      <a routerLink="/patient/ia-dashboard" routerLinkActive="active" class="nav-link">
+        <i class="bi bi-robot"></i>
+        <span>Assis. IA</span>
+      </a>
+    </div>
+
+    <!-- Doctor Navigation -->
+    <div class="nav-links doctor-nav" *ngIf="auth.isLoggedIn && auth.isDoctor">
+      <a routerLink="/doctor" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
+        <i class="bi bi-speedometer2"></i>
+        <span>Dashboard</span>
+      </a>
+      <a routerLink="/doctor/education" routerLinkActive="active" class="nav-link">
+        <i class="bi bi-file-earmark-text-fill"></i>
+        <span>Articles</span>
+      </a>
+      <a routerLink="/doctor/education/comments" routerLinkActive="active" class="nav-link">
+        <i class="bi bi-chat-left-dots-fill"></i>
+        <span>Avis</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Right: User Menu -->
+  <div class="navbar-section navbar-right">
+    <!-- Public CTA -->
+    <div class="nav-cta" *ngIf="!auth.isLoggedIn">
+      <a routerLink="/login" class="btn btn-login">
+        <i class="bi bi-lock-fill"></i>
+        Se connecter
+      </a>
+      <a routerLink="/register" class="btn btn-register">
+        <i class="bi bi-person-plus-fill"></i>
+        S'inscrire
+      </a>
+    </div>
+
+    <!-- Logged In User Menu -->
+    <div class="user-menu" *ngIf="auth.isLoggedIn">
+      <div class="user-menu-trigger" (click)="toggleUserMenu()">
+        <div class="user-avatar" [class.doctor]="auth.isDoctor">
+          {{ auth.currentUser?.avatarLetter }}
+        </div>
+        <div class="user-info">
+          <div class="user-name">{{ currentUserFirstName }}</div>
+          <div class="user-role">{{ auth.isDoctor ? 'Médecin' : 'Patient' }}</div>
+        </div>
+        <i class="bi bi-chevron-down" [class.rotated]="showUserMenu"></i>
+      </div>
+
+      <!-- Dropdown Menu -->
+      <div class="user-dropdown" *ngIf="showUserMenu">
+        <div class="dropdown-header">
+          <div class="dropdown-avatar" [class.doctor]="auth.isDoctor">
+            {{ auth.currentUser?.avatarLetter }}
+          </div>
+          <div class="dropdown-user-info">
+            <div class="dropdown-name">{{ auth.currentUser?.name }}</div>
+            <div class="dropdown-email">{{ auth.currentUser?.email }}</div>
+          </div>
+        </div>
+
+        <div class="dropdown-divider"></div>
+
+        <div class="dropdown-menu">
+          <a routerLink="/profile" class="dropdown-item" (click)="showUserMenu = false">
+            <i class="bi bi-person-circle"></i>
+            <span>Mon Profil</span>
+          </a>
+          <a routerLink="/settings" class="dropdown-item" (click)="showUserMenu = false">
+            <i class="bi bi-gear-fill"></i>
+            <span>Paramètres</span>
+          </a>
+          <a href="#help" class="dropdown-item" (click)="showUserMenu = false">
+            <i class="bi bi-question-circle-fill"></i>
+            <span>Aide</span>
+          </a>
+        </div>
+
+        <div class="dropdown-divider"></div>
+
+        <button class="dropdown-logout" (click)="logout(); showUserMenu = false">
+          <i class="bi bi-box-arrow-right"></i>
+          <span>Déconnexion</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu Toggle -->
+  <button class="navbar-toggle" (click)="toggleMobileMenu()" [class.active]="showMobileMenu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" *ngIf="showMobileMenu">
+    <div class="mobile-nav-links">
+      <!-- Patient Mobile Nav -->
+      <a routerLink="/patient" *ngIf="auth.isPatient" class="mobile-nav-item" (click)="showMobileMenu = false">
+        <i class="bi bi-house-fill"></i> Accueil
+      </a>
+      <a routerLink="/patient/education" *ngIf="auth.isPatient" class="mobile-nav-item" (click)="showMobileMenu = false">
+        <i class="bi bi-book-fill"></i> Éducation
+      </a>
+      <a routerLink="/patient/forum" *ngIf="auth.isPatient" class="mobile-nav-item" (click)="showMobileMenu = false">
+        <i class="bi bi-chat-dots-fill"></i> Communauté
+      </a>
+
+      <!-- Doctor Mobile Nav -->
+      <a routerLink="/doctor" *ngIf="auth.isDoctor" class="mobile-nav-item" (click)="showMobileMenu = false">
+        <i class="bi bi-speedometer2"></i> Dashboard
+      </a>
+      <a routerLink="/doctor/education" *ngIf="auth.isDoctor" class="mobile-nav-item" (click)="showMobileMenu = false">
+        <i class="bi bi-file-earmark-text-fill"></i> Articles
+      </a>
+
+      <!-- Public Mobile Nav -->
+      <a href="#services" *ngIf="!auth.isLoggedIn" class="mobile-nav-item" (click)="showMobileMenu = false">
+        Services
+      </a>
+      <a href="#temoignages" *ngIf="!auth.isLoggedIn" class="mobile-nav-item" (click)="showMobileMenu = false">
+        Témoignages
+      </a>
+    </div>
+
+    <div class="mobile-nav-actions">
+      <a routerLink="/login" *ngIf="!auth.isLoggedIn" class="btn btn-login-full" (click)="showMobileMenu = false">
+        Se connecter
+      </a>
+      <button class="btn btn-logout-mobile" *ngIf="auth.isLoggedIn" (click)="logout(); showMobileMenu = false">
+        Déconnexion
+      </button>
+    </div>
+  </div>
+</nav>
+
 <router-outlet></router-outlet>

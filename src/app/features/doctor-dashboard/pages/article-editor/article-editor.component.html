@@ -24,32 +24,94 @@
     <!-- FORMULAIRE PRINCIPAL -->
     <div class="editor-main">
 
+      <!-- Titre avec micro -->
       <div class="field-group">
         <label class="field-label">Titre <span class="required">*</span></label>
-        <input type="text" [(ngModel)]="form.title"
-               placeholder="Un titre accrocheur et informatif..."
-               class="input-title" maxlength="255">
+        <div class="input-with-mic">
+          <input type="text" [(ngModel)]="form.title"
+                 placeholder="Un titre accrocheur et informatif..."
+                 class="input-title" maxlength="255">
+          <div class="mic-control">
+            <button type="button" class="mic-btn"
+                    *ngIf="!(isListening && activeField === 'title')"
+                    (click)="startListening('title')">
+              🎤
+            </button>
+            <button type="button" class="mic-btn stop-btn"
+                    *ngIf="isListening && activeField === 'title'"
+                    (click)="stopListening()">
+              ⏹
+            </button>
+            <span class="listening-indicator" *ngIf="isListening && activeField === 'title'">
+              🎙️ En cours...
+            </span>
+          </div>
+        </div>
         <span class="field-hint">{{ form.title.length }}/255 caractères</span>
       </div>
 
+      <!-- Sous-titre avec micro -->
       <div class="field-group">
         <label class="field-label">Sous-titre</label>
-        <input type="text" [(ngModel)]="form.subtitle"
-               placeholder="Une phrase d'introduction optionnelle..."
-               class="input-text" maxlength="500">
+        <div class="input-with-mic">
+          <input type="text" [(ngModel)]="form.subtitle"
+                 placeholder="Une phrase d'introduction optionnelle..."
+                 class="input-text" maxlength="500">
+          <div class="mic-control">
+            <button type="button" class="mic-btn"
+                    *ngIf="!(isListening && activeField === 'subtitle')"
+                    (click)="startListening('subtitle')">
+              🎤
+            </button>
+            <button type="button" class="mic-btn stop-btn"
+                    *ngIf="isListening && activeField === 'subtitle'"
+                    (click)="stopListening()">
+              ⏹
+            </button>
+            <span class="listening-indicator" *ngIf="isListening && activeField === 'subtitle'">
+              🎙️ En cours...
+            </span>
+          </div>
+        </div>
       </div>
 
+      <!-- Résumé avec micro + IA -->
       <div class="field-group">
         <label class="field-label">
           Résumé <span class="required">*</span>
           <span class="field-hint">Affiché dans la liste des articles</span>
         </label>
-        <textarea [(ngModel)]="form.summary"
-                  placeholder="Décrivez brièvement le contenu (2-3 phrases max)..."
-                  rows="3" class="input-text" maxlength="500"></textarea>
+        <div class="input-with-mic">
+          <textarea [(ngModel)]="form.summary"
+                    placeholder="Décrivez brièvement le contenu (2-3 phrases max)..."
+                    rows="3" class="input-text" maxlength="500"></textarea>
+          <div class="mic-control">
+            <!-- Bouton IA maison -->
+            <button type="button" class="mic-btn btn-ia"
+                    (click)="onGenerateCustomSummary()"
+                    [disabled]="isGeneratingSummary">
+              ✨ IA
+            </button>
+            <!-- Bouton micro -->
+            <button type="button" class="mic-btn"
+                    *ngIf="!(isListening && activeField === 'summary')"
+                    (click)="startListening('summary')">
+              🎤
+            </button>
+            <button type="button" class="mic-btn stop-btn"
+                    *ngIf="isListening && activeField === 'summary'"
+                    (click)="stopListening()">
+              ⏹
+            </button>
+            <span class="listening-indicator" *ngIf="isListening && activeField === 'summary'">
+              🎙️ En cours...
+            </span>
+          </div>
+        </div>
         <span class="field-hint">{{ form.summary.length }}/500 caractères</span>
       </div>
 
+      <!-- Contenu avec micro -->
       <div class="field-group">
         <label class="field-label">Contenu <span class="required">*</span></label>
         <div class="content-toolbar">
@@ -62,10 +124,27 @@
           <span class="toolbar-separator"></span>
           <span class="toolbar-info">HTML : h2, h3, p, ul, blockquote, strong</span>
         </div>
-        <textarea [(ngModel)]="form.content"
-                  (ngModelChange)="estimateReadingTime()"
-                  placeholder="Rédigez votre contenu ici..."
-                  rows="18" class="input-content"></textarea>
+        <div class="input-with-mic">
+          <textarea [(ngModel)]="form.content"
+                    (ngModelChange)="estimateReadingTime()"
+                    placeholder="Rédigez votre contenu ici..."
+                    rows="18" class="input-content"></textarea>
+          <div class="mic-control mic-control-large">
+            <button type="button" class="mic-btn mic-btn-large"
+                    *ngIf="!(isListening && activeField === 'content')"
+                    (click)="startListening('content')">
+              🎤
+            </button>
+            <button type="button" class="mic-btn mic-btn-large stop-btn"
+                    *ngIf="isListening && activeField === 'content'"
+                    (click)="stopListening()">
+              ⏹
+            </button>
+            <span class="listening-indicator" *ngIf="isListening && activeField === 'content'">
+              🎙️ En cours...
+            </span>
+          </div>
+        </div>
         <div class="content-footer">
           <span class="word-count">{{ wordCount }} mots</span>
           <span class="read-time">≈ {{ form.readingTime }} min de lecture</span>

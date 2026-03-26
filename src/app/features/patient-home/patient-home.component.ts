@@ -18,6 +18,7 @@ export class PatientHomeComponent {
     { id: 'chatbot', label: 'Chatbot', icon: 'bi bi-robot', link: '/chatbot' },
     { id: 'reclamations', label: 'Support', icon: 'bi bi-exclamation-triangle', link: '/reclamations' }
   ];
+  
 
   scrollToChatbot() {
     const chatbot = document.querySelector('.chat-fab') as HTMLElement;

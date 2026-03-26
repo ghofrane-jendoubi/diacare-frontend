@@ -1,8 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
+import { PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { DoctorEducationService } from '../../services/doctor-education.service';
 import { ArticleForm, CATEGORIES, CONTENT_TYPES, DIFFICULTY_LEVELS } from '../../models/doctor-education.model';
+
+declare var webkitSpeechRecognition: any;
 
 @Component({
   selector: 'app-article-editor',
@@ -19,11 +23,11 @@ export class ArticleEditorComponent implements OnInit {
   videoTab: 'youtube' | 'url' = 'youtube';
   imagePreviewError = false;
 
-  // === U N S P L A S H ===
+  // Unsplash
   unsplashQuery = '';
   unsplashResults: any[] = [];
   isSearchingUnsplash = false;
-  unsplashKey = 'QtgUQtgFKrOA0MozZTtBLEmT2Wd6mwX2vkLBPB_Dhdo'; // ← Remplacez par votre Access Key
+  unsplashKey = 'QtgUQtgFKrOA0MozZTtBLEmT2Wd6mwX2vkLBPB_Dhdo'; // ← Votre clé
 
   categories = CATEGORIES;
   contentTypes = CONTENT_TYPES;
@@ -57,11 +61,20 @@ export class ArticleEditorComponent implements OnInit {
     { url: 'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=600', thumb: 'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=100', label: 'Fruits & Légumes' }
   ];
 
+  // ===== SPEECH-TO-TEXT =====
+  recognition: any;
+  isListening = false;
+  activeField: 'title' | 'subtitle' | 'summary' | 'content' | null = null;
+
+  // ===== IA MAISON =====
+  isGeneratingSummary = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private doctorService: DoctorEducationService,
-    private http: HttpClient
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit() {
@@ -70,9 +83,179 @@ export class ArticleEditorComponent implements OnInit {
       this.articleId = Number(id);
       this.isEdit = true;
     }
+    if (isPlatformBrowser(this.platformId)) {
+      this.initSpeechRecognition();
+    }
   }
 
-  // ===== U N S P L A S H   M É T H O D E S =====
+  // ===== INITIALISATION RECONNAISSANCE VOCALE =====
+  initSpeechRecognition() {
+    if (typeof window === 'undefined' || !('webkitSpeechRecognition' in window)) {
+      console.warn('La reconnaissance vocale n’est pas supportée par ce navigateur.');
+      return;
+    }
+    this.recognition = new webkitSpeechRecognition();
+    this.recognition.lang = 'fr-FR';
+    this.recognition.interimResults = true;
+    this.recognition.continuous = true;
+
+    this.recognition.onresult = (event: any) => {
+      const transcript = Array.from(event.results)
+        .map((result: any) => result[0].transcript)
+        .join('');
+      if (this.activeField) {
+        this.form[this.activeField] = transcript;
+      }
+    };
+
+    this.recognition.onerror = (event: any) => {
+      console.error('Erreur reconnaissance vocale:', event.error);
+      this.stopListening();
+      alert('Erreur de reconnaissance vocale. Veuillez réessayer.');
+    };
+
+    this.recognition.onend = () => {
+      this.isListening = false;
+      this.activeField = null;
+    };
+  }
+
+  startListening(field: 'title' | 'subtitle' | 'summary' | 'content') {
+    if (!this.recognition) {
+      alert('La reconnaissance vocale n’est pas supportée par votre navigateur.');
+      return;
+    }
+    if (this.isListening) {
+      this.stopListening();
+    }
+    this.activeField = field;
+    this.isListening = true;
+    this.recognition.start();
+  }
+
+  stopListening() {
+    if (this.recognition && this.isListening) {
+      this.recognition.stop();
+    }
+    this.isListening = false;
+    this.activeField = null;
+  }
+
+  // ===== IA MAISON : RÉSUMÉ EXTRACTIF =====
+  async onGenerateCustomSummary() {
+    if (this.isGeneratingSummary) return;
+    this.isGeneratingSummary = true;
+    try {
+      const summary = await this.generateCustomSummary();
+      this.form.summary = summary;
+    } catch (error: any) {
+      console.error('Erreur de génération du résumé:', error);
+      alert(error.message || 'Impossible de générer le résumé.');
+    } finally {
+      this.isGeneratingSummary = false;
+    }
+  }
+
+  /**
+   * Génère un résumé du contenu de l'article en utilisant un algorithme extractif.
+   * Retourne une promesse avec le résumé.
+   */
+  async generateCustomSummary(): Promise<string> {
+    const content = this.form.content;
+    if (!content || content.trim().length < 50) {
+      throw new Error('Le contenu est trop court pour générer un résumé (minimum 50 caractères).');
+    }
+
+    // 1. Nettoyer le HTML
+    const plainText = content.replace(/<[^>]*>/g, '').trim();
+
+    // 2. Découper en phrases
+    const sentences = this.splitIntoSentences(plainText);
+    if (sentences.length < 2) {
+      throw new Error('Le texte ne contient pas assez de phrases pour un résumé.');
+    }
+
+    // 3. Compter les mots (sans stop words)
+    const wordFreq = this.computeWordFrequencies(plainText);
+
+    // 4. Noter chaque phrase
+    const scoredSentences = sentences.map(sentence => ({
+      text: sentence,
+      score: this.scoreSentence(sentence, wordFreq)
+    }));
+
+    // 5. Sélectionner les N meilleures phrases (par ex. 3)
+    const summarySentenceCount = Math.min(3, Math.ceil(sentences.length / 3));
+    const topSentences = this.selectTopSentences(scoredSentences, summarySentenceCount);
+
+    // 6. Reconstruire le résumé dans l'ordre original
+    const summary = topSentences.map(s => s.text).join(' ');
+    return summary;
+  }
+
+  /**
+   * Découpe un texte en phrases (basé sur . ! ?)
+   */
+  private splitIntoSentences(text: string): string[] {
+    return text.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0);
+  }
+
+  /**
+   * Calcule la fréquence d'apparition des mots (sans stop words).
+   */
+  private computeWordFrequencies(text: string): Map<string, number> {
+    const stopWords = new Set([
+      'le', 'la', 'les', 'de', 'des', 'du', 'un', 'une', 'et', 'ou', 'mais', 'donc', 'car', 'ni',
+      'ce', 'cette', 'ces', 'cet', 'il', 'elle', 'ils', 'elles', 'on', 'nous', 'vous', 'je', 'tu',
+      'me', 'te', 'se', 'lui', 'leur', 'y', 'en', 'a', 'dans', 'par', 'pour', 'sur', 'sous', 'avec',
+      'sans', 'contre', 'vers', 'chez', 'entre', 'pendant', 'depuis', 'avant', 'après', 'dès',
+      'jusque', 'hormis', 'sauf', 'selon', 'dont', 'où', 'quand', 'comment', 'pourquoi', 'que',
+      'qui', 'quoi', 'quel', 'quelle', 'quels', 'quelles', 'est', 'sont', 'être', 'avoir', 'faire'
+    ]);
+
+    const words = text.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // enlève accents
+      .match(/\b[a-z0-9]{3,}\b/g) || [];
+
+    const freq = new Map<string, number>();
+    for (const w of words) {
+      if (!stopWords.has(w)) {
+        freq.set(w, (freq.get(w) || 0) + 1);
+      }
+    }
+    return freq;
+  }
+
+  /**
+   * Calcule le score d'une phrase (somme des fréquences de ses mots).
+   */
+  private scoreSentence(sentence: string, wordFreq: Map<string, number>): number {
+    const words = sentence.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .match(/\b[a-z0-9]{3,}\b/g) || [];
+    let score = 0;
+    for (const w of words) {
+      score += wordFreq.get(w) || 0;
+    }
+    return score / (words.length || 1); // normalisation par longueur
+  }
+
+  /**
+   * Sélectionne les N meilleures phrases en fonction de leur score.
+   */
+  private selectTopSentences(scored: Array<{ text: string, score: number }>, n: number): Array<{ text: string, score: number }> {
+    // Trier par score décroissant
+    const sorted = [...scored].sort((a, b) => b.score - a.score);
+    // Prendre les N meilleures
+    const top = sorted.slice(0, n);
+    // Les remettre dans l'ordre d'apparition
+    const indices = new Map<string, number>();
+    scored.forEach((s, idx) => indices.set(s.text, idx));
+    top.sort((a, b) => (indices.get(a.text) || 0) - (indices.get(b.text) || 0));
+    return top;
+  }
+
+  // ===== U N S P L A S H =====
   searchUnsplash() {
     if (!this.unsplashQuery.trim()) return;
     this.isSearchingUnsplash = true;
@@ -120,13 +303,19 @@ export class ArticleEditorComponent implements OnInit {
     this.imagePreviewError = false;
   }
 
-  // ===== M É T H O D E S   E X I S T A N T E S (inchangées) =====
+  // ===== MÉTHODES IMAGE =====
   onImageFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
     const file = input.files[0];
-    if (!file.type.startsWith('image/')) { alert('Veuillez sélectionner une image (JPG, PNG, WebP)'); return; }
-    if (file.size > 5 * 1024 * 1024) { alert('Image trop volumineuse. Maximum 5 MB.'); return; }
+    if (!file.type.startsWith('image/')) {
+      alert('Veuillez sélectionner une image (JPG, PNG, WebP)');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image trop volumineuse. Maximum 5 MB.');
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (e) => {
       this.form.thumbnailUrl = e.target?.result as string;
@@ -140,8 +329,11 @@ export class ArticleEditorComponent implements OnInit {
     this.imagePreviewError = false;
   }
 
-  onImageError() { this.imagePreviewError = true; }
+  onImageError() {
+    this.imagePreviewError = true;
+  }
 
+  // ===== YOUTUBE =====
   extractYoutubeId(url: string): string | null {
     if (!url) return null;
     const patterns = [
@@ -167,6 +359,7 @@ export class ArticleEditorComponent implements OnInit {
     return id ? `https://www.youtube.com/embed/${id}` : '';
   }
 
+  // ===== TOOLBAR =====
   insertHtml(tag: string) {
     const templates: Record<string, string> = {
       h2: '<h2>Titre de section</h2>\n',
@@ -189,6 +382,7 @@ export class ArticleEditorComponent implements OnInit {
     return this.form.content.replace(/<[^>]*>/g, '').split(' ').filter(w => w).length;
   }
 
+  // ===== SAUVEGARDE =====
   saveArticle() {
     if (!this.form.title.trim() || !this.form.content.trim()) {
       alert('Le titre et le contenu sont obligatoires');

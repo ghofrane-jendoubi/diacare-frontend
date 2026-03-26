@@ -1,1 +1,365 @@
-/* You can add global styles to this file, and also import other style files */
+/* ============================================
+   SYSTÈME DE DESIGN DIACARE - HEALTHCARE MODERNE
+   ============================================ */
+
+/* Variables CSS - Palette de couleurs médicale moderne */
+:root {
+  /* Couleurs primaires */
+  --primary-blue: #0066cc;
+  --primary-light: #4d9cff;
+  --primary-dark: #003d7a;
+  
+  /* Couleurs secondaires */
+  --accent-green: #1abc9c;
+  --accent-orange: #ff8c42;
+  --accent-red: #e63946;
+  --accent-purple: #7c3aed;
+  
+  /* Neutrals */
+  --bg-light: #f8fafc;
+  --bg-white: #ffffff;
+  --text-dark: #1e293b;
+  --text-muted: #64748b;
+  --border-light: #e2e8f0;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+  
+  /* Espacements */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  
+  /* Border radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 2rem;
+  --radius-2xl: 3rem;
+  
+  /* Transitions */
+  --trans-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --trans-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --trans-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reset et base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 
+              'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-light);
+  color: var(--text-dark);
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+/* Typographie */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text-dark);
+  letter-spacing: -0.5px;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
+
+p {
+  color: var(--text-muted);
+  margin-bottom: var(--spacing-md);
+}
+
+a {
+  color: var(--primary-blue);
+  text-decoration: none;
+  transition: color var(--trans-fast);
+}
+
+a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+/* Boutons - Reset Bootstrap */
+.btn {
+  font-weight: 500;
+  border-radius: var(--radius-lg) !important;
+  padding: 0.625rem 1.25rem !important;
+  transition: all var(--trans-base) !important;
+  border: none !important;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark) 100%) !important;
+  color: white !important;
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-outline-primary {
+  color: var(--primary-blue) !important;
+  border: 2px solid var(--primary-blue) !important;
+  background: transparent !important;
+}
+
+.btn-outline-primary:hover {
+  background: var(--primary-blue) !important;
+  color: white !important;
+  transform: translateY(-2px);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--accent-green) 0%, #16a085 100%) !important;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, var(--accent-red) 0%, #a00e2f 100%) !important;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, var(--accent-orange) 0%, #e56f3d 100%) !important;
+}
+
+.btn-sm {
+  padding: 0.375rem 0.75rem !important;
+  font-size: 0.8125rem !important;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Cartes */
+.card {
+  border-radius: var(--radius-xl) !important;
+  border: 1px solid var(--border-light) !important;
+  background: var(--bg-white) !important;
+  box-shadow: var(--shadow-md) !important;
+  overflow: hidden;
+  transition: all var(--trans-base);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-blue);
+  transform: translateY(-4px);
+}
+
+.card-header {
+  background: linear-gradient(135deg, rgba(0, 102, 204, 0.05) 0%, rgba(26, 188, 156, 0.05) 100%) !important;
+  border-bottom: 1px solid var(--border-light) !important;
+  padding: var(--spacing-lg) !important;
+}
+
+.card-body {
+  padding: var(--spacing-lg) !important;
+}
+
+/* Input fields */
+.form-control, .form-select {
+  border-radius: var(--radius-lg) !important;
+  border: 2px solid var(--border-light) !important;
+  padding: 0.625rem 0.875rem !important;
+  font-size: 0.95rem;
+  transition: all var(--trans-base);
+  background: var(--bg-white);
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary-blue) !important;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1) !important;
+  background: var(--bg-white);
+}
+
+.form-label {
+  font-weight: 500;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* Badges */
+.badge {
+  padding: 0.4rem 0.8rem !important;
+  font-weight: 500;
+  border-radius: var(--radius-lg) !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.badge.bg-primary {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark) 100%) !important;
+}
+
+.badge.bg-success {
+  background: linear-gradient(135deg, var(--accent-green) 0%, #16a085 100%) !important;
+}
+
+.badge.bg-danger {
+  background: linear-gradient(135deg, var(--accent-red) 0%, #a00e2f 100%) !important;
+}
+
+.badge.bg-warning {
+  background: linear-gradient(135deg, var(--accent-orange) 0%, #e56f3d 100%) !important;
+}
+
+.badge.bg-info {
+  background: linear-gradient(135deg, var(--accent-purple) 0%, #6d28d9 100%) !important;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  background: transparent !important;
+  padding: 0 !important;
+  gap: var(--spacing-sm);
+}
+
+.breadcrumb-item {
+  font-size: 0.95rem;
+}
+
+.breadcrumb-item.active {
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+/* Alerts */
+.alert {
+  border-radius: var(--radius-lg) !important;
+  border: none !important;
+  padding: 1rem 1.25rem !important;
+  font-weight: 500;
+}
+
+.alert-primary {
+  background: rgba(0, 102, 204, 0.1);
+  color: var(--primary-dark);
+}
+
+.alert-success {
+  background: rgba(26, 188, 156, 0.1);
+  color: #0d5f5f;
+}
+
+.alert-danger {
+  background: rgba(230, 57, 70, 0.1);
+  color: #7a0a1a;
+}
+
+.alert-warning {
+  background: rgba(255, 140, 66, 0.1);
+  color: #7a3e1a;
+}
+
+/* Tables */
+.table {
+  margin-bottom: 0;
+  font-size: 0.95rem;
+}
+
+.table thead th {
+  background: linear-gradient(135deg, rgba(0, 102, 204, 0.05) 0%, rgba(26, 188, 156, 0.05) 100%);
+  border-bottom: 2px solid var(--border-light);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.3px;
+  color: var(--text-dark);
+}
+
+.table tbody tr {
+  transition: background var(--trans-base);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.table tbody tr:hover {
+  background: rgba(0, 102, 204, 0.02);
+}
+
+/* Progressive reveal animation */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animated {
+  animation: slideInUp var(--trans-base) ease-out;
+}
+
+.fade-in {
+  animation: fadeIn var(--trans-slow);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  h3 { font-size: 1.125rem; }
+  
+  .btn { padding: 0.5rem 1rem !important; }
+  .card { margin-bottom: var(--spacing-lg); }
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-light);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--primary-blue), var(--accent-green));
+  border-radius: var(--radius-lg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, var(--primary-dark), #16a085);
+}

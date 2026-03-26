@@ -6,6 +6,57 @@
   min-height: 100vh;
 }
 
+/* ===== PERSONALIZED WELCOME ===== */
+.personalized-welcome {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: var(--spacing-xl);
+  animation: slideInUp var(--trans-base);
+}
+
+.welcome-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.welcome-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.welcome-subtitle {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  font-weight: 500;
+}
+
 /* ===== HERO ===== */
 .hero-section {
   background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 50%, #0ea5e9 100%);
@@ -362,4 +413,56 @@
   .hero-section { padding: 40px 24px; }
   .featured-grid { grid-template-columns: 1fr; }
   .articles-grid { grid-template-columns: 1fr; }
+}
+.ia-widget {
+  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+  border: 0.5px solid #c4b5fd;
+  text-align: center;
+}
+.ia-widget-icon { font-size: 36px; margin-bottom: 10px; }
+.ia-widget h3 { font-size: 14px; font-weight: 600; color: #4c1d95; margin-bottom: 6px; }
+.ia-widget p { font-size: 12px; color: #6d28d9; margin-bottom: 14px; line-height: 1.5; }
+.ia-widget-btn {
+  display: block; padding: 10px;
+  background: #7c3aed; color: white;
+  border-radius: 10px; font-size: 13px;
+  font-weight: 600; text-decoration: none;
+  transition: background 0.2s;
+}
+.ia-widget-btn:hover { background: #6d28d9; }
+.forum-widget {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 0.5px solid #f59e0b;
+  text-align: center;
+  margin-top: 16px;
+}
+.forum-icon {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+.forum-widget h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 6px;
+}
+.forum-widget p {
+  font-size: 12px;
+  color: #b45309;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.forum-btn {
+  display: block;
+  padding: 10px;
+  background: #f59e0b;
+  color: white;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.forum-btn:hover {
+  background: #d97706;
 }

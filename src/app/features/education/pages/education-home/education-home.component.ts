@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { EducationService } from '../../services/education.service';
+import { AuthService } from '../../../../shared/services/auth.service';
 import { ContentSummary, ContentCategory, CATEGORY_LABELS, CATEGORY_ICONS } from '../../models/content';
 
 @Component({
@@ -27,12 +28,23 @@ export class EducationHomeComponent implements OnInit {
     icon: CATEGORY_ICONS[key as ContentCategory]
   }));
 
-  constructor(private educationService: EducationService) {}
+  constructor(
+    private educationService: EducationService,
+    public auth: AuthService
+  ) {}
 
   ngOnInit() {
     this.loadFeatured();
     this.loadMostViewed();
     this.loadArticles();
+  }
+
+  get currentUserName(): string {
+    return this.auth.currentUser?.name ?? 'Patient';
+  }
+
+  get currentUserFirstName(): string {
+    return this.auth.currentUser?.name?.split(' ')[0] ?? 'Patient';
   }
 
   loadFeatured() {

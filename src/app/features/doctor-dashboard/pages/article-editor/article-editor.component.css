@@ -293,3 +293,85 @@
   .editor-header { gap: 10px; }
   .header-actions { width: 100%; justify-content: flex-end; }
 }
+/* ===== SPEECH-TO-TEXT AMÉLIORÉ ===== */
+.input-with-mic {
+  position: relative;
+  width: 100%;
+}
+.input-with-mic input,
+.input-with-mic textarea {
+  width: 100%;
+  padding-right: 120px; /* laisse de la place pour le bouton et l'indicateur */
+}
+.mic-control {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  padding: 0 4px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.mic-control-large {
+  top: auto;
+  bottom: 8px;
+  transform: none;
+  background: transparent;
+}
+.mic-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f1f5f9;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.mic-btn:hover {
+  background: #e2e8f0;
+}
+.stop-btn {
+  background: #ef4444;
+  color: white;
+}
+.stop-btn:hover {
+  background: #dc2626;
+}
+.mic-btn-large {
+  background: white;
+  border: 1px solid #e2e8f0;
+}
+.listening-indicator {
+  font-size: 12px;
+  color: #ef4444;
+  font-weight: 500;
+  background: #fef2f2;
+  padding: 4px 8px;
+  border-radius: 20px;
+  animation: pulse-text 1.2s infinite;
+}
+@keyframes pulse-text {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+/* ===== BOUTON IA ===== */
+.btn-ia {
+  background: #8b5cf6;
+  color: white;
+}
+.btn-ia:hover:not(:disabled) {
+  background: #7c3aed;
+}
+.btn-ia:disabled {
+  background: #c4b5fd;
+  cursor: not-allowed;
+}

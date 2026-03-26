@@ -73,7 +73,6 @@
       <!-- ===== MEDIA ===== -->
       <div class="article-media" *ngIf="article.thumbnailUrl || article.videoUrl">
 
-        <!-- YouTube iframe -->
         <div class="youtube-container"
              *ngIf="article.videoUrl && isYoutubeUrl(article.videoUrl)">
           <iframe [src]="getYoutubeEmbedUrl(article.videoUrl) | safe"
@@ -84,14 +83,12 @@
           </iframe>
         </div>
 
-        <!-- Vidéo directe MP4 -->
         <video *ngIf="article.videoUrl && !isYoutubeUrl(article.videoUrl)"
                controls class="article-video">
           <source [src]="article.videoUrl">
           Votre navigateur ne supporte pas la vidéo.
         </video>
 
-        <!-- Image de couverture -->
         <img *ngIf="!article.videoUrl && article.thumbnailUrl"
              [src]="article.thumbnailUrl"
              [alt]="article.title"
@@ -100,6 +97,64 @@
       </div>
 
       <div class="article-content" [innerHTML]="article.content"></div>
+
+      <!-- ===== TRADUCTION ===== -->
+      <div class="translation-panel" *ngIf="showTranslation && !isTranslating && translatedContent">
+        <div class="translation-header">
+          <span>🌍 Traduction ({{ targetLang === 'ar' ? 'Arabe' :
+                targetLang === 'en' ? 'Anglais' :
+                targetLang === 'es' ? 'Espagnol' :
+                targetLang === 'de' ? 'Allemand' :
+                targetLang === 'it' ? 'Italien' : '' }})</span>
+          <button class="close-translation" (click)="showTranslation = false; translatedContent = ''">
+            ✕
+          </button>
+        </div>
+        <div class="translation-content">
+          <p>{{ translatedContent }}</p>
+        </div>
+      </div>
+      <div class="translation-loading" *ngIf="isTranslating">
+        <div class="mini-spinner"></div>
+        <span>Traduction en cours...</span>
+      </div>
+
+      <!-- ===== QUIZ SECTION ===== -->
+      <div class="quiz-section" *ngIf="quizQuestions.length > 0">
+        <div class="quiz-header" (click)="showQuiz = !showQuiz">
+          <h3>📝 Quiz : testez vos connaissances</h3>
+          <span class="toggle-icon">{{ showQuiz ? '▼' : '▶' }}</span>
+        </div>
+
+        <div *ngIf="showQuiz">
+          <div *ngIf="!quizSubmitted">
+            <div *ngFor="let q of quizQuestions; let i = index" class="quiz-question">
+              <p class="question-text"><strong>{{ i+1 }}. {{ q.question }}</strong></p>
+              <div class="quiz-options">
+                <label *ngFor="let opt of q.options" class="quiz-option">
+                  <input type="radio" name="q{{i}}" [value]="opt" [(ngModel)]="quizAnswers[i]">
+                  {{ opt }}
+                </label>
+              </div>
+            </div>
+            <button class="btn-submit-quiz" (click)="submitQuiz()" [disabled]="!isQuizComplete()">
+              Vérifier mes réponses
+            </button>
+          </div>
+
+          <div *ngIf="quizSubmitted" class="quiz-results">
+            <p class="score">Votre score : {{ quizScore }} / {{ quizQuestions.length }}</p>
+            <div *ngFor="let q of quizQuestions; let i = index" class="result-detail">
+              <p><strong>Question {{ i+1 }} :</strong> {{ q.question }}</p>
+              <p>Votre réponse : <span [class.correct]="quizAnswers[i] === q.correctAnswer" [class.incorrect]="quizAnswers[i] !== q.correctAnswer">
+                {{ quizAnswers[i] || '(non répondue)' }}
+              </span></p>
+              <p class="explanation">📘 Explication : {{ q.explanation }}</p>
+            </div>
+            <button class="btn-reset-quiz" (click)="resetQuiz()">Recommencer le quiz</button>
+          </div>
+        </div>
+      </div>
 
       <div class="article-tags" *ngIf="article.tags">
         <strong>Tags :</strong>
@@ -152,15 +207,57 @@
 
     <aside class="article-sidebar">
       <div class="sticky-sidebar">
+
         <div class="sidebar-card summary-card">
           <h3>📋 Résumé</h3>
           <p>{{ article.summary }}</p>
         </div>
+
+        <!-- ===== CARTE OUTILS ===== -->
+        <div class="sidebar-card tools-card">
+          <h3>🛠️ Outils</h3>
+
+          <!-- Traduction -->
+          <div class="tool-item">
+            <label class="tool-label">🌍 Traduire l'article</label>
+            <select [(ngModel)]="targetLang" class="lang-select">
+              <option value="ar">🇸🇦 Arabe</option>
+              <option value="en">🇬🇧 Anglais</option>
+              <option value="es">🇪🇸 Espagnol</option>
+              <option value="de">🇩🇪 Allemand</option>
+              <option value="it">🇮🇹 Italien</option>
+            </select>
+            <button class="btn-translate"
+                    (click)="translateArticle()"
+                    [disabled]="isTranslating">
+              {{ isTranslating ? '⏳ Traduction...' : 'Traduire' }}
+            </button>
+          </div>
+
+          <!-- Lecture vocale -->
+          <div class="tool-item">
+            <label class="tool-label">🔊 Écouter l'article</label>
+            <div class="tts-buttons">
+              <button class="btn-tts"
+                      (click)="startReading()"
+                      [disabled]="isReading">
+                ▶️ Lire
+              </button>
+              <button class="btn-stop"
+                      (click)="stopReading()"
+                      [disabled]="!isReading">
+                ⏹ Arrêter
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div class="sidebar-card back-card">
           <a routerLink="/patient/education" class="back-link">
             ← Retour à l'espace éducatif
           </a>
         </div>
+
       </div>
     </aside>
 

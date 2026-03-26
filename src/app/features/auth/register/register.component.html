@@ -1,0 +1,57 @@
+<div class="register-page">
+  <div class="register-card">
+    <div class="card-header">
+      <div class="logo">DC</div>
+      <h2>Créer un compte</h2>
+      <p>Rejoignez la communauté DiaCare</p>
+    </div>
+
+    <div class="form-group">
+      <label>Nom complet *</label>
+      <input type="text" [(ngModel)]="form.name"
+             placeholder="Ahmed Ben Ali" class="form-input">
+    </div>
+    <div class="form-group">
+      <label>Email *</label>
+      <input type="email" [(ngModel)]="form.email"
+             placeholder="votre@email.com" class="form-input">
+    </div>
+    <div class="form-group">
+      <label>Mot de passe *</label>
+      <input type="password" [(ngModel)]="form.password"
+             placeholder="Minimum 6 caractères" class="form-input">
+    </div>
+    <div class="form-group">
+      <label>Je suis un(e)</label>
+      <div class="role-selector">
+        <button [class.active]="form.role === 'PATIENT'"
+                (click)="form.role = 'PATIENT'" type="button">
+          👤 Patient
+        </button>
+        <button [class.active]="form.role === 'DOCTOR'"
+                (click)="form.role = 'DOCTOR'" type="button">
+          🩺 Médecin
+        </button>
+      </div>
+    </div>
+    <div class="form-group" *ngIf="form.role === 'PATIENT'">
+      <label>Type de diabète</label>
+      <select [(ngModel)]="form.diabetesType" class="form-input">
+        <option value="type1">Type 1</option>
+        <option value="type2">Type 2</option>
+        <option value="gestationnel">Gestationnel</option>
+      </select>
+    </div>
+
+    <div class="error-msg" *ngIf="error">⚠️ {{ error }}</div>
+    <div class="success-msg" *ngIf="success">{{ success }}</div>
+
+    <button class="btn-register" (click)="register()" [disabled]="isLoading">
+      {{ isLoading ? '⏳ Création...' : '🚀 Créer mon compte' }}
+    </button>
+
+    <p class="login-link">
+      Déjà inscrit ? <a routerLink="/login">Se connecter →</a>
+    </p>
+  </div>
+</div>

@@ -1,0 +1,208 @@
+<div class="forum-container">
+
+  <!-- Header -->
+  <div class="forum-header">
+    <div class="header-left">
+      <h1>👥 Communauté DiaCare</h1>
+      <p>Partagez vos expériences avec d'autres patients diabétiques</p>
+    </div>
+    <button class="btn-new-post" (click)="showNewPost = !showNewPost">
+      {{ showNewPost ? '✕ Annuler' : '✏️ Partager' }}
+    </button>
+  </div>
+
+  <!-- Message succès/erreur global -->
+  <div class="alert-success" *ngIf="postSuccess">{{ postSuccess }}</div>
+
+  <!-- Formulaire nouveau post -->
+  <div class="new-post-form" *ngIf="showNewPost">
+    <h3>✏️ Partager avec la communauté</h3>
+
+    <div class="ia-badge">
+      🤖 Modération IA activée — Les conseils médicaux dangereux sont filtrés automatiquement
+    </div>
+
+    <div class="form-group">
+      <label>Catégorie</label>
+      <div class="category-selector">
+        <button *ngFor="let cat of categories.slice(1)"
+                type="button"
+                [class.selected]="newPost.category === cat.key"
+                (click)="newPost.category = cat.key">
+          {{ cat.icon }} {{ cat.label }}
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Titre *</label>
+      <input type="text" [(ngModel)]="newPost.title"
+             placeholder="Un titre accrocheur..."
+             class="form-input" maxlength="255">
+    </div>
+
+    <div class="form-group">
+      <label>Contenu *</label>
+      <textarea [(ngModel)]="newPost.content"
+                placeholder="Partagez votre expérience, recette, astuce..."
+                rows="5" class="form-textarea" maxlength="2000"></textarea>
+      <span class="char-count">{{ newPost.content.length }}/2000</span>
+    </div>
+
+    <div class="alert-error" *ngIf="postError">{{ postError }}</div>
+
+    <button class="btn-submit" (click)="submitPost()"
+            [disabled]="isPosting || !newPost.title.trim() || !newPost.content.trim()">
+      {{ isPosting ? '⏳ Publication...' : '🚀 Publier' }}
+    </button>
+  </div>
+
+  <!-- Filtres catégories -->
+  <div class="category-filters">
+    <button *ngFor="let cat of categories"
+            class="filter-pill"
+            [class.active]="selectedCategory === cat.key"
+            (click)="onCategoryChange(cat.key)">
+      {{ cat.icon }} {{ cat.label }}
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Chargement de la communauté...</p>
+  </div>
+
+  <!-- Posts -->
+  <div class="posts-list" *ngIf="!isLoading">
+
+    <div class="empty-forum" *ngIf="posts.length === 0">
+      <div class="empty-icon">💬</div>
+      <h3>Aucune publication</h3>
+      <p>Soyez le premier à partager votre expérience !</p>
+      <button class="btn-new-post" (click)="showNewPost = true">
+        ✏️ Partager maintenant
+      </button>
+    </div>
+
+    <div class="post-card" *ngFor="let post of posts"
+         (click)="openPost(post)">
+
+      <!-- Badge modération -->
+      <div class="moderation-badge" *ngIf="post.isModerated">
+        ⚠️ Contenu signalé par l'IA — Vérification en cours
+      </div>
+
+      <div class="post-header">
+        <div class="author-info">
+          <div class="avatar">{{ getAvatarLetter(post.patientName) }}</div>
+          <div>
+            <strong>{{ post.patientName }}</strong>
+            <span class="post-time">{{ timeAgo(post.createdAt) }}</span>
+          </div>
+        </div>
+        <div class="post-meta">
+          <span class="category-tag">
+            {{ getCategoryIcon(post.category) }} {{ post.category }}
+          </span>
+          <button class="btn-delete"
+                  *ngIf="post.patientId === currentUser?.id"
+                  (click)="deletePost(post, $event)"
+                  title="Supprimer">🗑️</button>
+        </div>
+      </div>
+
+      <h3 class="post-title">{{ post.title }}</h3>
+      <p class="post-preview">{{ post.content | slice:0:150 }}{{ post.content.length > 150 ? '...' : '' }}</p>
+
+      <div class="post-footer">
+        <button class="like-btn"
+                [class.liked]="post.isLiked"
+                (click)="toggleLike(post, $event)">
+          <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+               [attr.fill]="post.isLiked ? 'currentColor' : 'none'">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          {{ post.likeCount }}
+        </button>
+        <button class="comment-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          {{ post.commentCount }}
+        </button>
+        <span class="read-more">Lire la suite →</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal détail post -->
+  <div class="post-modal" *ngIf="selectedPost" (click)="closePost()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <div class="author-info">
+          <div class="avatar large">{{ getAvatarLetter(selectedPost.patientName) }}</div>
+          <div>
+            <strong>{{ selectedPost.patientName }}</strong>
+            <span>{{ timeAgo(selectedPost.createdAt) }}</span>
+          </div>
+        </div>
+        <button class="btn-close-modal" (click)="closePost()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <span class="category-tag">
+          {{ getCategoryIcon(selectedPost.category) }} {{ selectedPost.category }}
+        </span>
+        <h2>{{ selectedPost.title }}</h2>
+        <p class="post-full-content">{{ selectedPost.content }}</p>
+      </div>
+
+      <div class="modal-actions">
+        <button class="like-btn" [class.liked]="selectedPost.isLiked"
+                (click)="toggleLike(selectedPost, $event)">
+          ❤️ {{ selectedPost.likeCount }} J'aime
+        </button>
+      </div>
+
+      <!-- Commentaires -->
+      <div class="comments-section">
+        <h3>💬 Commentaires ({{ selectedPost.commentCount }})</h3>
+
+        <div class="comment-item" *ngFor="let c of comments">
+          <div class="comment-avatar">{{ getAvatarLetter(c.patientName) }}</div>
+          <div class="comment-body">
+            <strong>{{ c.patientName }}</strong>
+            <span class="comment-time">{{ timeAgo(c.createdAt) }}</span>
+            <p>{{ c.content }}</p>
+          </div>
+        </div>
+
+        <div class="empty-comments" *ngIf="comments.length === 0">
+          Soyez le premier à commenter !
+        </div>
+
+        <!-- Ajouter commentaire -->
+        <div class="add-comment">
+          <div class="comment-avatar">{{ getAvatarLetter(currentUser?.name || '') }}</div>
+          <div class="comment-input-wrap">
+            <textarea [(ngModel)]="newComment"
+                      placeholder="Votre commentaire..."
+                      rows="2" maxlength="500"></textarea>
+            <div class="comment-actions">
+              <span class="char-count-sm">{{ newComment.length }}/500</span>
+              <button class="btn-comment"
+                      (click)="submitComment()"
+                      [disabled]="!newComment.trim() || isCommenting">
+                {{ isCommenting ? '...' : 'Envoyer' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

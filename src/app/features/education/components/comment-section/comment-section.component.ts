@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { EducationService } from '../../services/education.service';
 import { EducationComment } from '../../models/comment';
+import { AuthService } from '../../../../shared/services/auth.service';
 
 @Component({
   selector: 'app-comment-section',
@@ -16,7 +17,10 @@ export class CommentSectionComponent implements OnInit {
   isSubmitting = false;
   isLoading = true;
 
-  constructor(private educationService: EducationService) {}
+  constructor(
+    private educationService: EducationService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
     this.loadComments();
@@ -32,7 +36,10 @@ export class CommentSectionComponent implements OnInit {
   submitComment() {
     if (!this.newComment.trim()) return;
     this.isSubmitting = true;
-    this.educationService.addComment(this.contentId, this.newComment).subscribe(comment => {
+
+    const userName = this.authService.currentUser?.name || 'Patient DiaCare';
+
+    this.educationService.addComment(this.contentId, this.newComment, undefined, userName).subscribe(comment => {
       this.comments.unshift(comment);
       this.newComment = '';
       this.isSubmitting = false;

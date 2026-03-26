@@ -1,0 +1,81 @@
+<div class="login-page">
+
+  <div class="login-left">
+    <div class="brand">
+      <div class="logo">DC</div>
+      <span>DiaCare</span>
+    </div>
+    <h1>Votre santé,<br><span>notre priorité</span></h1>
+    <p>Connectez-vous pour accéder à votre espace personnalisé et bénéficier du suivi IA.</p>
+    <div class="features-list">
+      <div class="feature-item">🩸 Suivi glycémique intelligent</div>
+      <div class="feature-item">📚 Espace éducatif personnalisé</div>
+      <div class="feature-item">👥 Communauté de patients</div>
+      <div class="feature-item">🤖 Assistant IA disponible 24h/24</div>
+    </div>
+  </div>
+
+  <div class="login-right">
+    <div class="login-card">
+
+      <div class="login-header">
+        <div class="logo-sm">DC</div>
+        <h2>Se connecter</h2>
+        <p>Accédez à votre espace DiaCare</p>
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <div class="input-wrap">
+          <span class="input-icon">✉️</span>
+          <input type="email"
+                 [(ngModel)]="email"
+                 placeholder="votre@email.com"
+                 (keyup.enter)="login()"
+                 class="form-input">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input [type]="showPassword ? 'text' : 'password'"
+                 [(ngModel)]="password"
+                 placeholder="••••••••"
+                 (keyup.enter)="login()"
+                 class="form-input">
+          <button class="toggle-pwd" type="button"
+                  (click)="showPassword = !showPassword">
+            {{ showPassword ? '🙈' : '👁️' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="error-msg" *ngIf="error">⚠️ {{ error }}</div>
+
+      <button class="btn-login" (click)="login()" [disabled]="isLoading">
+        <span *ngIf="!isLoading">🔐 Se connecter</span>
+        <span *ngIf="isLoading">⏳ Connexion...</span>
+      </button>
+
+      <div class="divider"><span>ou</span></div>
+
+      <a routerLink="/register" class="btn-register">
+        📝 Créer un compte patient
+      </a>
+
+      <div class="test-accounts">
+        <p>Comptes de test :</p>
+        <button (click)="email='ahmed@test.com'; password='password123'">
+          👤 Patient test
+        </button>
+        <button (click)="email='doctor@test.com'; password='password123'">
+          🩺 Médecin test
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

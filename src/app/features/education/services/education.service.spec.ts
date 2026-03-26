@@ -55,10 +55,10 @@ export class EducationService {
     return this.http.get<EducationComment[]>(`${this.apiUrl}/contents/${contentId}/comments`);
   }
 
-  addComment(contentId: number, commentText: string, parentCommentId?: number): Observable<EducationComment> {
+  addComment(contentId: number, commentText: string, parentCommentId?: number, userName?: string): Observable<EducationComment> {
     const body: any = {
       commentText: commentText,
-      userName: 'Patient DiaCare'
+      userName: userName || this.authService.currentUser?.name || 'Patient DiaCare'
     };
     if (parentCommentId) {
       body.parentCommentId = parentCommentId;

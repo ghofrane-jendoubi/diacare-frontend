@@ -1,8 +1,16 @@
 <div class="education-container">
 
-  <!-- Hero Section -->
+  <!-- Hero Section with Personalized Header -->
   <div class="hero-section">
     <div class="hero-content">
+      <div class="personalized-welcome">
+        <div class="welcome-avatar">{{ auth.currentUser?.avatarLetter }}</div>
+        <div class="welcome-text">
+          <h3 class="welcome-title">Bienvenue, {{ currentUserFirstName }}! 👋</h3>
+          <p class="welcome-subtitle">Votre espace d'apprentissage personnalisé</p>
+        </div>
+      </div>
+
       <div class="hero-badge">
         <span>🎓</span> Espace Éducatif DiaCare
       </div>
@@ -180,6 +188,25 @@
           </button>
         </div>
       </div>
+
+      <!-- WIDGET IA DASHBOARD -->
+      <div class="sidebar-widget ia-widget">
+        <div class="ia-widget-icon">🤖</div>
+        <h3>Tableau de bord IA</h3>
+        <p>Analysez votre glycémie et recevez des prédictions personnalisées</p>
+        <a routerLink="/patient/ia-dashboard" class="ia-widget-btn">
+          📊 Accéder au tableau de bord
+        </a>
+      </div>
+      <!-- WIDGET FORUM -->
+<div class="sidebar-widget forum-widget">
+  <div class="forum-icon">👥</div>
+  <h3>Communauté DiaCare</h3>
+  <p>Échangez avec d'autres patients, partagez vos astuces et posez vos questions</p>
+  <a routerLink="/patient/forum" class="forum-btn">
+    Rejoindre la discussion →
+  </a>
+</div>
 
       <!-- Lien vers mes favoris -->
       <div class="sidebar-widget bookmark-widget">

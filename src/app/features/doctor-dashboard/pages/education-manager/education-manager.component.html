@@ -1,5 +1,14 @@
 <div class="manager-container">
 
+  <!-- Personalized Welcome -->
+  <div class="personalized-welcome">
+    <div class="welcome-avatar">{{ auth.currentUser?.avatarLetter }}</div>
+    <div class="welcome-text">
+      <h3 class="welcome-title">Bienvenue, Dr {{ currentUserFirstName }}! 👋</h3>
+      <p class="welcome-subtitle">Votre espace de gestion éducatif</p>
+    </div>
+  </div>
+
   <!-- Header -->
   <div class="manager-header">
     <div class="header-left">

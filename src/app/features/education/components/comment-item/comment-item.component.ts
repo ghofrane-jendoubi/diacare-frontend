@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { EducationComment } from '../../models/comment';
 import { EducationService } from '../../services/education.service';
+import { AuthService } from '../../../../shared/services/auth.service';
 
 @Component({
   selector: 'app-comment-item',
@@ -15,11 +16,17 @@ export class CommentItemComponent {
   showReplyForm = false;
   replyText = '';
 
-  constructor(private educationService: EducationService) {}
+  constructor(
+    private educationService: EducationService,
+    private authService: AuthService
+  ) {}
 
   submitReply() {
     if (!this.replyText.trim()) return;
-    this.educationService.addComment(this.contentId, this.replyText, this.comment.id)
+
+    const userName = this.authService.currentUser?.name || 'Patient DiaCare';
+
+    this.educationService.addComment(this.contentId, this.replyText, this.comment.id, userName)
       .subscribe(reply => {
         if (!this.comment.replies) this.comment.replies = [];
         this.comment.replies.push(reply);
