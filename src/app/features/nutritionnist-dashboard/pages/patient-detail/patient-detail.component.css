@@ -125,25 +125,86 @@
   font-size: 11px;
 }
 
-/* ── Tab content ─────────────────────────────────── */
+/* ── Animations ──────────────────────────────────── */
 .tab-content { animation: fadeIn 0.2s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* ── Profile grid ────────────────────────────────── */
-.profile-grid {
+/* ── Profile layout ──────────────────────────────── */
+.profile-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* ── Form card ───────────────────────────────────── */
+.form-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #d1fae5;
+  overflow: hidden;
+}
+
+.form-card-header {
+  padding: 16px 20px;
+  background: #ecfdf5;
+  border-bottom: 1px solid #d1fae5;
+}
+
+.form-card-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #065f46;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 20px 20px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+.info-item:last-child { border-bottom: none; }
+
+.info-label {
+  font-size: 13px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.info-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+/* ── Results panel ───────────────────────────────── */
+.results-panel {
+  display: flex;
+  flex-direction: column;
   gap: 16px;
 }
 
-.info-card, .imc-card, .hba1c-card {
-  background: white;
+.result-card {
+  background: #fff;
   border-radius: 16px;
   border: 1px solid #d1fae5;
   padding: 20px;
 }
 
-.info-card h3, .imc-card h3, .hba1c-card h3 {
+.result-card h3 {
   font-size: 14px;
   font-weight: 600;
   color: #374151;
@@ -153,71 +214,101 @@
   gap: 8px;
 }
 
-.info-list { display: flex; flex-direction: column; gap: 10px; }
+/* IMC */
+.imc-display     { text-align: center; margin-bottom: 16px; }
+.imc-value       { font-size: 52px; font-weight: 800; line-height: 1; }
+.imc-category    { font-size: 16px; font-weight: 500; margin-top: 6px; }
 
-.info-item {
+.imc-scale       { margin-top: 12px; }
+
+.scale-bar {
+  height: 10px;
+  background: #f3f4f6;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.scale-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.8s ease;
+}
+.scale-labels {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid #f3f4f6;
+  font-size: 11px;
+  color: #9ca3af;
 }
-.info-item:last-child { border-bottom: none; }
-
-.info-label { font-size: 13px; color: #6b7280; }
-.info-value { font-size: 14px; font-weight: 500; color: #1f2937; }
-
-/* IMC */
-.imc-value { font-size: 48px; font-weight: 800; text-align: center; }
-.imc-category { font-size: 15px; font-weight: 500; text-align: center; margin-bottom: 12px; }
-
-.imc-bar {
-  height: 8px;
-  background: #f3f4f6;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 12px;
-}
-.imc-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
 
 .imc-alert {
+  margin-top: 12px;
   padding: 10px 12px;
-  background: #fef2f2;
-  border: 1px solid #fca5a5;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
   border-radius: 8px;
   font-size: 12px;
-  color: #991b1b;
+  color: #92400e;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* Besoins journaliers — grille 4 colonnes */
+.needs-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.need-item {
+  text-align: center;
+  padding: 12px 6px;
+  border-radius: 12px;
+  transition: transform 0.2s;
+}
+.need-item:hover      { transform: translateY(-2px); }
+.need-item.calories   { background: #fef3c7; }
+.need-item.carbs      { background: #ecfdf5; }
+.need-item.protein    { background: #eff6ff; }
+.need-item.fat        { background: #fdf4ff; }
+
+.need-emoji { font-size: 20px; margin-bottom: 4px; }
+.need-value { font-size: 20px; font-weight: 700; color: #1f2937; }
+.need-label { font-size: 10px; color: #6b7280; margin-top: 2px; }
+
+.nutrition-note {
+  padding: 10px 12px;
+  background: #ecfdf5;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #065f46;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 /* HbA1c */
-.hba1c-display {
+.hba1c-status {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 16px;
+  padding: 14px;
   border-radius: 10px;
 }
-.hba1c-display.normal { background: #f0fdf4; border: 1px solid #a7f3d0; }
-.hba1c-display.prediabetes { background: #fff7ed; border: 1px solid #fed7aa; }
-.hba1c-display.diabetes { background: #fef2f2; border: 1px solid #fca5a5; }
+.hba1c-status.normal      { background: #f0fdf4; border: 1px solid #a7f3d0; }
+.hba1c-status.prediabetes { background: #fff7ed; border: 1px solid #fed7aa; }
+.hba1c-status.diabetes    { background: #fef2f2; border: 1px solid #fca5a5; }
 
-.hba1c-val { font-size: 32px; font-weight: 800; }
-.normal .hba1c-val { color: #10b981; }
-.prediabetes .hba1c-val { color: #f97316; }
-.diabetes .hba1c-val { color: #ef4444; }
+.hba1c-value { font-size: 36px; font-weight: 800; flex-shrink: 0; }
+.hba1c-status.normal      .hba1c-value { color: #10b981; }
+.hba1c-status.prediabetes .hba1c-value { color: #f97316; }
+.hba1c-status.diabetes    .hba1c-value { color: #ef4444; }
 
-.hba1c-label { font-size: 14px; font-weight: 500; }
+.hba1c-info strong { font-size: 14px; display: block; margin-bottom: 4px; }
+.hba1c-info p      { font-size: 13px; color: #6b7280; margin: 0; }
 
-/* ── History ─────────────────────────────────────── */
-.loading-state {
-  text-align: center;
-  padding: 40px;
-  color: #6b7280;
-}
-
+/* ── Empty / Loading ─────────────────────────────── */
 .empty-state {
   text-align: center;
   padding: 48px 20px;
@@ -226,10 +317,23 @@
   border: 1px dashed #d1fae5;
   color: #9ca3af;
 }
-
 .empty-state i { font-size: 40px; display: block; margin-bottom: 12px; color: #d1fae5; }
 .empty-state p { margin: 0; font-size: 14px; }
 
+.empty-results {
+  text-align: center;
+  padding: 24px;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px dashed #d1fae5;
+  color: #9ca3af;
+}
+.empty-results i { font-size: 28px; display: block; margin-bottom: 8px; }
+.empty-results p { font-size: 13px; margin: 0; }
+
+.loading-state { text-align: center; padding: 40px; color: #6b7280; }
+
+/* ── History ─────────────────────────────────────── */
 .history-list { display: flex; flex-direction: column; gap: 12px; }
 
 .history-entry {
@@ -246,30 +350,16 @@
   padding: 14px 16px;
   background: #f9fafb;
   border-bottom: 1px solid #e5e7eb;
-  gap: 12px;
 }
 
-.entry-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #374151;
-  font-size: 14px;
-}
-
+.entry-meta  { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #374151; }
 .entry-meta i { color: #10b981; }
-.entry-text { font-weight: 500; }
-
-.entry-date { font-size: 12px; color: #9ca3af; flex-shrink: 0; }
+.entry-text  { font-weight: 500; }
+.entry-date  { font-size: 12px; color: #9ca3af; }
 
 .entry-results { padding: 14px 16px; }
 
-.foods-detected {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 12px;
-}
+.foods-detected { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 
 .food-chip {
   background: #ecfdf5;
@@ -293,9 +383,11 @@
   padding: 8px;
   background: #f9fafb;
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
-
-.macro-label { font-size: 11px; color: #6b7280; display: block; }
+.macro-label { font-size: 11px; color: #6b7280; }
 .macro-value { font-size: 14px; font-weight: 600; color: #1f2937; }
 
 .carbs-alert {
@@ -306,13 +398,13 @@
   align-items: center;
   gap: 8px;
 }
-
-.carbs-alert.danger { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
+.carbs-alert.danger  { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
 .carbs-alert.warning { background: #fff7ed; color: #92400e; border: 1px solid #fed7aa; }
 .carbs-alert.success { background: #f0fdf4; color: #065f46; border: 1px solid #a7f3d0; }
 
-/* Responsive */
+/* ── Responsive ──────────────────────────────────── */
 @media (max-width: 768px) {
-  .profile-grid { grid-template-columns: 1fr; }
+  .profile-layout { grid-template-columns: 1fr; }
+  .needs-grid     { grid-template-columns: repeat(2, 1fr); }
   .macros-summary { grid-template-columns: repeat(2, 1fr); }
 }

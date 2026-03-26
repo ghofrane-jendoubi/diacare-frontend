@@ -1,7 +1,7 @@
 <!-- patient-detail.component.html -->
 <div class="detail-wrapper">
 
-  <!-- Header -->
+  <!-- ── Header ─────────────────────────────────────────── -->
   <div class="page-header">
     <button class="btn-back" (click)="goBack()">
       <i class="bi bi-arrow-left"></i> Retour
@@ -13,7 +13,7 @@
       <div>
         <h1>Patient #{{ patientId }}</h1>
         <span class="badge-diabetes" *ngIf="profile?.diabetesType">
-          {{ profile.diabetesType }}
+          {{ profile?.diabetesType }}
         </span>
       </div>
     </div>
@@ -22,7 +22,7 @@
     </button>
   </div>
 
-  <!-- Tabs -->
+  <!-- ── Tabs ───────────────────────────────────────────── -->
   <div class="tabs-bar">
     <button class="tab-btn" [class.active]="activeTab === 'profile'"
             (click)="setTab('profile')">
@@ -30,177 +30,254 @@
     </button>
     <button class="tab-btn" [class.active]="activeTab === 'history'"
             (click)="setTab('history')">
-      <i class="bi bi-clock-history"></i>
-      Historique repas
+      <i class="bi bi-clock-history"></i> Historique repas
       <span class="badge-count" *ngIf="foodHistory.length > 0">
         {{ foodHistory.length }}
       </span>
     </button>
   </div>
 
-  <!-- ── Tab 1 : Profil ────────────────────────────────── -->
+  <!-- ══════════════ TAB PROFIL ══════════════ -->
   <div class="tab-content" *ngIf="activeTab === 'profile'">
 
-    <!-- Empty state -->
-    <div class="empty-state" *ngIf="!profile">
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="isLoadingProfile">
+      <div class="spinner-border text-success"></div>
+      <p>Chargement du profil...</p>
+    </div>
+
+    <!-- Empty -->
+    <div class="empty-state" *ngIf="!isLoadingProfile && !profile">
       <i class="bi bi-person-x"></i>
       <p>Ce patient n'a pas encore rempli son profil nutritionnel.</p>
     </div>
 
-    <div class="profile-grid" *ngIf="profile">
+    <!-- Profil complet -->
+    <div *ngIf="!isLoadingProfile && profile as p" class="profile-layout">
 
-      <!-- Infos médicales -->
-      <div class="info-card">
-        <h3><i class="bi bi-heart-pulse-fill"></i> Informations médicales</h3>
+      <!-- ── Gauche : infos médicales ───────────────────── -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <h3><i class="bi bi-clipboard2-pulse-fill"></i> Informations médicales</h3>
+        </div>
         <div class="info-list">
+
           <div class="info-item">
-            <span class="info-label">Poids</span>
-            <span class="info-value">{{ profile.weight || '—' }} kg</span>
+            <span class="info-label"><i class="bi bi-activity"></i> Poids</span>
+            <span class="info-value">{{ p.weight ?? '—' }} kg</span>
           </div>
           <div class="info-item">
-            <span class="info-label">Taille</span>
-            <span class="info-value">{{ profile.height || '—' }} cm</span>
+            <span class="info-label"><i class="bi bi-rulers"></i> Taille</span>
+            <span class="info-value">{{ p.height ?? '—' }} cm</span>
           </div>
           <div class="info-item">
-            <span class="info-label">Âge</span>
-            <span class="info-value">{{ profile.age || '—' }} ans</span>
+            <span class="info-label"><i class="bi bi-calendar3"></i> Âge</span>
+            <span class="info-value">{{ p.age ?? '—' }} ans</span>
           </div>
           <div class="info-item">
-            <span class="info-label">Sexe</span>
-            <span class="info-value">{{ profile.gender === 'male' ? 'Homme' : 'Femme' }}</span>
+            <span class="info-label"><i class="bi bi-gender-ambiguous"></i> Sexe</span>
+            <span class="info-value">
+              {{ p.gender === 'male' ? 'Homme' : p.gender === 'female' ? 'Femme' : '—' }}
+            </span>
           </div>
           <div class="info-item">
-            <span class="info-label">Diabète</span>
-            <span class="info-value">{{ profile.diabetesType || '—' }}</span>
+            <span class="info-label"><i class="bi bi-droplet-fill"></i> Type de diabète</span>
+            <span class="info-value">{{ p.diabetesType ?? '—' }}</span>
           </div>
           <div class="info-item">
-            <span class="info-label">Activité</span>
-            <span class="info-value">{{ profile.activityLevel || '—' }}</span>
+            <span class="info-label"><i class="bi bi-bicycle"></i> Niveau d'activité</span>
+            <span class="info-value">
+              <ng-container [ngSwitch]="p.activityLevel">
+                <span *ngSwitchCase="'sedentary'">Sédentaire</span>
+                <span *ngSwitchCase="'light'">Légèrement actif</span>
+                <span *ngSwitchCase="'moderate'">Modérément actif</span>
+                <span *ngSwitchCase="'active'">Très actif</span>
+                <span *ngSwitchDefault>—</span>
+              </ng-container>
+            </span>
           </div>
+          <div class="info-item" *ngIf="p.hba1c != null">
+            <span class="info-label"><i class="bi bi-graph-up-arrow"></i> HbA1c</span>
+            <span class="info-value">{{ p.hba1c }}%</span>
+          </div>
+
         </div>
       </div>
 
-      <!-- IMC -->
-      <div class="imc-card" *ngIf="imc !== null">
-        <h3><i class="bi bi-speedometer2"></i> IMC</h3>
-        <div class="imc-value" [style.color]="imcColor">{{ imc }}</div>
-        <div class="imc-category" [style.color]="imcColor">{{ imcCategory }}</div>
-        <div class="imc-bar">
-          <div class="imc-fill"
-               [style.width.%]="(imc / 40) * 100"
-               [style.background]="imcColor">
+      <!-- ── Droite : résultats calculés ───────────────── -->
+      <div class="results-panel">
+
+        <!-- IMC -->
+        <div class="result-card" *ngIf="imc !== null">
+          <h3><i class="bi bi-speedometer2"></i> Indice de Masse Corporelle</h3>
+          <div class="imc-display">
+            <div class="imc-value" [style.color]="imcColor">{{ imc }}</div>
+            <div class="imc-category" [style.color]="imcColor">{{ imcCategory }}</div>
+          </div>
+          <div class="imc-scale">
+            <div class="scale-bar">
+              <div class="scale-fill"
+                   [style.width.%]="(imc! / 40) * 100"
+                   [style.background]="imcColor">
+              </div>
+            </div>
+            <div class="scale-labels">
+              <span>18.5</span><span>25</span><span>30</span><span>40</span>
+            </div>
+          </div>
+          <div class="imc-alert" *ngIf="imc! >= 25">
+            <i class="bi bi-info-circle-fill"></i>
+            Un IMC élevé augmente le risque de complications diabétiques.
           </div>
         </div>
-        <div class="imc-alert" *ngIf="imc >= 30">
-          <i class="bi bi-exclamation-triangle-fill"></i>
-          Obésité — risque élevé de complications diabétiques
-        </div>
-      </div>
 
-      <!-- HbA1c -->
-      <div class="hba1c-card" *ngIf="profile.hba1c">
-        <h3><i class="bi bi-droplet-fill"></i> HbA1c</h3>
-        <div class="hba1c-display" [class]="getHba1cStatus()">
-          <div class="hba1c-val">{{ profile.hba1c }}%</div>
-          <div class="hba1c-label">
-            <span *ngIf="getHba1cStatus() === 'normal'">✅ Normal</span>
-            <span *ngIf="getHba1cStatus() === 'prediabetes'">⚠️ Pré-diabète</span>
-            <span *ngIf="getHba1cStatus() === 'diabetes'">🔴 Diabète — suivi requis</span>
+        <!-- ── Besoins journaliers (depuis DB) ──────────── -->
+        <div class="result-card"
+             *ngIf="p.targetCalories || p.targetCarbs || p.targetProtein || p.targetFat">
+          <h3><i class="bi bi-egg-fried"></i> Besoins journaliers recommandés</h3>
+
+          <div class="needs-grid">
+            <div class="need-item calories" *ngIf="p.targetCalories">
+              <div class="need-emoji">🔥</div>
+              <div class="need-value">{{ p.targetCalories | number:'1.0-0' }}</div>
+              <div class="need-label">kcal / jour</div>
+            </div>
+            <div class="need-item carbs" *ngIf="p.targetCarbs">
+              <div class="need-emoji">🌾</div>
+              <div class="need-value">{{ p.targetCarbs | number:'1.0-0' }}</div>
+              <div class="need-label">g glucides / jour</div>
+            </div>
+            <div class="need-item protein" *ngIf="p.targetProtein">
+              <div class="need-emoji">🥩</div>
+              <div class="need-value">{{ p.targetProtein | number:'1.0-0' }}</div>
+              <div class="need-label">g protéines / jour</div>
+            </div>
+            <div class="need-item fat" *ngIf="p.targetFat">
+              <div class="need-emoji">🥑</div>
+              <div class="need-value">{{ p.targetFat | number:'1.0-0' }}</div>
+              <div class="need-label">g lipides / jour</div>
+            </div>
+          </div>
+
+          <div class="nutrition-note">
+            <i class="bi bi-lightbulb-fill"></i>
+            Limite glucides diabète type 2 : <strong>45–60g par repas</strong>
+            ({{ (p.targetCarbs ?? 0) / 3 | number:'1.0-0' }}g par repas)
           </div>
         </div>
-      </div>
 
+        <!-- Empty résultats si targetCalories absent -->
+        <div class="empty-results"
+             *ngIf="!p.targetCalories && !p.targetCarbs && imc === null">
+          <i class="bi bi-calculator"></i>
+          <p>Profil incomplet — données insuffisantes pour les calculs</p>
+        </div>
+
+        <!-- HbA1c -->
+        <div class="result-card" *ngIf="p.hba1c != null">
+          <h3><i class="bi bi-heart-pulse-fill"></i> Statut HbA1c</h3>
+          <div class="hba1c-status" [ngClass]="getHba1cStatus()">
+            <div class="hba1c-value">{{ p.hba1c }}%</div>
+            <div class="hba1c-info">
+              <ng-container *ngIf="getHba1cStatus() === 'normal'">
+                <strong>✅ Normal</strong>
+                <p>Taux dans la normale. Continuer les bonnes habitudes.</p>
+              </ng-container>
+              <ng-container *ngIf="getHba1cStatus() === 'prediabetes'">
+                <strong>⚠️ Pré-diabète</strong>
+                <p>Surveiller alimentation et activité physique.</p>
+              </ng-container>
+              <ng-container *ngIf="getHba1cStatus() === 'diabetes'">
+                <strong>🔴 Diabète — suivi requis</strong>
+                <p>Respecter strictement le plan alimentaire.</p>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 
-  <!-- ── Tab 2 : Historique repas ──────────────────────── -->
+  <!-- ══════════════ TAB HISTORIQUE ══════════════ -->
   <div class="tab-content" *ngIf="activeTab === 'history'">
 
-    <!-- Loading -->
     <div class="loading-state" *ngIf="isLoadingHistory">
       <div class="spinner-border text-success"></div>
       <p>Chargement de l'historique...</p>
     </div>
 
-    <!-- Empty -->
-    <div class="empty-state" *ngIf="!isLoadingHistory && foodHistory.length === 0">
+    <div class="empty-state" *ngIf="!isLoadingHistory && (foodHistory?.length ?? 0) === 0">
       <i class="bi bi-journal-x"></i>
       <p>Ce patient n'a pas encore analysé de repas.</p>
     </div>
 
-    <!-- Historique -->
-    <div class="history-list" *ngIf="!isLoadingHistory && foodHistory.length > 0">
+    <div class="history-list"
+         *ngIf="!isLoadingHistory && (foodHistory?.length ?? 0) > 0">
 
-      <div class="history-entry" *ngFor="let entry of foodHistory">
+      <div class="history-entry" *ngFor="let entry of foodHistory ?? []">
 
-        <!-- Header entry -->
         <div class="entry-header">
           <div class="entry-meta">
             <i class="bi bi-chat-text-fill"></i>
-            <span class="entry-text">{{ entry.text }}</span>
+            <span class="entry-text">{{ entry.text || 'Repas' }}</span>
           </div>
-          <span class="entry-date">{{ entry.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+          <span class="entry-date" *ngIf="entry.createdAt">
+            {{ entry.createdAt | date:'dd/MM/yyyy HH:mm' }}
+          </span>
         </div>
 
-        <!-- Résultats ML -->
-        <div class="entry-results" *ngIf="entry.parsedResult?.foods?.length > 0">
+        <div class="entry-results"
+             *ngIf="(entry.parsedResult?.foods ?? []).length > 0">
 
-          <!-- Aliments détectés -->
           <div class="foods-detected">
-            <span class="food-chip" *ngFor="let f of entry.parsedResult.foods">
+            <span class="food-chip"
+                  *ngFor="let f of entry.parsedResult?.foods ?? []">
               {{ f.name }}
             </span>
           </div>
 
-          <!-- Totaux macros -->
-          <div class="macros-summary">
-            <div class="macro-item">
-              <span class="macro-label">Calories</span>
-              <span class="macro-value">
-                {{ getTotals(entry.parsedResult.foods).calories | number:'1.0-0' }} kcal
-              </span>
+          <ng-container *ngIf="getTotals(entry.parsedResult?.foods ?? []) as totals">
+            <div class="macros-summary">
+              <div class="macro-item">
+                <span class="macro-label">Calories</span>
+                <span class="macro-value">{{ totals.calories | number:'1.0-0' }} kcal</span>
+              </div>
+              <div class="macro-item">
+                <span class="macro-label">Glucides</span>
+                <span class="macro-value" [style.color]="getCarbsColor(totals.carbs)">
+                  {{ totals.carbs | number:'1.0-0' }}g
+                </span>
+              </div>
+              <div class="macro-item">
+                <span class="macro-label">Protéines</span>
+                <span class="macro-value">{{ totals.protein | number:'1.0-0' }}g</span>
+              </div>
+              <div class="macro-item">
+                <span class="macro-label">Lipides</span>
+                <span class="macro-value">{{ totals.fat | number:'1.0-0' }}g</span>
+              </div>
             </div>
-            <div class="macro-item">
-              <span class="macro-label">Glucides</span>
-              <span class="macro-value"
-                    [style.color]="getCarbsColor(getTotals(entry.parsedResult.foods).carbs)">
-                {{ getTotals(entry.parsedResult.foods).carbs | number:'1.0-0' }}g
-              </span>
-            </div>
-            <div class="macro-item">
-              <span class="macro-label">Protéines</span>
-              <span class="macro-value">
-                {{ getTotals(entry.parsedResult.foods).protein | number:'1.0-0' }}g
-              </span>
-            </div>
-            <div class="macro-item">
-              <span class="macro-label">Lipides</span>
-              <span class="macro-value">
-                {{ getTotals(entry.parsedResult.foods).fat | number:'1.0-0' }}g
-              </span>
-            </div>
-          </div>
 
-          <!-- Alerte glucides -->
-          <div class="carbs-alert"
-               [class]="getCarbsAlert(getTotals(entry.parsedResult.foods).carbs)">
-            <i class="bi"
-               [class.bi-exclamation-triangle-fill]="getCarbsAlert(getTotals(entry.parsedResult.foods).carbs) === 'danger'"
-               [class.bi-exclamation-circle-fill]="getCarbsAlert(getTotals(entry.parsedResult.foods).carbs) === 'warning'"
-               [class.bi-check-circle-fill]="getCarbsAlert(getTotals(entry.parsedResult.foods).carbs) === 'success'">
-            </i>
-            <span *ngIf="getCarbsAlert(getTotals(entry.parsedResult.foods).carbs) === 'danger'">
-              Alerte glycémique — {{ getTotals(entry.parsedResult.foods).carbs | number:'1.0-0' }}g glucides
-            </span>
-            <span *ngIf="getCarbsAlert(getTotals(entry.parsedResult.foods).carbs) === 'warning'">
-              Attention — {{ getTotals(entry.parsedResult.foods).carbs | number:'1.0-0' }}g glucides
-            </span>
-            <span *ngIf="getCarbsAlert(getTotals(entry.parsedResult.foods).carbs) === 'success'">
-              Repas équilibré — {{ getTotals(entry.parsedResult.foods).carbs | number:'1.0-0' }}g glucides
-            </span>
-          </div>
+            <div class="carbs-alert" [ngClass]="getCarbsAlert(totals.carbs)">
+              <i class="bi"
+                 [class.bi-exclamation-triangle-fill]="getCarbsAlert(totals.carbs) === 'danger'"
+                 [class.bi-exclamation-circle-fill]="getCarbsAlert(totals.carbs)  === 'warning'"
+                 [class.bi-check-circle-fill]="getCarbsAlert(totals.carbs)        === 'success'">
+              </i>
+              <span *ngIf="getCarbsAlert(totals.carbs) === 'danger'">
+                Alerte glycémique — {{ totals.carbs | number:'1.0-0' }}g glucides
+              </span>
+              <span *ngIf="getCarbsAlert(totals.carbs) === 'warning'">
+                Attention — {{ totals.carbs | number:'1.0-0' }}g glucides
+              </span>
+              <span *ngIf="getCarbsAlert(totals.carbs) === 'success'">
+                Repas équilibré — {{ totals.carbs | number:'1.0-0' }}g glucides
+              </span>
+            </div>
+          </ng-container>
+
         </div>
-
       </div>
     </div>
   </div>

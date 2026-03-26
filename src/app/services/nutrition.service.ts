@@ -125,16 +125,19 @@ export class NutritionService {
     return labels[type] || type;
   }
 
-  getTotals(foods: FoodItem[]): FoodItem {
-    return foods.reduce((acc, f) => ({
+  getTotals(foods: FoodItem[] = []): FoodItem {
+  return foods.reduce(
+    (acc, f) => ({
       name: 'Total',
       calories: acc.calories + (f.calories || 0),
       carbs: acc.carbs + (f.carbs || 0),
       protein: acc.protein + (f.protein || 0),
       fat: acc.fat + (f.fat || 0),
       fiber: acc.fiber + (f.fiber || 0),
-    }), { name: 'Total', calories: 0, carbs: 0, protein: 0, fat: 0, fiber: 0 });
-  }
+    }),
+    { name: 'Total', calories: 0, carbs: 0, protein: 0, fat: 0, fiber: 0 }
+  );
+}
 
   getBMIClass(bmi: number): string {
     if (bmi < 18.5) return 'underweight';

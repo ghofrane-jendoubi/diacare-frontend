@@ -3,28 +3,9 @@ import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { NutritionService } from '../../../../services/nutrition.service';
-
+import { FoodEntry, PatientNutritionProfile } from '../../../../models/diet-plan.model';
 // ── Interfaces simples ─────────────────────────────────────────────
-interface PatientInfo {
-  name: string;
-  diabetesType: string;
-  bloodType: string;
-}
 
-interface NutritionProfile {
-  id: number;
-  weight?: number;
-  height?: number;
-  hba1c?: number;
-  [key: string]: any;
-}
-
-interface FoodEntry {
-  id: number;
-  date: string;
-  analysis: any;
-  parsedResult?: any;
-}
 
 @Component({
   selector: 'app-patient-detail',
@@ -36,7 +17,7 @@ export class PatientDetailComponent implements OnInit, OnDestroy {
   patientId: number = 1;
 
   // ── Profil nutrition ─────────────────────────────────────────────
-  profile: NutritionProfile | null = null;
+  profile: PatientNutritionProfile | null = null;
   imc: number | null = null;
   imcCategory = '';
   imcColor = '';
@@ -46,12 +27,7 @@ export class PatientDetailComponent implements OnInit, OnDestroy {
   foodHistory: FoodEntry[] = [];
   isLoadingHistory = true;
 
-  // ── Infos patient (collègue) ───────────────────────────────────
-  patientInfo: PatientInfo = {
-    name: 'Patient',
-    diabetesType: '',
-    bloodType: ''
-  };
+  
 
   activeTab: 'profile' | 'history' = 'profile';
 
@@ -82,7 +58,7 @@ export class PatientDetailComponent implements OnInit, OnDestroy {
   loadProfile(): void {
     this.isLoadingProfile = true;
     this.nutritionService.getNutritionProfile(this.patientId).subscribe({
-      next: (data: NutritionProfile) => {
+      next: (data: PatientNutritionProfile) => {
         if (data?.id) {
           this.profile = data;
           this.calculateIMC();
@@ -101,10 +77,10 @@ export class PatientDetailComponent implements OnInit, OnDestroy {
     this.isLoadingHistory = true;
     this.nutritionService.getFoodHistoryByPatient(this.patientId).subscribe({
       next: (entries: FoodEntry[]) => {
-        this.foodHistory = entries.map(e => ({
-          ...e,
-          parsedResult: this.nutritionService.parseAnalysisResult(e) || null
-        }));
+   this.foodHistory = entries.map(e => ({
+  ...e,
+  parsedResult: this.nutritionService.parseAnalysisResult(e) || undefined
+}));
         this.isLoadingHistory = false;
       },
       error: (err) => {

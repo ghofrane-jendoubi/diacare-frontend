@@ -66,17 +66,19 @@ export interface Patient {
 
 export interface PatientNutritionProfile {
   id: number;
-  userId: number;
-  weight: number;
-  height: number;
-  age: number;
-  diabetesType: string;
-  hba1c: number;
-  targetCalories: number;
-  targetCarbs: number;
-  targetProtein: number;
-  targetFat: number;
-  bmi: number;
+  userId: number; // correspond à patientId côté backend
+  weight?: number;
+  height?: number;
+  age?: number;
+  gender?: 'male' | 'female' | string; // doit exister
+  diabetesType?: string;
+  hba1c?: number;
+  activityLevel?: string; // doit exister
+  targetCalories?: number;
+  targetCarbs?: number;
+  targetProtein?: number;
+  targetFat?: number;
+  bmi?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }

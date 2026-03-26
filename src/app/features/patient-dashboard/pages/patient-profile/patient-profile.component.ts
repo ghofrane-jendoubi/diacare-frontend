@@ -83,31 +83,35 @@ export class PatientProfileComponent implements OnInit {
   }
 
   saveProfile(): void {
-    this.calculateAll();
+  this.calculateAll(); // calcule imc, dailyCalories, dailyCarbs, etc.
 
-    const data = {
-      id:            this.profileId || null,
-      patientId:     this.patientId,
-      weight:        this.profile.weight,
-      height:        this.profile.height,
-      age:           this.profile.age,
-      gender:        this.profile.gender,
-      diabetesType:  this.profile.diabetesType,
-      hba1c:         this.profile.hba1c,
-      activityLevel: this.profile.activityLevel
-    };
+  const data = {
+    id:            this.profileId || null,
+    patientId:     this.patientId,
+    weight:        this.profile.weight,
+    height:        this.profile.height,
+    age:           this.profile.age,
+    gender:        this.profile.gender,
+    diabetesType:  this.profile.diabetesType,
+    hba1c:         this.profile.hba1c,
+    activityLevel: this.profile.activityLevel,
+    bmi:           this.imc,            // ⚡ IMC calculé
+    targetCalories:this.dailyCalories,  // ⚡ Besoins caloriques journaliers
+    targetCarbs:   this.dailyCarbs,
+    targetProtein: Math.round((this.dailyCalories! * 0.25) / 4), // ex: 25% protéines
+    targetFat:     Math.round((this.dailyCalories! * 0.3) / 9)   // ex: 30% lipides
+  };
 
-    this.nutritionService.saveNutritionProfile(data).subscribe({
-      next: (saved) => {
-        this.profileId = saved.id;
-        this.saved     = true;
-        this.isEditing = false;
-        setTimeout(() => this.saved = false, 3000);
-      },
-      error: (err) => console.error('Erreur sauvegarde', err)
-    });
-  }
-
+  this.nutritionService.saveNutritionProfile(data).subscribe({
+    next: (saved) => {
+      this.profileId = saved.id;
+      this.saved     = true;
+      this.isEditing = false;
+      setTimeout(() => this.saved = false, 3000);
+    },
+    error: (err) => console.error('Erreur sauvegarde', err)
+  });
+}
   editProfile(): void {
     this.isEditing = true;
   }
