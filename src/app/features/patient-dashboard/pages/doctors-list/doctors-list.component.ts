@@ -9,9 +9,11 @@ import { DoctorService } from '../../../../services/doctor.service';
 })
 export class DoctorsListComponent implements OnInit {
   doctors: any[] = [];
+  filteredDoctors: any[] = [];
   loading = false;
   error = '';
-  
+  searchTerm = '';
+  selectedFilter: string = 'all';
 
   constructor(
     private doctorService: DoctorService,
@@ -27,6 +29,7 @@ export class DoctorsListComponent implements OnInit {
     this.doctorService.getDoctors().subscribe({
       next: (data) => {
         this.doctors = data;
+        this.filteredDoctors = data;
         this.loading = false;
       },
       error: (err) => {
@@ -35,6 +38,32 @@ export class DoctorsListComponent implements OnInit {
         console.error(err);
       }
     });
+  }
+
+  setFilter(speciality: string) {
+    this.selectedFilter = speciality;
+    this.filterDoctors();
+  }
+
+  filterDoctors() {
+    let filtered = [...this.doctors];
+    
+    // Filtrer par spécialité
+    if (this.selectedFilter !== 'all') {
+      filtered = filtered.filter(doctor => doctor.speciality === this.selectedFilter);
+    }
+    
+    // Filtrer par recherche
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(doctor => 
+        doctor.firstName.toLowerCase().includes(term) ||
+        doctor.lastName.toLowerCase().includes(term) ||
+        this.getSpecialityLabel(doctor.speciality).toLowerCase().includes(term)
+      );
+    }
+    
+    this.filteredDoctors = filtered;
   }
 
   startConversation(doctorId: number) {

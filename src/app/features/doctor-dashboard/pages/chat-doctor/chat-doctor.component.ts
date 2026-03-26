@@ -119,7 +119,7 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
     if (this.selectedPatientId) {
       this.loadMessages(false, false);
     }
-  }, 5000);
+  }, 30000);
 }
   
   // Créer une nouvelle conversation avec un patient

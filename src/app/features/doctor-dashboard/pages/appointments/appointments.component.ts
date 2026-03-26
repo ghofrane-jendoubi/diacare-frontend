@@ -20,7 +20,7 @@ export class AppointmentsComponent implements OnInit {
   showForm = false;
   editingAppointment: any = null;
 
-  // Formulaire
+  // Formulaire avec le champ fee
   appointmentForm = {
     patientId: null as number | null,
     title: '',
@@ -30,7 +30,8 @@ export class AppointmentsComponent implements OnInit {
     type: 'online',
     meetLink: '',
     description: '',
-    status: 'planifié'
+    status: 'planifié',
+    fee: 50 // ✅ Ajout du montant de la consultation
   };
 
   // Options du calendrier
@@ -70,8 +71,6 @@ export class AppointmentsComponent implements OnInit {
     this.loadAppointments(new Date(), new Date());
   }
 
-  // ===== CHARGEMENT DES DONNÉES =====
-
   loadPatients() {
     this.appointmentService.getPatientsWithConversations(this.doctorId).subscribe({
       next: (data) => {
@@ -93,8 +92,6 @@ export class AppointmentsComponent implements OnInit {
       }
     });
   }
-
-  // ===== MAPPAGE DES ÉVÉNEMENTS =====
 
   mapAppointmentsToEvents(appointments: any[]): any[] {
     const today = new Date();
@@ -128,13 +125,12 @@ export class AppointmentsComponent implements OnInit {
           description: app.description,
           meetLink: app.meetLink,
           status: status,
-          type: app.type
+          type: app.type,
+          fee: app.fee || 50
         }
       };
     });
   }
-
-  // ===== GESTION DES ÉVÉNEMENTS CALENDRIER =====
 
   handleEventClick(clickInfo: EventClickArg) {
     const event = clickInfo.event;
@@ -148,8 +144,10 @@ export class AppointmentsComponent implements OnInit {
       type: event.extendedProps['type'] || 'online',
       meetLink: event.extendedProps['meetLink'] || '',
       description: event.extendedProps['description'] || '',
-      status: event.extendedProps['status'] || 'planifié'
+      status: event.extendedProps['status'] || 'planifié',
+      fee: event.extendedProps['fee'] || 50
     };
+    this.appointmentForm.fee = this.editingAppointment.fee;
     this.showForm = true;
   }
 
@@ -160,8 +158,6 @@ export class AppointmentsComponent implements OnInit {
     this.appointmentForm.time = this.formatTimeForInput(selectInfo.start);
     this.showForm = true;
   }
-
-  // ===== GESTION DU FORMULAIRE =====
 
   resetForm() {
     this.editingAppointment = null;
@@ -174,7 +170,8 @@ export class AppointmentsComponent implements OnInit {
       type: 'online',
       meetLink: '',
       description: '',
-      status: 'planifié'
+      status: 'planifié',
+      fee: 50
     };
   }
 
@@ -200,7 +197,8 @@ export class AppointmentsComponent implements OnInit {
       description: this.appointmentForm.description,
       type: this.appointmentForm.type,
       meetLink: this.appointmentForm.type === 'online' ? this.generateMeetLink() : null,
-      status: 'planifié'
+      status: 'planifié',
+      fee: this.appointmentForm.fee // ✅ Inclure le montant
     };
 
     const request = this.editingAppointment
@@ -208,26 +206,31 @@ export class AppointmentsComponent implements OnInit {
       : this.appointmentService.createAppointment(appointmentData);
 
     request.subscribe({
-    next: (savedAppointment) => {
-      // ✅ CORRECTION: Envoyer le bon lien
-      this.notificationService.sendNotification(
-        this.appointmentForm.patientId!,
-        'Nouveau rendez-vous',
-        `Votre rendez-vous "${this.appointmentForm.title}" est planifié pour le ${this.formatDate(start)} à ${this.formatTime(start)}`,
-        '/patient/appointments'  // ← Ce chemin doit correspondre à la route Angular
-      ).subscribe();
+      next: (savedAppointment) => {
+        // ✅ Notification complète avec toutes les informations
+        const notificationMessage = `Rendez-vous #${savedAppointment.id} : "${this.appointmentForm.title}" 
+          prévu le ${this.formatDate(start)} à ${this.formatTime(start)}. 
+          Montant: ${this.appointmentForm.fee} TND. 
+          Lien: ${savedAppointment.meetLink || this.appointmentForm.meetLink || 'À venir'}`;
+        
+        this.notificationService.sendNotification(
+          this.appointmentForm.patientId!,
+          'Nouveau rendez-vous - Paiement requis',
+          notificationMessage,
+          `/patient/appointments/${savedAppointment.id}/pay`
+        ).subscribe();
 
-      this.loadAppointments(new Date(), new Date());
-      this.showForm = false;
-      this.resetForm();
-      
-      alert(this.editingAppointment ? 'Rendez-vous modifié avec succès' : 'Rendez-vous créé avec succès');
-    },
-    error: (err) => {
-      console.error('Erreur sauvegarde:', err);
-      alert('Erreur lors de la sauvegarde');
-    }
-  });
+        this.loadAppointments(new Date(), new Date());
+        this.showForm = false;
+        this.resetForm();
+        
+        alert(this.editingAppointment ? 'Rendez-vous modifié avec succès' : 'Rendez-vous créé avec succès');
+      },
+      error: (err) => {
+        console.error('Erreur sauvegarde:', err);
+        alert('Erreur lors de la sauvegarde');
+      }
+    });
   }
 
   deleteAppointment() {
@@ -253,8 +256,6 @@ export class AppointmentsComponent implements OnInit {
     this.showForm = false;
     this.resetForm();
   }
-
-  // ===== UTILITAIRES =====
 
   formatDateForInput(date: Date | null): string {
     if (!date) return '';

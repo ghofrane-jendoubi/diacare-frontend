@@ -70,7 +70,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
   // Charger les conversations en premier
-  this.loadConversations(); // ← loadDoctorInfo() est maintenant dedans
+  this.loadConversations();
   
   this.route.params.subscribe(params => {
     const doctorId = params['doctorId'];
@@ -100,7 +100,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   this.refreshInterval = setInterval(() => {
     if (this.selectedDoctorId) this.loadMessages();
     this.loadConversations();
-  }, 5000);
+  }, 50000);
 }
   ngOnDestroy(): void {
     if (this.refreshInterval) {
@@ -149,7 +149,7 @@ export class ChatComponent implements OnInit, OnDestroy {
           }
           this.scrollTimeout = setTimeout(() => {
             this.userScrolled = false;
-          }, 5000);
+          }, 50000);
         }
       });
     }
@@ -280,7 +280,7 @@ private loadDoctorInfoFromApi(doctorId: number) {
                 this.messagesContainer.nativeElement.scrollTop += scrollDiff;
               }
             }
-          }, 100);
+          }, 100000);
         }
         
         this.markMessagesAsRead();
@@ -409,7 +409,7 @@ private loadDoctorInfoFromApi(doctorId: number) {
           
           setTimeout(() => {
             this.focusMessageInput();
-          }, 100);
+          }, 1000);
         },
         error: (err) => console.error('Erreur envoi message', err)
       });
@@ -439,7 +439,6 @@ private loadDoctorInfoFromApi(doctorId: number) {
 
   // ===== GESTION DES FICHIERS =====
 
-  // ✅ CORRECTION ICI - Accepter string | null | undefined
   getFullUrl(url: string | null | undefined): string {
     if (!url) return '';
     if (url.startsWith('http')) return url;

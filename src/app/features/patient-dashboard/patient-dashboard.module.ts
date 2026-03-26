@@ -9,6 +9,7 @@ import { ChatComponent } from './pages/chat/chat.component';
 import { SharedModule } from '../../shared/shared.module';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
 import { NotificationDetailModalComponent } from './modals/notification-detail-modal/notification-detail-modal.component';
+import { PaymentModalComponent } from './modals/payment-modal/payment-modal.component';
 
 
 
@@ -17,7 +18,8 @@ import { NotificationDetailModalComponent } from './modals/notification-detail-m
     DoctorsListComponent,
     ChatComponent,
     NotificationsComponent,
-    NotificationDetailModalComponent
+    NotificationDetailModalComponent,
+    PaymentModalComponent
   ],
   imports: [
     CommonModule,

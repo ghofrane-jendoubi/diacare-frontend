@@ -1,5 +1,6 @@
 <div class="modal-overlay" (click)="close()">
   <div class="modal-container" (click)="$event.stopPropagation()">
+
     <!-- En-tête -->
     <div class="modal-header">
       <h2>
@@ -14,11 +15,12 @@
     <!-- Corps -->
     <div class="modal-body">
       <div class="notification-detail">
+
         <div class="detail-header">
           <span class="badge" [ngClass]="{
-            'badge-info': notification.title.includes('Rendez-vous'),
-            'badge-success': notification.title.includes('Résultat'),
-            'badge-warning': notification.title.includes('Rappel')
+            'badge-info': notification.title.toLowerCase().includes('rendez-vous'),
+            'badge-success': notification.title.toLowerCase().includes('résultat'),
+            'badge-warning': notification.title.toLowerCase().includes('rappel')
           }">
             {{ notification.title }}
           </span>
@@ -30,35 +32,49 @@
           <p>{{ notification.message }}</p>
         </div>
 
-        <!-- Informations du rendez-vous (si c'est une notification de rendez-vous) -->
-        <div class="appointment-info" *ngIf="notification.title.includes('Rendez-vous')">
+        <!-- Informations du rendez-vous -->
+        <div class="appointment-info" *ngIf="notification.title.toLowerCase().includes('rendez-vous')">
           <h3>Informations du rendez-vous</h3>
-          
+
           <div class="info-grid">
             <div class="info-item">
               <i class="bi bi-calendar"></i>
               <div>
                 <small>Date</small>
-                <strong>{{ extractAppointmentInfo(notification.message).date }}</strong>
+                <strong>{{ getAppointmentDate() }}</strong>
               </div>
             </div>
-
             <div class="info-item">
               <i class="bi bi-clock"></i>
               <div>
                 <small>Heure</small>
-                <strong>{{ extractAppointmentInfo(notification.message).time }}</strong>
+                <strong>{{ getAppointmentTime() }}</strong>
               </div>
             </div>
+            <div class="info-item">
+              <i class="bi bi-tag"></i>
+              <div>
+                <small>Titre</small>
+                <strong>{{ getAppointmentTitle() }}</strong>
+              </div>
+            </div>
+            <div class="info-item">
+              <i class="bi bi-currency-dollar"></i>
+              <div>
+                <small>Tarif</small>
+                <strong>{{ getAppointmentFee() }} TND</strong>
+              </div>
+            </div>
+          </div>
 
+          <div class="info-grid-second">
             <div class="info-item">
               <i class="bi bi-person"></i>
               <div>
                 <small>Médecin</small>
-                <strong>Dr. Karim El Fassi</strong>
+                <strong>{{ doctorName }}</strong>
               </div>
             </div>
-
             <div class="info-item">
               <i class="bi bi-camera-video"></i>
               <div>
@@ -68,24 +84,87 @@
             </div>
           </div>
 
-          <!-- Lien Google Meet -->
-          <div class="meet-link" *ngIf="notification.link === '/patient/appointments'">
-            <i class="bi bi-google"></i>
-            <span>https://meet.google.com/xxx-xxxx-xxx</span>
+          
+
+          <!-- Statut du paiement -->
+          <div class="payment-status" *ngIf="appointment">
+            <!-- Chargement -->
+            <div *ngIf="isLoading" class="status-loading">
+              <div class="spinner-border spinner-border-sm" role="status"></div>
+              <span>Chargement des informations de paiement...</span>
+            </div>
+
+            <ng-container *ngIf="!isLoading">
+              <!-- Expiré -->
+              <div *ngIf="isDateExpired" class="status-expired">
+                <i class="bi bi-calendar-x" style="font-size:2rem; color:#ef4444"></i>
+                <div class="status-content">
+                  <span class="status-title">Consultation expirée</span>
+                  <span class="status-message">
+                    Cette consultation a déjà eu lieu, vous ne pouvez plus payer ni accéder au lien.
+                  </span>
+                </div>
+              </div>
+
+              <ng-container *ngIf="!isDateExpired">
+                <!-- Payé → lien Meet visible -->
+                <div *ngIf="isPaid" class="status-paid">
+                  <i class="bi bi-check-circle-fill" style="font-size:2rem; color:#10b981"></i>
+                  <div class="status-content">
+                    <span class="status-title">Consultation payée ✓</span>
+                    <a *ngIf="getAppointmentMeetLink() !== '#'"
+                       [href]="getAppointmentMeetLink()"
+                       target="_blank"
+                       class="meet-link-btn">
+                      <i class="bi bi-camera-video"></i> Rejoindre la consultation
+                    </a>
+                    <span *ngIf="getAppointmentMeetLink() === '#'" class="status-message">
+                      Le lien sera disponible prochainement.
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Non payé → bouton payer, lien caché -->
+                <div *ngIf="!isPaid" class="status-unpaid">
+                  <i class="bi bi-credit-card" style="font-size:2rem; color:#f59e0b"></i>
+                  <div class="status-content">
+                    <span class="status-title">Paiement requis</span>
+                    <span class="status-amount"
+                          style="font-size:1.4rem; font-weight:700; color:#f59e0b">
+                      {{ getAppointmentFee() }} TND
+                    </span>
+                    <p class="status-message">
+                      Vous devez payer pour accéder au lien de la consultation.
+                    </p>
+                    <button class="btn-pay" (click)="openPaymentModal()">
+                      <i class="bi bi-lock"></i> Payer maintenant
+                    </button>
+                  </div>
+                </div>
+              </ng-container>
+            </ng-container>
           </div>
         </div>
+
       </div>
     </div>
 
-    <!-- Pied avec bouton Payer -->
+    <!-- Pied -->
     <div class="modal-footer">
       <button class="btn-secondary" (click)="close()">
         Fermer
       </button>
-      <button class="btn-primary" (click)="onPay()" *ngIf="notification.title.includes('Rendez-vous')">
-        <i class="bi bi-credit-card"></i>
-        Payer la consultation
-      </button>
     </div>
+
   </div>
 </div>
+
+<!-- Modal de paiement -->
+<app-payment-modal
+  *ngIf="showPaymentModal"
+  [show]="showPaymentModal"
+  [appointment]="appointment"
+  [patientId]="patientId"
+  (closeModal)="closePaymentModal()"
+  (paymentSuccess)="onPaymentSuccess($event)">
+</app-payment-modal>

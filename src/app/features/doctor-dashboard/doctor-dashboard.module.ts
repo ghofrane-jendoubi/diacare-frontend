@@ -9,6 +9,7 @@ import { ChatDoctorComponent } from './pages/chat-doctor/chat-doctor.component';
 import { ImageAnalysisModalComponent } from './pages/chat-doctor/modals/image-analysis-modal/image-analysis-modal.component';
 import { SendResultModalComponent } from './pages/chat-doctor/modals/send-result-modal/send-result-modal.component';
 import { AppointmentsComponent } from './pages/appointments/appointments.component';
+import { DoctorAppointmentsComponent } from './pages/doctor-appointments/doctor-appointments.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { AppointmentsComponent } from './pages/appointments/appointments.compone
     ChatDoctorComponent,
     ImageAnalysisModalComponent,
     SendResultModalComponent,
-    AppointmentsComponent
+    AppointmentsComponent,
+    DoctorAppointmentsComponent
   ],
   imports: [
     CommonModule,
