@@ -7,17 +7,18 @@ import { Observable } from 'rxjs';
 })
 export class ApiService {
 
-  private apiUrl = 'http://localhost:8081/api';
+  private apiUrl = 'http://localhost:8080/api/products';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  // Récupérer tous les utilisateurs
-  getUsers(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/users`);
+  // ✅ GET all products
+  getProducts(): Observable<any> {
+    return this.http.get(this.apiUrl);
   }
 
-  // Ajouter un utilisateur
-  addUser(user: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/users`, user);
+  // ✅ ADD product
+  addProduct(product: any): Observable<any> {
+    return this.http.post(this.apiUrl, product);
   }
+
 }

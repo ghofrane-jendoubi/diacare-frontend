@@ -1,0 +1,365 @@
+<div class="page-container">
+  <div class="product-table-card">
+    <div class="header">
+      <h2>Gestion des produits</h2>
+      <button class="btn btn-primary" (click)="openAddModal()">
+        <i class="fas fa-plus"></i> Ajouter un produit
+      </button>
+    </div>
+
+    <div *ngIf="isLoading" class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i> Chargement des produits...
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+
+    <div class="table-responsive" *ngIf="!isLoading && products.length > 0">
+      <table class="product-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Image</th>
+            <th>Nom</th>
+            <th>Description</th>
+            <th>Code‑barres</th>
+            <th>Prix (DT)</th>
+            <th>Stock</th>
+            <th>Sucre (g/100ml)</th>
+            <th>Type</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of products">
+            <td>{{ product.id }}</td>
+            <td class="image-cell">
+              <img *ngIf="product.image && !imageErrorMap[product.id!]" 
+                   [src]="getImageUrl(product.image)" 
+                   alt="{{ product.name }}" 
+                   class="product-thumbnail"
+                   (error)="onImageError(product)">
+              <div *ngIf="!product.image || imageErrorMap[product.id!]" class="no-image">
+                Aucune image
+              </div>
+            </td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.description ? (product.description | slice:0:30) + '...' : '-' }}</td>
+            <td>{{ product.barcode || '-' }}</td>
+            <td>{{ product.price | number:'1.2-2' }}</td>
+            <td>{{ product.stock }}</td>
+            <td>{{ product.sugarLevel || '-' }}</td>
+            <td>
+              <span class="badge" 
+                    [class.badge-medical]="product.type === 'MEDICAL'" 
+                    [class.badge-alimentaire]="product.type === 'ALIMENTAIRE'">
+                {{ product.type === 'MEDICAL' ? 'Médical' : 'Alimentaire' }}
+              </span>
+            </td>
+            <td class="actions">
+              <button class="btn-icon edit" (click)="openEditModal(product)" title="Modifier">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn-icon delete" (click)="deleteProduct(product.id!)" title="Supprimer">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="!isLoading && products.length === 0" class="no-data">
+      <i class="fas fa-box-open"></i>
+      <p>Aucun produit trouvé. Cliquez sur "Ajouter un produit" pour commencer.</p>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AJOUT -->
+<div class="modal-overlay" *ngIf="showAddModal" (click)="closeAddModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>➕ Ajouter un produit</h3>
+      <button class="close-btn" (click)="closeAddModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form #addForm="ngForm" (ngSubmit)="saveNewProduct(addForm)" novalidate>
+        <!-- Nom -->
+        <div class="form-group">
+          <label>Nom *</label>
+          <input type="text" class="form-control"
+                 [(ngModel)]="newProduct.name" name="name"
+                 required minlength="3" #name="ngModel"
+                 [ngClass]="{'is-invalid': name.invalid && name.touched}">
+          <div *ngIf="name.invalid && name.touched">
+            <div *ngIf="name.errors?.['required']" class="invalid-feedback">
+              Le nom est obligatoire.
+            </div>
+            <div *ngIf="name.errors?.['minlength']" class="invalid-feedback">
+              Minimum 3 caractères.
+            </div>
+          </div>
+        </div>
+
+        <!-- Code‑barres -->
+        <div class="form-group">
+          <label>Code‑barres</label>
+          <input type="text" class="form-control"
+                 [(ngModel)]="newProduct.barcode" name="barcode"
+                 pattern="^[0-9]{8,13}$" #barcode="ngModel"
+                 [ngClass]="{'is-invalid': barcode.invalid && barcode.touched}">
+          <div *ngIf="barcode.invalid && barcode.touched">
+            <div *ngIf="barcode.errors?.['pattern']" class="invalid-feedback">
+              Le code‑barres doit contenir 8 à 13 chiffres.
+            </div>
+          </div>
+        </div>
+
+        <!-- Prix -->
+        <div class="form-group">
+          <label>Prix (DT) *</label>
+          <input type="number" class="form-control"
+                 [(ngModel)]="newProduct.price" name="price"
+                 required min="0.1" step="0.01" #price="ngModel"
+                 [ngClass]="{'is-invalid': price.invalid && price.touched}">
+          <div *ngIf="price.invalid && price.touched">
+            <div *ngIf="price.errors?.['required']" class="invalid-feedback">
+              Le prix est obligatoire.
+            </div>
+            <div *ngIf="price.errors?.['min']" class="invalid-feedback">
+              Le prix doit être supérieur à 0.
+            </div>
+          </div>
+        </div>
+
+        <!-- Stock -->
+        <div class="form-group">
+          <label>Stock</label>
+          <input type="number" class="form-control"
+                 [(ngModel)]="newProduct.stock" name="stock"
+                 min="0" #stock="ngModel"
+                 [ngClass]="{'is-invalid': stock.invalid && stock.touched}">
+          <div *ngIf="stock.invalid && stock.touched">
+            <div *ngIf="stock.errors?.['min']" class="invalid-feedback">
+              Le stock ne peut pas être négatif.
+            </div>
+          </div>
+        </div>
+
+        <!-- Type -->
+        <div class="form-group">
+          <label>Type *</label>
+          <select class="form-control"
+                  [(ngModel)]="newProduct.type" name="type" required
+                  #type="ngModel"
+                  [ngClass]="{'is-invalid': type.invalid && type.touched}">
+            <option value="" disabled>Sélectionnez un type</option>
+            <option value="ALIMENTAIRE">Alimentaire</option>
+            <option value="MEDICAL">Médical</option>
+          </select>
+          <div *ngIf="type.invalid && type.touched">
+            <div *ngIf="type.errors?.['required']" class="invalid-feedback">
+              Le type est obligatoire.
+            </div>
+          </div>
+        </div>
+
+        <!-- Sucre -->
+        <div class="form-group">
+          <label>Niveau de sucre (g/100ml)</label>
+          <input type="number" class="form-control"
+                 [(ngModel)]="newProduct.sugarLevel" name="sugarLevel"
+                 min="0" step="0.1" #sugar="ngModel"
+                 [ngClass]="{'is-invalid': sugar.invalid && sugar.touched}">
+          <div *ngIf="sugar.invalid && sugar.touched">
+            <div *ngIf="sugar.errors?.['min']" class="invalid-feedback">
+              Doit être positif.
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label>Description</label>
+          <textarea class="form-control"
+                    [(ngModel)]="newProduct.description" name="description"
+                    maxlength="255" #desc="ngModel"
+                    [ngClass]="{'is-invalid': desc.invalid && desc.touched}"></textarea>
+          <div *ngIf="desc.invalid && desc.touched">
+            <div *ngIf="desc.errors?.['maxlength']" class="invalid-feedback">
+              Maximum 255 caractères.
+            </div>
+          </div>
+        </div>
+
+        <!-- Image -->
+        <div class="form-group">
+          <label>Image</label>
+          <input type="file" class="form-control"
+                 accept="image/*"
+                 (change)="onNewFileSelected($event)">
+          <img *ngIf="newImagePreview" [src]="newImagePreview" class="preview-img mt-2">
+        </div>
+
+        <!-- Messages de succès/erreur -->
+        <div *ngIf="addError" class="alert alert-danger mt-2">{{ addError }}</div>
+        <div *ngIf="addSuccess" class="alert alert-success mt-2">{{ addSuccess }}</div>
+
+        <!-- Boutons -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeAddModal()">Annuler</button>
+          <button type="submit" class="btn btn-primary" [disabled]="addForm.invalid">
+            Enregistrer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- MODAL MODIFICATION -->
+<div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>✏️ Modifier le produit</h3>
+      <button class="close-btn" (click)="closeEditModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form #editForm="ngForm" novalidate>
+        <!-- Nom -->
+        <div class="form-group">
+          <label>Nom *</label>
+          <input type="text" class="form-control"
+                 [(ngModel)]="selectedProduct.name" name="name"
+                 required minlength="3" #name="ngModel"
+                 [ngClass]="{'is-invalid': name.invalid && name.touched}">
+          <div *ngIf="name.invalid && name.touched">
+            <div *ngIf="name.errors?.['required']" class="invalid-feedback">
+              Le nom est obligatoire.
+            </div>
+            <div *ngIf="name.errors?.['minlength']" class="invalid-feedback">
+              Minimum 3 caractères.
+            </div>
+          </div>
+        </div>
+
+        <!-- Code‑barres -->
+        <div class="form-group">
+          <label>Code‑barres</label>
+          <input type="text" class="form-control"
+                 [(ngModel)]="selectedProduct.barcode" name="barcode"
+                 pattern="^[0-9]{8,13}$" #barcode="ngModel"
+                 [ngClass]="{'is-invalid': barcode.invalid && barcode.touched}">
+          <div *ngIf="barcode.invalid && barcode.touched">
+            <div *ngIf="barcode.errors?.['pattern']" class="invalid-feedback">
+              Le code‑barres doit contenir 8 à 13 chiffres.
+            </div>
+          </div>
+        </div>
+
+        <!-- Prix -->
+        <div class="form-group">
+          <label>Prix (DT) *</label>
+          <input type="number" class="form-control"
+                 [(ngModel)]="selectedProduct.price" name="price"
+                 required min="0.1" step="0.01" #price="ngModel"
+                 [ngClass]="{'is-invalid': price.invalid && price.touched}">
+          <div *ngIf="price.invalid && price.touched">
+            <div *ngIf="price.errors?.['required']" class="invalid-feedback">
+              Le prix est obligatoire.
+            </div>
+            <div *ngIf="price.errors?.['min']" class="invalid-feedback">
+              Le prix doit être supérieur à 0.
+            </div>
+          </div>
+        </div>
+
+        <!-- Stock -->
+        <div class="form-group">
+          <label>Stock</label>
+          <input type="number" class="form-control"
+                 [(ngModel)]="selectedProduct.stock" name="stock"
+                 min="0" #stock="ngModel"
+                 [ngClass]="{'is-invalid': stock.invalid && stock.touched}">
+          <div *ngIf="stock.invalid && stock.touched">
+            <div *ngIf="stock.errors?.['min']" class="invalid-feedback">
+              Le stock ne peut pas être négatif.
+            </div>
+          </div>
+        </div>
+
+        <!-- Type -->
+        <div class="form-group">
+          <label>Type *</label>
+          <select class="form-control"
+                  [(ngModel)]="selectedProduct.type" name="type" required
+                  #type="ngModel"
+                  [ngClass]="{'is-invalid': type.invalid && type.touched}">
+            <option value="" disabled>Sélectionnez un type</option>
+            <option value="ALIMENTAIRE">Alimentaire</option>
+            <option value="MEDICAL">Médical</option>
+          </select>
+          <div *ngIf="type.invalid && type.touched">
+            <div *ngIf="type.errors?.['required']" class="invalid-feedback">
+              Le type est obligatoire.
+            </div>
+          </div>
+        </div>
+
+        <!-- Sucre -->
+        <div class="form-group">
+          <label>Niveau de sucre (g/100ml)</label>
+          <input type="number" class="form-control"
+                 [(ngModel)]="selectedProduct.sugarLevel" name="sugarLevel"
+                 min="0" step="0.1" #sugar="ngModel"
+                 [ngClass]="{'is-invalid': sugar.invalid && sugar.touched}">
+          <div *ngIf="sugar.invalid && sugar.touched">
+            <div *ngIf="sugar.errors?.['min']" class="invalid-feedback">
+              Doit être positif.
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label>Description</label>
+          <textarea class="form-control"
+                    [(ngModel)]="selectedProduct.description" name="description"
+                    maxlength="255" #desc="ngModel"
+                    [ngClass]="{'is-invalid': desc.invalid && desc.touched}"></textarea>
+          <div *ngIf="desc.invalid && desc.touched">
+            <div *ngIf="desc.errors?.['maxlength']" class="invalid-feedback">
+              Maximum 255 caractères.
+            </div>
+          </div>
+        </div>
+
+        <!-- Image -->
+        <div class="form-group">
+          <label>Image</label>
+          <div *ngIf="selectedProduct.image && !imagePreview" class="current-image">
+            <img [src]="getImageUrl(selectedProduct.image)" alt="Image actuelle" class="preview-img">
+            <button type="button" class="btn-sm" (click)="clearImage()">Supprimer</button>
+          </div>
+          <input type="file" class="form-control" id="editImageFile"
+                 accept="image/*"
+                 (change)="onFileSelected($event)">
+          <div *ngIf="imagePreview" class="image-preview mt-2">
+            <img [src]="imagePreview" class="preview-img">
+            <button type="button" class="remove-image" (click)="clearImage()">✖</button>
+          </div>
+        </div>
+
+        <!-- Boutons -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Annuler</button>
+          <button type="button" class="btn btn-primary" (click)="updateProduct()"
+                  [disabled]="editForm.invalid">
+            Mettre à jour
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

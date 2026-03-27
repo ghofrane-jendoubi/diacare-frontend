@@ -1,0 +1,234 @@
+<div class="page-container">
+  <div class="product-form-card">
+    <div class="form-header">
+      <div class="header-icon">
+        <i class="fas fa-plus-circle"></i>
+      </div>
+      <h2 class="title">Ajouter un Nouveau Produit</h2>
+      <p class="subtitle">Remplissez les informations ci-dessous pour ajouter un produit au marketplace</p>
+    </div>
+
+    <form #f="ngForm" (ngSubmit)="save()" class="product-form">
+      <!-- Basic Information Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-info-circle"></i>
+          Informations de base
+        </h3>
+        
+        <div class="form-group">
+          <label for="name">
+            <i class="fas fa-tag"></i>
+            Nom du produit *
+          </label>
+          <input 
+            id="name"
+            type="text" 
+            class="form-control" 
+            placeholder="Ex: Boisson énergétique, Médicament..."
+            [(ngModel)]="product.name" 
+            name="name"
+            required
+            #name="ngModel"
+            [class.is-invalid]="submitted && name.invalid">
+          <div class="invalid-feedback" *ngIf="submitted && name.invalid">
+            Le nom du produit est requis
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half">
+            <label for="price">
+              <i class="fas fa-dollar-sign"></i>
+              Prix (DT) *
+            </label>
+            <input 
+              id="price"
+              type="number" 
+              class="form-control" 
+              placeholder="0.00"
+              [(ngModel)]="product.price" 
+              name="price"
+              required
+              min="0"
+              step="0.01"
+              #price="ngModel"
+              [class.is-invalid]="submitted && price.invalid">
+            <div class="invalid-feedback" *ngIf="submitted && price.invalid">
+              Prix valide requis
+            </div>
+          </div>
+
+          <div class="form-group half">
+            <label for="stock">
+              <i class="fas fa-boxes"></i>
+              Stock
+            </label>
+            <input 
+              id="stock"
+              type="number" 
+              class="form-control" 
+              placeholder="0"
+              [(ngModel)]="product.stock" 
+              name="stock"
+              min="0">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half">
+            <label for="type">
+              <i class="fas fa-filter"></i>
+              Type de produit *
+            </label>
+            <select 
+              id="type"
+              class="form-control"
+              [(ngModel)]="product.type" 
+              name="type"
+              required
+              #type="ngModel"
+              [class.is-invalid]="submitted && type.invalid">
+              <option value="" disabled>Sélectionnez un type</option>
+              <option value="ALIMENTAIRE">🍎 Alimentaire</option>
+              <option value="MEDICAL">💊 Médical</option>
+            </select>
+            <div class="invalid-feedback" *ngIf="submitted && type.invalid">
+              Veuillez sélectionner un type de produit
+            </div>
+          </div>
+
+          <div class="form-group half">
+            <label for="barcode">
+              <i class="fas fa-barcode"></i>
+              Code-barres
+            </label>
+            <input 
+              id="barcode"
+              type="text" 
+              class="form-control" 
+              placeholder="1234567890123"
+              [(ngModel)]="product.barcode" 
+              name="barcode">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="sugarLevel">
+            <i class="fas fa-cube"></i>
+            Niveau de sucre (g/100ml)
+          </label>
+          <input 
+            id="sugarLevel"
+            type="number" 
+            class="form-control" 
+            placeholder="0"
+            [(ngModel)]="product.sugarLevel"
+            name="sugarLevel"
+            min="0"
+            step="0.1">
+        </div>
+
+        <div class="form-group">
+          <label for="description">
+            <i class="fas fa-align-left"></i>
+            Description
+          </label>
+          <textarea 
+            id="description"
+            class="form-control" 
+            placeholder="Description détaillée du produit..."
+            [(ngModel)]="product.description" 
+            name="description"
+            rows="4"></textarea>
+        </div>
+      </div>
+
+      <!-- Image Upload Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="fas fa-image"></i>
+          Image du produit
+        </h3>
+
+        <div class="image-upload-tabs">
+          <button type="button" 
+                  class="tab-btn" 
+                  [class.active]="imageUploadMode === 'url'"
+                  (click)="imageUploadMode = 'url'">
+            <i class="fas fa-link"></i> URL
+          </button>
+          <button type="button" 
+                  class="tab-btn" 
+                  [class.active]="imageUploadMode === 'file'"
+                  (click)="imageUploadMode = 'file'">
+            <i class="fas fa-upload"></i> Télécharger
+          </button>
+        </div>
+
+        <!-- URL Upload Mode -->
+        <div class="upload-mode" *ngIf="imageUploadMode === 'url'">
+          <div class="form-group">
+            <label for="image">
+              <i class="fas fa-globe"></i>
+              URL de l'image
+            </label>
+            <input 
+              id="image"
+              type="url" 
+              class="form-control" 
+              placeholder="https://exemple.com/image.jpg"
+              [(ngModel)]="product.image" 
+              name="image"
+              (ngModelChange)="onImageUrlChange($event)">
+            <small class="form-text text-muted">
+              Entrez une URL d'image valide (http:// ou https://)
+            </small>
+          </div>
+        </div>
+
+        <!-- File Upload Mode -->
+        <div class="upload-mode" *ngIf="imageUploadMode === 'file'">
+          <div class="file-upload-area" 
+               (click)="fileInput.click()"
+               (dragover)="$event.preventDefault()"
+               (drop)="onFileSelected($event)">
+            <input type="file" 
+                   #fileInput
+                   id="imageFile"
+                   accept="image/*"
+                   style="display: none"
+                   (change)="onFileSelected($event)">
+            <div class="upload-placeholder" *ngIf="!imagePreview">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <p>Cliquez ou glissez une image ici</p>
+              <span>PNG, JPG, JPEG jusqu'à 5MB</span>
+            </div>
+            <div class="image-preview" *ngIf="imagePreview">
+              <img [src]="imagePreview" alt="Aperçu">
+              <button type="button" class="remove-image" (click)="clearImage()">
+                <i class="fas fa-times-circle"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+          <i class="fas" [class.fa-spinner]="isLoading" [class.fa-save]="!isLoading" [class.fa-spin]="isLoading"></i>
+          {{ isLoading ? 'Enregistrement...' : 'Enregistrer le produit' }}
+        </button>
+        <button type="button" class="btn btn-secondary" routerLink="/admin/marketplace">
+          <i class="fas fa-times"></i>
+          Annuler
+        </button>
+        <button type="button" class="btn btn-outline" (click)="resetForm(f)" *ngIf="!isLoading">
+          <i class="fas fa-undo-alt"></i>
+          Réinitialiser
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
