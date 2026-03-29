@@ -28,6 +28,7 @@ export class DoctorsListComponent implements OnInit {
     this.loading = true;
     this.doctorService.getDoctors().subscribe({
       next: (data) => {
+        console.log('Médecins chargés:', data);
         this.doctors = data;
         this.filteredDoctors = data;
         this.loading = false;
@@ -57,9 +58,11 @@ export class DoctorsListComponent implements OnInit {
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase().trim();
       filtered = filtered.filter(doctor => 
-        doctor.firstName.toLowerCase().includes(term) ||
-        doctor.lastName.toLowerCase().includes(term) ||
-        this.getSpecialityLabel(doctor.speciality).toLowerCase().includes(term)
+        doctor.firstName?.toLowerCase().includes(term) ||
+        doctor.lastName?.toLowerCase().includes(term) ||
+        this.getSpecialityLabel(doctor.speciality).toLowerCase().includes(term) ||
+        doctor.hospital?.toLowerCase().includes(term) ||
+        doctor.licenseNumber?.toLowerCase().includes(term)
       );
     }
     
@@ -67,8 +70,15 @@ export class DoctorsListComponent implements OnInit {
   }
 
   startConversation(doctorId: number) {
-    this.router.navigate(['/patient/chat', doctorId]);
+  console.log('Doctor ID reçu:', doctorId); 
+  
+  if (!doctorId) {
+    console.error('Doctor ID est null ou undefined');
+    return;
   }
+  
+  this.router.navigate(['/patient/chat', doctorId]);
+}
 
   getSpecialityLabel(speciality: string): string {
     const labels: any = {
@@ -78,8 +88,14 @@ export class DoctorsListComponent implements OnInit {
       'GENERALISTE': 'Médecin généraliste',
       'OPHTALMOLOGISTE': 'Ophtalmologiste',
       'NEPHROLOGUE': 'Néphrologue',
-      'PODOLOGUE': 'Podologue'
+      'PODOLOGUE': 'Podologue',
+      'NEUROLOGUE': 'Neurologue',
+      'PEDIATRE': 'Pédiatre'
     };
     return labels[speciality] || speciality;
+  }
+
+  handleImageError(event: any) {
+    event.target.src = '/default-doctor.png';
   }
 }

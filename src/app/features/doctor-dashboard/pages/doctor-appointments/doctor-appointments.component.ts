@@ -10,7 +10,7 @@ import { PaymentService } from '../../../../services/payment.service';
   styleUrls: ['./doctor-appointments.component.css']
 })
 export class DoctorAppointmentsComponent implements OnInit, OnDestroy {
-  doctorId = 4; // ID du médecin connecté
+  doctorId: string | null = null; // Changé: plus de valeur statique
   appointments: any[] = [];
   filteredAppointments: any[] = [];
   loading = true;
@@ -40,6 +40,17 @@ export class DoctorAppointmentsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // Récupérer l'ID du médecin connecté depuis localStorage
+    this.doctorId = localStorage.getItem('doctor_id');
+    
+    // Vérifier si le médecin est connecté
+    if (!this.doctorId) {
+      console.error('Médecin non connecté');
+      this.showToast('Veuillez vous connecter', 'error');
+      this.router.navigate(['/doctor/login']);
+      return;
+    }
+    
     this.loadAppointments();
     this.refreshInterval = setInterval(() => {
       this.loadAppointments();
@@ -53,28 +64,37 @@ export class DoctorAppointmentsComponent implements OnInit, OnDestroy {
   }
 
   loadAppointments() {
-    this.loading = true;
-    this.appointmentService.getDoctorAppointments(this.doctorId).subscribe({
-      next: (data) => {
-        this.appointments = data.map(app => ({
-          ...app,
-          patientId: app.patientId || app.patient?.id || null,
-          patientName: app.patientName || 
-                       (app.patient ? `${app.patient.firstName} ${app.patient.lastName}` : 'Patient'),
-          isExpired: new Date(app.startTime) < new Date(),
-          isPaid: app.paid || false,
-          status: this.getAppointmentStatus(app)
-        }));
-        this.applyFilters();
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Erreur:', err);
-        this.loading = false;
-      }
-    });
+  // Vérifier que doctorId existe avant de charger
+  if (!this.doctorId) {
+    console.error('Doctor ID non disponible');
+    return;
   }
-
+  
+  this.loading = true;
+  // ✅ Convertir le string en number avec parseInt ou +
+  this.appointmentService.getDoctorAppointments(parseInt(this.doctorId)).subscribe({
+    next: (data) => {
+      this.appointments = data.map(app => ({
+        ...app,
+        patientId: app.patientId || app.patient?.id || null,
+        patientName: app.patientName || 
+                     (app.patient ? `${app.patient.firstName} ${app.patient.lastName}` : 'Patient'),
+        isExpired: new Date(app.startTime) < new Date(),
+        isPaid: app.paid || false,
+        status: this.getAppointmentStatus(app)
+      }));
+      this.applyFilters();
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Erreur:', err);
+      this.loading = false;
+      if (err.status === 401) {
+        this.router.navigate(['/doctor/login']);
+      }
+    }
+  });
+}
   getAppointmentStatus(appointment: any): string {
     const now = new Date();
     const startDate = new Date(appointment.startTime);
@@ -216,31 +236,92 @@ export class DoctorAppointmentsComponent implements OnInit, OnDestroy {
     this.editForm.meetLink = `https://meet.google.com/${meetingId}`;
   }
 
-  updateAppointment() {
-  const start = new Date(`${this.editForm.date}T${this.editForm.time}`);
+updateAppointment() {
+  const dateStr = this.editForm.date;
+  const timeStr = this.editForm.time;
+  
+  if (!dateStr || !timeStr) {
+    this.showToast('Veuillez renseigner la date et l\'heure', 'error');
+    return;
+  }
+  
+  // ✅ Créer la date correctement
+  const [year, month, day] = dateStr.split('-');
+  const [hour, minute] = timeStr.split(':');
+  const start = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute));
+  
+  if (isNaN(start.getTime())) {
+    this.showToast('Date invalide', 'error');
+    return;
+  }
+  
   const end = new Date(start);
   end.setMinutes(end.getMinutes() + this.editForm.duration);
 
   const originalPatientId = this.editingAppointment?.patientId;
   const originalAppointmentId = this.editingAppointment?.id;
 
+  // ✅ Format simple pour Java : "2026-04-01 06:00:00"
+  const formatForJava = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
   const updatedData: any = {};
   
-  if (this.editForm.title) updatedData.title = this.editForm.title;
-  updatedData.startTime = start.toISOString();
-  updatedData.endTime = end.toISOString();
-  if (this.editForm.meetLink !== undefined) updatedData.meetLink = this.editForm.meetLink;
-  if (this.editForm.description !== undefined) updatedData.description = this.editForm.description;
-  if (this.editForm.fee !== undefined) updatedData.fee = this.editForm.fee;
+  // ✅ Ne modifier que ce qui a changé
+  if (this.editForm.title !== this.editingAppointment.title) updatedData.title = this.editForm.title;
+  if (this.editForm.meetLink !== this.editingAppointment.meetLink) updatedData.meetLink = this.editForm.meetLink;
+  if (this.editForm.description !== this.editingAppointment.description) updatedData.description = this.editForm.description;
+  if (this.editForm.fee !== this.editingAppointment.fee) updatedData.fee = this.editForm.fee;
+  
+  // ✅ Toujours mettre à jour la date/heure si modifiée
+  const originalDate = new Date(this.editingAppointment.startTime);
+  const originalDateStr = this.formatDateForInput(originalDate);
+  const originalTimeStr = this.formatTimeForInput(originalDate);
+  
+  if (dateStr !== originalDateStr || timeStr !== originalTimeStr) {
+    updatedData.startTime = formatForJava(start);
+    updatedData.endTime = formatForJava(end);
+  }
+
+  console.log('📦 Données à mettre à jour:', updatedData);
+
+  // ✅ Si rien n'a changé, ne pas envoyer
+  if (Object.keys(updatedData).length === 0) {
+    this.showToast('Aucune modification détectée', 'info');
+    this.closeEditModal();
+    return;
+  }
 
   this.appointmentService.updateAppointment(this.editForm.id!, updatedData).subscribe({
-    next: () => {
+    next: (response) => {
+      console.log('✅ Rendez-vous modifié:', response);
+      
       if (!originalPatientId) {
         this.showToast('Erreur: ID patient manquant', 'error');
         return;
       }
 
-      const notificationMessage = `Rendez-vous #${originalAppointmentId} : votre rendez-vous a été modifié par le médecin. Consultez les nouvelles informations ci-dessous.`;
+      const formattedDate = start.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+      const formattedTime = start.toLocaleTimeString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      const notificationMessage = `Rendez-vous #${originalAppointmentId} modifié : "${this.editForm.title}" 
+        prévu le ${formattedDate} à ${formattedTime}. 
+        Montant: ${this.editForm.fee} TND. 
+        Lien: ${this.editForm.meetLink || 'À venir'}`;
 
       this.notificationService.sendNotification(
         originalPatientId,
@@ -262,67 +343,77 @@ export class DoctorAppointmentsComponent implements OnInit, OnDestroy {
     }
   });
 }
-  cancelAppointment(appointment: any) {
-    // ✅ Vérifier si on peut annuler
-    if (!this.canCancel(appointment)) {
-      if (appointment.isPaid) {
-        alert('Impossible d\'annuler un rendez-vous déjà payé');
-      } else if (appointment.isExpired) {
-        alert('Impossible d\'annuler un rendez-vous expiré');
-      }
-      return;
+  
+cancelAppointment(appointment: any) {
+  console.log('🔍 Annulation du rendez-vous:', appointment);
+  
+  // ✅ Vérifier si on peut annuler
+  if (!this.canCancel(appointment)) {
+    if (appointment.isPaid) {
+      alert('Impossible d\'annuler un rendez-vous déjà payé');
+    } else if (appointment.isExpired) {
+      alert('Impossible d\'annuler un rendez-vous expiré');
     }
-    
-    if (!confirm(`Êtes-vous sûr de vouloir annuler ce rendez-vous avec ${appointment.patientName} ?`)) {
-      return;
-    }
-
-    const patientId = appointment.patientId || appointment.patient?.id;
-    
-    if (!patientId) {
-      console.error('Patient ID introuvable');
-      this.showToast('Erreur: impossible d\'identifier le patient', 'error');
-      return;
-    }
-
-    this.appointmentService.deleteAppointment(appointment.id).subscribe({
-      next: () => {
-        // ✅ Message de notification complet
-        const notificationMessage = `Votre rendez-vous "${appointment.title}" du ${this.formatDisplayDate(appointment.startTime)} à ${this.formatDisplayTime(appointment.startTime)} a été annulé par le médecin.\n\n` +
-          `❌ Rendez-vous annulé\n\n` +
-          `📝 Détails:\n` +
-          `• Titre: ${appointment.title}\n` +
-          `• Date: ${this.formatDisplayDate(appointment.startTime)}\n` +
-          `• Heure: ${this.formatDisplayTime(appointment.startTime)}\n` +
-          `• Tarif: ${appointment.fee} TND\n\n` +
-          `Si vous avez déjà payé, le remboursement sera effectué sous 48h.\n\n` +
-          `Vous pouvez prendre un nouveau rendez-vous depuis votre espace patient.`;
-        
-        this.notificationService.sendNotification(
-          patientId,  
-          '❌ Rendez-vous annulé',
-          notificationMessage,
-          '/patient/appointments'
-        ).subscribe({
-          next: () => {
-            console.log('✅ Notification d\'annulation envoyée');
-            this.showToast('Notification envoyée au patient', 'success');
-          },
-          error: (err) => {
-            console.error('Erreur notification:', err);
-            this.showToast('Erreur lors de l\'envoi de la notification', 'error');
-          }
-        });
-
-        this.loadAppointments();
-        this.showToast('Rendez-vous annulé avec succès', 'success');
-      },
-      error: (err) => {
-        console.error('Erreur annulation:', err);
-        this.showToast('Erreur lors de l\'annulation', 'error');
-      }
-    });
+    return;
   }
+  
+  if (!confirm(`Êtes-vous sûr de vouloir annuler ce rendez-vous avec ${appointment.patientName} ?`)) {
+    return;
+  }
+
+  const patientId = appointment.patientId || appointment.patient?.id;
+  
+  if (!patientId) {
+    console.error('Patient ID introuvable');
+    this.showToast('Erreur: impossible d\'identifier le patient', 'error');
+    return;
+  }
+
+  console.log('📤 Envoi de la demande d\'annulation pour appointment ID:', appointment.id);
+  
+  this.appointmentService.deleteAppointment(appointment.id).subscribe({
+    next: () => {
+      console.log('✅ Rendez-vous annulé avec succès');
+      
+      // ✅ Formater la date pour la notification
+      const formattedDate = this.formatDisplayDate(appointment.startTime);
+      const formattedTime = this.formatDisplayTime(appointment.startTime);
+      
+      const notificationMessage = `Votre rendez-vous "${appointment.title}" du ${formattedDate} à ${formattedTime} a été annulé par le médecin.\n\n` +
+        `❌ Rendez-vous annulé\n\n` +
+        `📝 Détails:\n` +
+        `• Titre: ${appointment.title}\n` +
+        `• Date: ${formattedDate}\n` +
+        `• Heure: ${formattedTime}\n` +
+        `• Tarif: ${appointment.fee} TND\n\n` +
+        `Si vous avez déjà payé, le remboursement sera effectué sous 48h.\n\n` +
+        `Vous pouvez prendre un nouveau rendez-vous depuis votre espace patient.`;
+      
+      this.notificationService.sendNotification(
+        patientId,  
+        '❌ Rendez-vous annulé',
+        notificationMessage,
+        '/patient/appointments'
+      ).subscribe({
+        next: () => {
+          console.log('✅ Notification d\'annulation envoyée');
+          this.showToast('Notification envoyée au patient', 'success');
+        },
+        error: (err) => {
+          console.error('Erreur notification:', err);
+          this.showToast('Erreur lors de l\'envoi de la notification', 'error');
+        }
+      });
+
+      this.loadAppointments();
+      this.showToast('Rendez-vous annulé avec succès', 'success');
+    },
+    error: (err) => {
+      console.error('❌ Erreur annulation:', err);
+      this.showToast('Erreur lors de l\'annulation: ' + (err.error?.message || err.message), 'error');
+    }
+  });
+}
 
   viewPatientProfile(patientId: number) {
     this.router.navigate(['/doctor/patient', patientId]);

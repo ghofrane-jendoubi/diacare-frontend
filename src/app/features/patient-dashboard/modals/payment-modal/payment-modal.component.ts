@@ -11,7 +11,7 @@ declare var Stripe: any;
 export class PaymentModalComponent implements AfterViewInit {
   @Input() show = false;
   @Input() appointment: any;
-  @Input() patientId = 1;
+  @Input() patientId: number | null = null; // ✅ Changé: plus de valeur statique
   @Output() closeModal = new EventEmitter<void>();
   @Output() paymentSuccess = new EventEmitter<any>();
 
@@ -29,77 +29,100 @@ export class PaymentModalComponent implements AfterViewInit {
     await this.initStripe();
   }
 
- async initStripe() {
-  // ✅ Récupérer l'instance retournée
-  this.stripe = await this.paymentService.initializeStripe('pk_test_51TESqOPdOkHJhkaV0VzqbW3jOMKNMhkctJhM3mwhuhDzMMg6G3AMs7BxxREzNK7pGjhtdkpy8vuGkTlafoyWHexU00IWPM8chC');
-  
-  if (!this.stripe) {
-    console.error('Stripe non initialisé');
-    return;
-  }
+  async initStripe() {
+    // ✅ Récupérer l'instance retournée
+    this.stripe = await this.paymentService.initializeStripe('pk_test_51TESqOPdOkHJhkaV0VzqbW3jOMKNMhkctJhM3mwhuhDzMMg6G3AMs7BxxREzNK7pGjhtdkpy8vuGkTlafoyWHexU00IWPM8chC');
+    
+    if (!this.stripe) {
+      console.error('Stripe non initialisé');
+      return;
+    }
 
-  const elements = this.stripe.elements();
-  this.cardElement = elements.create('card', {
-    style: {
-      base: {
-        fontSize: '16px',
-        color: '#32325d',
-        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-        '::placeholder': { color: '#aab7c4' }
+    const elements = this.stripe.elements();
+    this.cardElement = elements.create('card', {
+      style: {
+        base: {
+          fontSize: '16px',
+          color: '#32325d',
+          fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+          '::placeholder': { color: '#aab7c4' }
+        }
       }
-    }
-  });
-
-  //  Attendre que le DOM soit prêt
-  setTimeout(() => {
-    if (this.cardElementRef?.nativeElement) {
-      this.cardElement.mount(this.cardElementRef.nativeElement);
-      console.log('Stripe card monté avec succès');
-    } else {
-      console.error('cardElementRef non trouvé dans le DOM');
-    }
-  }, 200);
-}
-
-  async pay() {
-  if (!this.appointment) return;
-  
-  this.loading = true;
-  this.errorMessage = '';
-
-  try {
-    const intent = await this.paymentService.createPaymentIntent(
-      this.appointment.id, 
-      this.patientId
-    ).toPromise();
-
-    if (!intent.clientSecret) {
-      throw new Error('Erreur de création du paiement');
-    }
-
-    const { error, paymentIntent } = await this.stripe.confirmCardPayment(intent.clientSecret, {
-      payment_method: { card: this.cardElement }
     });
 
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    // ✅ Le statut Stripe est "succeeded" (minuscules), le backend attend "SUCCEEDED"
-    await this.paymentService.confirmPayment(
-      paymentIntent.id, 
-      paymentIntent.status.toUpperCase()  // ✅ convertir en majuscules
-    ).toPromise();
-    
-    this.success = true;
-    this.paymentSuccess.emit(this.appointment);
-    
-  } catch (error: any) {
-    this.errorMessage = error.message || 'Erreur de paiement';
-  } finally {
-    this.loading = false;
+    // Attendre que le DOM soit prêt
+    setTimeout(() => {
+      if (this.cardElementRef?.nativeElement) {
+        this.cardElement.mount(this.cardElementRef.nativeElement);
+        console.log('Stripe card monté avec succès');
+      } else {
+        console.error('cardElementRef non trouvé dans le DOM');
+      }
+    }, 200);
   }
-}
+
+  async pay() {
+    if (!this.appointment) return;
+    
+    // ✅ Vérifier que patientId existe
+    if (!this.patientId) {
+      // Récupérer l'ID du patient depuis localStorage
+      const patientIdStr = localStorage.getItem('patient_id');
+      if (patientIdStr) {
+        this.patientId = parseInt(patientIdStr);
+        console.log('✅ Patient ID récupéré depuis localStorage:', this.patientId);
+      } else {
+        this.errorMessage = 'Erreur: Patient non identifié';
+        return;
+      }
+    }
+    
+    this.loading = true;
+    this.errorMessage = '';
+
+    try {
+      console.log('🔍 Création du paiement pour appointment:', this.appointment.id, 'patient:', this.patientId);
+      
+      const intent = await this.paymentService.createPaymentIntent(
+        this.appointment.id, 
+        this.patientId
+      ).toPromise();
+
+      console.log('📦 Réponse createPaymentIntent:', intent);
+
+      if (!intent.clientSecret) {
+        throw new Error('Erreur de création du paiement');
+      }
+
+      const { error, paymentIntent } = await this.stripe.confirmCardPayment(intent.clientSecret, {
+        payment_method: { card: this.cardElement }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      console.log('✅ Paiement confirmé par Stripe:', paymentIntent.id, paymentIntent.status);
+
+      // Le statut Stripe est "succeeded" (minuscules), le backend attend "SUCCEEDED"
+      await this.paymentService.confirmPayment(
+        paymentIntent.id, 
+        paymentIntent.status.toUpperCase()  // convertir en majuscules
+      ).toPromise();
+      
+      console.log('✅ Paiement enregistré en base');
+      
+      this.success = true;
+      this.paymentSuccess.emit(this.appointment);
+      
+    } catch (error: any) {
+      console.error('❌ Erreur paiement:', error);
+      this.errorMessage = error.message || 'Erreur de paiement';
+    } finally {
+      this.loading = false;
+    }
+  }
+
   onSuccess() {
     this.close();
     this.paymentSuccess.emit(this.appointment);

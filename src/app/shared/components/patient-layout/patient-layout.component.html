@@ -1,11 +1,11 @@
-<app-navbar 
-  [menuItems]="patientMenuItems" 
+<app-navbar
+  [menuItems]="patientMenuItems"
   [isLoggedIn]="true"
-  [userId]="1"
-  userName="Sophie Martin"
-  userEmail="sophie.m@example.com"
-  >
+  [userId]="patientId"
+  [userName]="userName"
+  [userEmail]="userEmail">
 </app-navbar>
+
 <div class="patient-content">
   <router-outlet></router-outlet>
 </div>

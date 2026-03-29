@@ -1,0 +1,101 @@
+<div class="auth-wrapper">
+  <div class="container">
+
+    <!-- FORMULAIRE -->
+    <div class="form-container">
+
+      <!-- SIGN IN -->
+      <div *ngIf="!isSignUp" class="form-panel">
+        <h2>Connexion Médecin</h2>
+        <p class="subtitle">Connectez-vous avec votre email et mot de passe</p>
+        <form (ngSubmit)="signIn()">
+          <div class="input-group">
+            <input type="email" [(ngModel)]="loginData.email" name="email" placeholder="Email *" required>
+          </div>
+          <div class="input-group">
+            <input type="password" [(ngModel)]="loginData.password" name="password" placeholder="Mot de passe *" required>
+          </div>
+          <button type="submit" class="btn-primary" [disabled]="isLoading">
+            {{ isLoading ? 'Connexion...' : 'SE CONNECTER' }}
+          </button>
+        </form>
+      </div>
+
+      <!-- SIGN UP -->
+      <div *ngIf="isSignUp" class="form-panel">
+        <h2>Inscription Médecin</h2>
+        <p class="subtitle">Créez votre compte en remplissant tous les champs</p>
+        <form (ngSubmit)="signUp()">
+
+          <p class="section-label">Informations personnelles</p>
+          <div class="input-row">
+            <div class="input-group half">
+              <input type="text" [(ngModel)]="newDoctor.firstName" name="firstName" placeholder="Prénom *" required>
+            </div>
+            <div class="input-group half">
+              <input type="text" [(ngModel)]="newDoctor.lastName" name="lastName" placeholder="Nom *" required>
+            </div>
+          </div>
+          <div class="input-group">
+            <input type="email" [(ngModel)]="newDoctor.email" name="email" placeholder="Email *" required>
+          </div>
+          <div class="input-group">
+            <input type="tel" [(ngModel)]="newDoctor.phone" name="phone" placeholder="Téléphone *" required>
+          </div>
+          <div class="input-group">
+            <input type="password" [(ngModel)]="newDoctor.password" name="password" placeholder="Mot de passe *" required minlength="6">
+          </div>
+
+          <p class="section-label">Informations professionnelles</p>
+          <div class="input-group">
+            <select [(ngModel)]="newDoctor.speciality" name="speciality" required>
+              <option value="">-- Spécialité * --</option>
+              <option *ngFor="let s of specialities" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <input type="text" [(ngModel)]="newDoctor.licenseNumber" name="licenseNumber" placeholder="Numéro de licence *" required>
+          </div>
+          <div class="input-group">
+            <input type="text" [(ngModel)]="newDoctor.hospital" name="hospital" placeholder="Hôpital / Clinique *" required>
+          </div>
+          <div class="input-row">
+            <div class="input-group half">
+              <input type="number" [(ngModel)]="newDoctor.yearsOfExperience" name="yearsOfExperience" placeholder="Années d'expérience" min="0">
+            </div>
+            <div class="input-group half">
+              <input type="number" [(ngModel)]="newDoctor.consultationFee" name="consultationFee" placeholder="Frais consultation (DT)" min="0">
+            </div>
+          </div>
+
+          <p class="section-label">Certificat médical <span class="req">*</span></p>
+          <label for="cert" class="upload-zone">
+            <img *ngIf="certificatePreview" [src]="certificatePreview" class="cert-preview" alt="aperçu">
+            <span *ngIf="!certificatePreview">📄 Cliquez pour uploader votre certificat (JPG/PNG, max 5MB)</span>
+            <span *ngIf="certificateFile" class="file-ok">✅ {{ certificateFile.name }}</span>
+          </label>
+          <input id="cert" type="file" accept="image/jpeg,image/png,image/jpg" (change)="onCertificateSelected($event)" style="display:none">
+
+          <button type="submit" class="btn-primary" [disabled]="isLoading">
+            {{ isLoading ? 'Inscription...' : 'S\'INSCRIRE' }}
+          </button>
+        </form>
+      </div>
+
+      <div *ngIf="successMessage" class="msg success">✅ {{ successMessage }}</div>
+      <div *ngIf="errorMessage" class="msg error">❌ {{ errorMessage }}</div>
+    </div>
+
+    <!-- PANNEAU DROIT -->
+    <div class="info-panel">
+      <div class="info-content">
+        <h1>{{ isSignUp ? 'Déjà inscrit ?' : 'Nouveau médecin ?' }}</h1>
+        <p>{{ isSignUp ? 'Connectez-vous à votre espace.' : 'Créez votre compte et soumettez votre certificat.' }}</p>
+        <button class="btn-outline" (click)="toggleMode()">
+          {{ isSignUp ? 'SE CONNECTER' : 'S\'INSCRIRE' }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -13,4 +13,7 @@ export class PatientService {
   getPatientById(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
+  getDoctorPatients(doctorId: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/doctor/${doctorId}/patients`);
+}
 }

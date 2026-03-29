@@ -1,4 +1,11 @@
 .patient-content {
-  margin-top: 80px; /* Hauteur de la navbar */
-  min-height: calc(100vh - 80px - 300px); /* Hauteur totale - navbar - footer */
+  margin-top: 68px;
+  min-height: calc(100vh - 68px - 300px);
+}
+
+@media (max-width: 768px) {
+  .patient-content {
+    margin-top: 60px;
+    min-height: calc(100vh - 60px - 200px);
+  }
 }

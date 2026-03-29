@@ -11,7 +11,6 @@
       </button>
     </div>
 
-    <!-- Barre de recherche -->
     <div class="search-box">
       <i class="bi bi-search"></i>
       <input type="text" 
@@ -20,7 +19,6 @@
              (input)="filterConversations()">
     </div>
 
-    <!-- Liste des conversations -->
     <div class="conversations-list">
       <div *ngIf="loadingConversations" class="loading-conversations">
         <div class="spinner-small"></div>
@@ -32,15 +30,13 @@
            [class.active]="conv.patientId === selectedPatientId"
            (click)="selectConversation(conv.patientId)">
         
-        <!-- Avatar avec badge de statut -->
         <div class="conversation-avatar">
-          <img [src]="getFullUrl(conv.patientProfilePicture) || 'assets/images/default-patient.png'" 
+          <img [src]="getFullUrl(conv.patientProfilePicture) || '/default-patient.png'" 
                alt="{{ conv.patientName }}"
                (error)="onImageError($event)">
           <span class="status-badge" [class.online]="conv.online"></span>
         </div>
 
-        <!-- Informations de la conversation -->
         <div class="conversation-info">
           <div class="conversation-header">
             <h4>{{ conv.patientName }}</h4>
@@ -65,7 +61,6 @@
         </div>
       </div>
 
-      <!-- Message si aucune conversation -->
       <div *ngIf="!loadingConversations && filteredConversations.length === 0" class="no-conversations">
         <i class="bi bi-chat-dots"></i>
         <p>Aucune conversation</p>
@@ -74,20 +69,15 @@
     </div>
   </div>
 
-  <!-- Zone de chat principale -->
   <div class="chat-main" [class.mobile-full]="!showMobileConversations">
-   
-
-    <!-- Si un patient est sélectionné -->
     <ng-container *ngIf="selectedPatientId && currentPatient">
-      <!-- En-tête du chat -->
       <div class="chat-header">
         <button class="back-btn-mobile" (click)="showMobileConversations = true">
           <i class="bi bi-arrow-left"></i>
         </button>
         <div class="patient-info">
           <div class="avatar-container">
-            <img [src]="getFullUrl(currentPatient.profilePicture) || 'assets/images/default-patient.png'" 
+            <img [src]="getFullUrl(currentPatient.profilePicture) || '/default-patient.png'" 
                  alt="{{ currentPatient.firstName }} {{ currentPatient.lastName }}"
                  class="patient-avatar"
                  (error)="onImageError($event)">
@@ -113,7 +103,6 @@
         </div>
       </div>
 
-      <!-- Messages -->
       <div class="messages" #messagesContainer>
         <div *ngIf="loading" class="loading">
           <div class="spinner"></div>
@@ -126,10 +115,8 @@
              [class.their-message]="message.sender.id !== currentDoctorId">
           
           <div class="message-bubble">
-            <!-- Message texte -->
             <div class="message-content" *ngIf="message.content">{{ message.content }}</div>
             
-            <!-- Image envoyée -->
             <div class="message-image" *ngIf="message.imageUrl">
               <div class="image-container">
                 <img [src]="getFullUrl(message.imageUrl)" 
@@ -143,7 +130,6 @@
               </div>
             </div>
             
-            <!-- Document envoyé -->
             <div class="message-document" *ngIf="message.documentUrl">
               <div class="document-card" (click)="openDocument(message.documentUrl)">
                 <div class="document-icon">
@@ -158,7 +144,6 @@
               </div>
             </div>
             
-            <!-- Audio message amélioré -->
             <div class="message-audio" *ngIf="message.audioUrl">
               <div class="audio-player">
                 <button class="play-btn" (click)="toggleAudio(message)" [class.playing]="isPlaying(message)">
@@ -194,21 +179,17 @@
         </div>
       </div>
 
-      <!-- Zone de saisie avec options -->
       <div class="message-input-area">
-        <!-- Bouton pour image -->
         <button class="attach-btn" (click)="fileInput.click()" title="Joindre une image">
           <i class="bi bi-image"></i>
         </button>
         <input #fileInput type="file" accept="image/*" (change)="onImageSelected($event)" style="display: none;">
         
-        <!-- Bouton pour documents -->
         <button class="attach-btn" (click)="documentInput.click()" title="Joindre un document (PDF, DOC, TXT)">
           <i class="bi bi-file-earmark-pdf"></i>
         </button>
         <input #documentInput type="file" accept=".pdf,.doc,.docx,.txt,.xlsx" (change)="onDocumentSelected($event)" style="display: none;">
         
-        <!-- Bouton pour audio -->
         <button class="attach-btn" (click)="startRecording()" *ngIf="!isRecording && !recordedAudio" title="Enregistrer un message vocal">
           <i class="bi bi-mic"></i>
         </button>
@@ -231,7 +212,6 @@
         </button>
       </div>
 
-      <!-- Aperçus des fichiers (image, document, audio) -->
       <div class="file-preview" *ngIf="selectedImage">
         <div class="preview-content">
           <img [src]="imagePreview" alt="Aperçu">
@@ -278,7 +258,6 @@
       </div>
     </ng-container>
 
-    <!-- Écran vide si aucun patient sélectionné -->
     <div class="no-chat-selected" *ngIf="!selectedPatientId">
       <i class="bi bi-chat-dots"></i>
       <h3>Messages</h3>
@@ -290,7 +269,6 @@
   </div>
 </div>
 
-<!-- Modals -->
 <app-image-analysis-modal 
   *ngIf="showAnalysisModal"
   [imageUrl]="selectedImageForAnalysis"
@@ -300,14 +278,13 @@
 </app-image-analysis-modal>
 
 <app-send-result-modal
-  *ngIf="showSendModal"
+  *ngIf="showSendModal && currentDoctorId"
   [analysisData]="analysisResultData"
   [doctorId]="currentDoctorId"
   (closeModal)="showSendModal = false"
   (resultSent)="onResultSent($event)">
 </app-send-result-modal>
 
-<!-- Modal PDF Viewer -->
 <div class="pdf-modal" *ngIf="showPdfModal" (click)="closePdfModal()">
   <div class="pdf-modal-content" (click)="$event.stopPropagation()">
     <div class="pdf-modal-header">

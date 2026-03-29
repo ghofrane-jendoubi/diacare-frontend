@@ -21,7 +21,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   conversations: DoctorConversationDTO[] = [];
   filteredConversations: DoctorConversationDTO[] = [];
   messages: any[] = [];
-  currentUserId = 1; // ID du patient connecté
+  currentUserId: number | null = null; // ✅ Changé: plus de valeur statique
   
   // État
   loading = false;
@@ -69,39 +69,57 @@ export class ChatComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-  // Charger les conversations en premier
-  this.loadConversations();
+ 
+  const patientIdStr = localStorage.getItem('patient_id') 
+                    || localStorage.getItem('user_id')
+                    || localStorage.getItem('userId');
   
-  this.route.params.subscribe(params => {
-    const doctorId = params['doctorId'];
+  if (patientIdStr) {
+    this.currentUserId = parseInt(patientIdStr);
+  } else {
+    // Temporaire : utiliser l'ID de session si disponible
+    console.error('patient_id non trouvé dans localStorage');
+    console.log('Toutes les clés:', Object.keys(localStorage));
+    console.log('Valeurs:', Object.fromEntries(
+      Object.keys(localStorage).map(k => [k, localStorage.getItem(k)])
+    ));
+  }
+  
+  console.log('Patient connecté ID:', this.currentUserId);
     
-    if (doctorId) {
-      this.selectedDoctorId = Number(doctorId);
-      this.showMobileConversations = false;
-      
-      // ✅ Chercher dans les conversations déjà chargées
-      const existing = this.conversations.find(c => c.doctorId === this.selectedDoctorId);
-      if (existing) {
-        this.selectedDoctor = existing;
-      }
-      // Sinon loadConversations() s'en chargera via son callback
-      
-      this.loadMessages();
-    } else {
-      this.selectedDoctorId = null;
-      this.selectedDoctor = null;
-      this.messages = [];
-      this.showMobileConversations = true;
-    }
-  });
-  
-  setTimeout(() => this.setupScrollListener(), 500);
-  
-  this.refreshInterval = setInterval(() => {
-    if (this.selectedDoctorId) this.loadMessages();
+    // Charger les conversations
     this.loadConversations();
-  }, 50000);
-}
+    
+    this.route.params.subscribe(params => {
+      const doctorId = params['doctorId'];
+      
+      if (doctorId) {
+        this.selectedDoctorId = Number(doctorId);
+        this.showMobileConversations = false;
+        
+        // Chercher dans les conversations déjà chargées
+        const existing = this.conversations.find(c => c.doctorId === this.selectedDoctorId);
+        if (existing) {
+          this.selectedDoctor = existing;
+        }
+        
+        this.loadMessages();
+      } else {
+        this.selectedDoctorId = null;
+        this.selectedDoctor = null;
+        this.messages = [];
+        this.showMobileConversations = true;
+      }
+    });
+    
+    setTimeout(() => this.setupScrollListener(), 500);
+    
+    this.refreshInterval = setInterval(() => {
+      if (this.selectedDoctorId) this.loadMessages();
+      this.loadConversations();
+    }, 50000);
+  }
+  
   ngOnDestroy(): void {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
@@ -158,38 +176,42 @@ export class ChatComponent implements OnInit, OnDestroy {
   // ===== GESTION DES CONVERSATIONS =====
 
   loadConversations() {
-  this.loadingConversations = true;
-  
-  this.messageService.getPatientConversations(this.currentUserId).subscribe({
-    next: (data: DoctorConversationDTO[]) => {
-      this.conversations = data;
-      this.filterConversations();
-      this.loadingConversations = false;
-      
-      // ✅ Mettre à jour selectedDoctor UNE FOIS que la liste est chargée
-      if (this.selectedDoctorId) {
-        const existing = this.conversations.find(c => c.doctorId === this.selectedDoctorId);
-        if (existing) {
-          this.selectedDoctor = existing;
-        } else {
-          // Pas encore de conversation → charger depuis l'API médecin
+    // ✅ Vérifier que currentUserId existe
+    if (!this.currentUserId) return;
+    
+    this.loadingConversations = true;
+    
+    this.messageService.getPatientConversations(this.currentUserId).subscribe({
+      next: (data: DoctorConversationDTO[]) => {
+        this.conversations = data;
+        this.filterConversations();
+        this.loadingConversations = false;
+        
+        // Mettre à jour selectedDoctor une fois que la liste est chargée
+        if (this.selectedDoctorId) {
+          const existing = this.conversations.find(c => c.doctorId === this.selectedDoctorId);
+          if (existing) {
+            this.selectedDoctor = existing;
+          } else {
+            // Pas encore de conversation → charger depuis l'API médecin
+            this.loadDoctorInfoFromApi(this.selectedDoctorId);
+          }
+        }
+      },
+      error: (err: any) => {
+        console.error('Erreur chargement conversations', err);
+        this.loadingConversations = false;
+        this.conversations = [];
+        this.filteredConversations = [];
+        
+        // Même en cas d'erreur, charger le médecin sélectionné
+        if (this.selectedDoctorId) {
           this.loadDoctorInfoFromApi(this.selectedDoctorId);
         }
       }
-    },
-    error: (err: any) => {
-      console.error('Erreur chargement conversations', err);
-      this.loadingConversations = false;
-      this.conversations = [];
-      this.filteredConversations = [];
-      
-      // ✅ Même en cas d'erreur, charger le médecin sélectionné
-      if (this.selectedDoctorId) {
-        this.loadDoctorInfoFromApi(this.selectedDoctorId);
-      }
-    }
-  });
-}
+    });
+  }
+  
   filterConversations() {
     if (!this.searchTerm) {
       this.filteredConversations = [...this.conversations];
@@ -204,35 +226,36 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   // ===== CHARGEMENT DES INFOS DU MÉDECIN =====
-  // ✅ Renommé pour clarté — appelé seulement si le médecin n'est pas dans la liste
-private loadDoctorInfoFromApi(doctorId: number) {
-  this.doctorService.getDoctorById(doctorId).subscribe({
-    next: (doctor) => {
-      this.selectedDoctor = {
-        doctorId: doctor.id,
-        doctorName: `Dr. ${doctor.firstName} ${doctor.lastName}`,
-        doctorProfilePicture: doctor.profilePicture || '',
-        speciality: doctor.speciality,
-        lastMessage: 'Commencez votre conversation...',
-        lastMessageTime: new Date().toISOString(),
-        unreadCount: 0,
-      };
-    },
-    error: () => {
-      this.selectedDoctor = {
-        doctorId: doctorId,
-        doctorName: `Médecin #${doctorId}`,
-        doctorProfilePicture: '',
-        speciality: 'Médecin',
-        lastMessage: '',
-        lastMessageTime: new Date().toISOString(),
-        unreadCount: 0,
-      };
-    }
-  });
-}
+  
+  private loadDoctorInfoFromApi(doctorId: number) {
+    this.doctorService.getDoctorById(doctorId).subscribe({
+      next: (doctor) => {
+        this.selectedDoctor = {
+          doctorId: doctor.id,
+          doctorName: `Dr. ${doctor.firstName} ${doctor.lastName}`,
+          doctorProfilePicture: doctor.profilePicture || '',
+          speciality: doctor.speciality,
+          lastMessage: 'Commencez votre conversation...',
+          lastMessageTime: new Date().toISOString(),
+          unreadCount: 0,
+        };
+      },
+      error: () => {
+        this.selectedDoctor = {
+          doctorId: doctorId,
+          doctorName: `Médecin #${doctorId}`,
+          doctorProfilePicture: '',
+          speciality: 'Médecin',
+          lastMessage: '',
+          lastMessageTime: new Date().toISOString(),
+          unreadCount: 0,
+        };
+      }
+    });
+  }
 
   // ===== SÉLECTION D'UNE CONVERSATION =====
+  
   selectConversation(doctorId: number) {
     console.log('Sélection du médecin:', doctorId);
     
@@ -246,7 +269,8 @@ private loadDoctorInfoFromApi(doctorId: number) {
   // ===== GESTION DES MESSAGES =====
 
   loadMessages() {
-    if (!this.selectedDoctorId) return;
+    // ✅ Vérifier que currentUserId et selectedDoctorId existent
+    if (!this.currentUserId || !this.selectedDoctorId) return;
     
     this.messageService.getConversation(this.currentUserId, this.selectedDoctorId).subscribe({
       next: (data) => {
@@ -290,6 +314,12 @@ private loadDoctorInfoFromApi(doctorId: number) {
   }
 
   sendMessage() {
+    // ✅ Vérifier que currentUserId existe
+    if (!this.currentUserId) {
+      alert('Erreur: Utilisateur non identifié');
+      return;
+    }
+    
     if (this.isRecording) {
       alert('Veuillez arrêter l\'enregistrement avant d\'envoyer');
       return;
@@ -322,7 +352,7 @@ private loadDoctorInfoFromApi(doctorId: number) {
       this.uploadService.uploadImage(this.selectedImage).subscribe({
         next: (res) => {
           this.messageService.sendMessage({
-            senderId: this.currentUserId,
+            senderId: this.currentUserId!,
             receiverId: this.selectedDoctorId!,
             content: messageContent,
             imageUrl: res.imageUrl
@@ -347,7 +377,7 @@ private loadDoctorInfoFromApi(doctorId: number) {
       this.uploadService.uploadDocument(this.selectedDocument).subscribe({
         next: (res) => {
           this.messageService.sendMessage({
-            senderId: this.currentUserId,
+            senderId: this.currentUserId!,
             receiverId: this.selectedDoctorId!,
             content: messageContent,
             documentUrl: res.documentUrl
@@ -374,7 +404,7 @@ private loadDoctorInfoFromApi(doctorId: number) {
       this.uploadService.uploadAudio(audioFile).subscribe({
         next: (res) => {
           this.messageService.sendMessage({
-            senderId: this.currentUserId,
+            senderId: this.currentUserId!,
             receiverId: this.selectedDoctorId!,
             content: messageContent,
             audioUrl: res.audioUrl,
@@ -398,7 +428,7 @@ private loadDoctorInfoFromApi(doctorId: number) {
     }
     else if (this.newMessage.trim()) {
       this.messageService.sendMessage({
-        senderId: this.currentUserId,
+        senderId: this.currentUserId!,
         receiverId: this.selectedDoctorId!,
         content: this.newMessage
       }).subscribe({
@@ -417,20 +447,20 @@ private loadDoctorInfoFromApi(doctorId: number) {
   }
 
   markMessagesAsRead() {
-    if (!this.selectedDoctorId) return;
-    
-    this.messageService.markMessagesAsRead(this.currentUserId, this.selectedDoctorId).subscribe({
-      next: () => {
-        const conversation = this.conversations.find(c => c.doctorId === this.selectedDoctorId);
-        if (conversation) {
-          conversation.unreadCount = 0;
-          this.filterConversations();
-        }
-      },
-      error: (err) => console.error('Erreur marquage lecture', err)
-    });
-  }
-
+  if (!this.currentUserId || !this.selectedDoctorId) return;
+  
+  //  doctorId en premier, patientId (currentUserId) en second
+  this.messageService.markMessagesAsRead(this.selectedDoctorId, this.currentUserId).subscribe({
+    next: () => {
+      const conversation = this.conversations.find(c => c.doctorId === this.selectedDoctorId);
+      if (conversation) {
+        conversation.unreadCount = 0;
+        this.filterConversations();
+      }
+    },
+    error: (err) => console.error('Erreur marquage lecture', err)
+  });
+}
   focusMessageInput() {
     if (this.messageInput) {
       this.messageInput.nativeElement.focus();
@@ -447,7 +477,7 @@ private loadDoctorInfoFromApi(doctorId: number) {
   }
 
   onImageError(event: any) {
-    event.target.src = 'assets/images/default-doctor.png';
+    event.target.src = '/default-doctor.png';
   }
 
   openImage(url: string) {

@@ -32,4 +32,7 @@ export class AppointmentService {
    getAppointmentById(appointmentId: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${appointmentId}`);
   }
+  getDoctorById(doctorId: number): Observable<any> {
+  return this.http.get<any>(`http://localhost:8081/api/doctors/${doctorId}`);
+}
 }

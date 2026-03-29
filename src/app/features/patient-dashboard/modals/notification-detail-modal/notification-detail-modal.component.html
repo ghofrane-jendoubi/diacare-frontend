@@ -27,74 +27,70 @@
           <span class="date">{{ formatFullDate(notification.createdAt) }}</span>
         </div>
 
-        <div class="detail-message">
-          <i class="bi bi-chat-quote"></i>
-          <p>{{ notification.message }}</p>
-        </div>
+      
 
         <!-- Informations du rendez-vous -->
         <div class="appointment-info" *ngIf="notification.title.toLowerCase().includes('rendez-vous')">
           <h3>Informations du rendez-vous</h3>
 
-          <div class="info-grid">
-            <div class="info-item">
-              <i class="bi bi-calendar"></i>
-              <div>
-                <small>Date</small>
-                <strong>{{ getAppointmentDate() }}</strong>
-              </div>
-            </div>
-            <div class="info-item">
-              <i class="bi bi-clock"></i>
-              <div>
-                <small>Heure</small>
-                <strong>{{ getAppointmentTime() }}</strong>
-              </div>
-            </div>
-            <div class="info-item">
-              <i class="bi bi-tag"></i>
-              <div>
-                <small>Titre</small>
-                <strong>{{ getAppointmentTitle() }}</strong>
-              </div>
-            </div>
-            <div class="info-item">
-              <i class="bi bi-currency-dollar"></i>
-              <div>
-                <small>Tarif</small>
-                <strong>{{ getAppointmentFee() }} TND</strong>
-              </div>
-            </div>
+          <!-- Chargement -->
+          <div *ngIf="isLoading" class="loading-spinner">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+            <span>Chargement des informations...</span>
           </div>
 
-          <div class="info-grid-second">
-            <div class="info-item">
-              <i class="bi bi-person"></i>
-              <div>
-                <small>Médecin</small>
-                <strong>{{ doctorName }}</strong>
+          <!-- Affichage des données -->
+          <div *ngIf="!isLoading">
+            <div class="info-grid">
+              <div class="info-item">
+                <i class="bi bi-calendar"></i>
+                <div>
+                  <small>Date</small>
+                  <strong>{{ getAppointmentDate() }}</strong>
+                </div>
+              </div>
+              <div class="info-item">
+                <i class="bi bi-clock"></i>
+                <div>
+                  <small>Heure</small>
+                  <strong>{{ getAppointmentTime() }}</strong>
+                </div>
+              </div>
+              <div class="info-item">
+                <i class="bi bi-tag"></i>
+                <div>
+                  <small>Titre</small>
+                  <strong>{{ getAppointmentTitle() }}</strong>
+                </div>
+              </div>
+              <div class="info-item">
+                <i class="bi bi-currency-dollar"></i>
+                <div>
+                  <small>Tarif</small>
+                  <strong>{{ getAppointmentFee() }} TND</strong>
+                </div>
               </div>
             </div>
-            <div class="info-item">
-              <i class="bi bi-camera-video"></i>
-              <div>
-                <small>Type</small>
-                <strong>Consultation en ligne</strong>
+
+            <div class="info-grid-second">
+              <div class="info-item">
+                <i class="bi bi-person"></i>
+                <div>
+                  <small>Médecin</small>
+                  <strong>{{ doctorName }}</strong>
+                </div>
+              </div>
+              <div class="info-item">
+                <i class="bi bi-camera-video"></i>
+                <div>
+                  <small>Type</small>
+                  <strong>Consultation en ligne</strong>
+                </div>
               </div>
             </div>
-          </div>
 
-          
-
-          <!-- Statut du paiement -->
-          <div class="payment-status" *ngIf="appointment">
-            <!-- Chargement -->
-            <div *ngIf="isLoading" class="status-loading">
-              <div class="spinner-border spinner-border-sm" role="status"></div>
-              <span>Chargement des informations de paiement...</span>
-            </div>
-
-            <ng-container *ngIf="!isLoading">
+            <!-- Statut du paiement -->
+            <div class="payment-status" *ngIf="appointment">
               <!-- Expiré -->
               <div *ngIf="isDateExpired" class="status-expired">
                 <i class="bi bi-calendar-x" style="font-size:2rem; color:#ef4444"></i>
@@ -142,7 +138,7 @@
                   </div>
                 </div>
               </ng-container>
-            </ng-container>
+            </div>
           </div>
         </div>
 
@@ -164,7 +160,7 @@
   *ngIf="showPaymentModal"
   [show]="showPaymentModal"
   [appointment]="appointment"
-  [patientId]="patientId"
+  [patientId]="patientId ?? 0"
   (closeModal)="closePaymentModal()"
   (paymentSuccess)="onPaymentSuccess($event)">
 </app-payment-modal>

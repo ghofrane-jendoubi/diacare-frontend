@@ -105,20 +105,8 @@
 
 .stat-label {
   color: #7f8c8d;
-  margin: 0 0 8px;
+  margin: 0;
   font-size: 14px;
-}
-
-.stat-trend {
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  color: #e74c3c;
-}
-
-.stat-trend.positive {
-  color: #27ae60;
 }
 
 /* Cartes */
@@ -157,10 +145,6 @@
   background: #f8fcff;
 }
 
-.appointment-item:last-child {
-  border-bottom: none;
-}
-
 .appointment-time {
   width: 70px;
   margin-right: 20px;
@@ -177,47 +161,23 @@
   flex: 1;
 }
 
-/* Demandes en ligne */
-.requests-list, .alerts-list {
+/* Demandes */
+.requests-list {
   padding: 0;
 }
 
-.request-item, .alert-item {
+.request-item {
   padding: 20px;
   border-bottom: 1px solid rgba(52, 152, 219, 0.1);
   transition: background 0.3s ease;
 }
 
-.request-item:hover, .alert-item:hover {
+.request-item:hover {
   background: #f8fcff;
 }
 
-.request-item:last-child, .alert-item:last-child {
+.request-item:last-child {
   border-bottom: none;
-}
-
-/* Graphique */
-.chart-container {
-  padding: 10px;
-}
-
-.chart-bar-container {
-  flex: 1;
-  text-align: center;
-}
-
-.chart-bar-wrapper {
-  height: 120px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  margin-bottom: 8px;
-}
-
-.chart-bar {
-  width: 25px;
-  border-radius: 6px 6px 0 0;
-  transition: height 0.3s ease;
 }
 
 /* Messages */
@@ -225,7 +185,6 @@
   background: #f8fcff;
   border-radius: 15px;
   padding: 15px;
-  height: 100%;
   transition: all 0.3s ease;
   border: 1px solid rgba(52, 152, 219, 0.1);
 }
@@ -259,24 +218,14 @@
   box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
 }
 
-.btn-outline-primary {
-  border-color: #3498db;
+.view-all-link {
   color: #3498db;
+  text-decoration: none;
+  font-size: 14px;
 }
 
-.btn-outline-primary:hover {
-  background: #3498db;
-  color: white;
-}
-
-/* Patient avatar */
-.patient-avatar {
-  width: 35px;
-  height: 35px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.view-all-link:hover {
+  text-decoration: underline;
 }
 
 /* Responsive */

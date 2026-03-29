@@ -1,22 +1,33 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HomeComponent } from './features/home/home.component';
-import { AppointmentsComponent } from './features/doctor-dashboard/pages/appointments/appointments.component';
+
+import { UserListComponent } from './features/user-list/user-list.component';
+import { PatientAuthComponent } from './features/auth/patient-auth/patient-auth.component';
+import { NutritionistAuthComponent } from './features/auth/nutritionist-auth/nutritionist-auth.component';
+import { DoctorAuthComponent } from './features/auth/doctor-auth/doctor-auth.component';
+import { ChooseRoleComponent } from './features/choose-role/choose-role.component';
+import { AdminAuthComponent } from './features/auth/admin-auth/admin-auth.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent
+     ChooseRoleComponent,
+    AdminAuthComponent,
+    DoctorAuthComponent,
+    NutritionistAuthComponent,
+    PatientAuthComponent,
+    UserListComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
+    ReactiveFormsModule,
     CommonModule,
     HttpClientModule
   ],

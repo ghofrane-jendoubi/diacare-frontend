@@ -1,11 +1,9 @@
-<div class="d-flex">
-  <!-- Sidebar Médecin - fixed -->
-  <app-doctor-sidebar class="sidebar-fixed"></app-doctor-sidebar>
-
-  <!-- Main Content - avec marge à gauche -->
-  <div class="main-content" style="margin-left: 260px; width: calc(100% - 260px);">
+<div class="doctor-layout">
+  <app-doctor-sidebar></app-doctor-sidebar>
+  
+  <div class="main-content">
     <app-doctor-topbar></app-doctor-topbar>
-    <div class="p-4" style="min-height: 100vh; background: linear-gradient(135deg, #f0f7ff 0%, #e6f0fa 100%);">
+    <div class="content-wrapper">
       <router-outlet></router-outlet>
     </div>
   </div>

@@ -1,4 +1,18 @@
-<div class="sidebar">
+<div class="sidebar" [class.collapsed]="isCollapsed">
+
+  <!-- Brand Section -->
+  <div class="brand-section">
+    <div class="logo-container">
+      <div class="hexagon">
+        <i class="bi bi-hexagon-fill"></i>
+        <div class="hexagon-text">DC</div>
+      </div>
+      <div class="brand-name" *ngIf="!isCollapsed">DiaCare</div>
+    </div>
+    <button class="collapse-btn" (click)="onToggleSidebar()">
+      <i [class.bi-chevron-left]="!isCollapsed" [class.bi-chevron-right]="isCollapsed"></i>
+    </button>
+  </div>
 
   <!-- Profil Admin -->
   <div class="profile-section">
@@ -25,21 +39,25 @@
     <!-- Gestion Utilisateurs -->
     <div class="menu-label" *ngIf="!isCollapsed">UTILISATEURS</div>
     
-    <a class="menu-item" style="cursor: not-allowed;">
+    <!-- Médecins -->
+    <a routerLink="/admin/users/doctors" routerLinkActive="active" class="menu-item">
       <i class="bi bi-person-badge-fill"></i>
       <span class="menu-text" *ngIf="!isCollapsed">Médecins</span>
-      <span class="badge bg-warning" *ngIf="!isCollapsed">5</span>
+      <span class="badge bg-warning" *ngIf="!isCollapsed && doctorsCount > 0">{{ doctorsCount }}</span>
     </a>
 
-    <a class="menu-item" style="cursor: not-allowed;">
+    <!-- Nutritionnistes -->
+    <a routerLink="/admin/users/nutritionists" routerLinkActive="active" class="menu-item">
       <i class="bi bi-egg-fried"></i>
       <span class="menu-text" *ngIf="!isCollapsed">Nutritionnistes</span>
+      <span class="badge bg-info" *ngIf="!isCollapsed && nutritionistsCount > 0">{{ nutritionistsCount }}</span>
     </a>
 
-    <a class="menu-item" style="cursor: not-allowed;">
+    <!-- Patients -->
+    <a routerLink="/admin/users/patients" routerLinkActive="active" class="menu-item">
       <i class="bi bi-people-fill"></i>
       <span class="menu-text" *ngIf="!isCollapsed">Patients</span>
-      <span class="badge bg-info" *ngIf="!isCollapsed">1,234</span>
+      <span class="badge bg-info" *ngIf="!isCollapsed && patientsCount > 0">{{ patientsCount }}</span>
     </a>
 
     <!-- Gestion Médicale -->

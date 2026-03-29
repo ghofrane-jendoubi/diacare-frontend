@@ -19,6 +19,18 @@
       <button class="filter-tab" [class.active]="selectedFilter === 'CARDIOLOGUE'" (click)="setFilter('CARDIOLOGUE')">
         Cardiologues
       </button>
+      <button class="filter-tab" [class.active]="selectedFilter === 'GENERALISTE'" (click)="setFilter('GENERALISTE')">
+        Généralistes
+      </button>
+      <button class="filter-tab" [class.active]="selectedFilter === 'OPHTALMOLOGISTE'" (click)="setFilter('OPHTALMOLOGISTE')">
+        Ophtalmologistes
+      </button>
+      <button class="filter-tab" [class.active]="selectedFilter === 'NEPHROLOGUE'" (click)="setFilter('NEPHROLOGUE')">
+        Néphrologues
+      </button>
+      <button class="filter-tab" [class.active]="selectedFilter === 'PODOLOGUE'" (click)="setFilter('PODOLOGUE')">
+        Podologues
+      </button>
     </div>
     
     <div class="search-wrapper">
@@ -49,8 +61,9 @@
     <div class="doctor-card" *ngFor="let doctor of filteredDoctors">
       <div class="doctor-image">
         <img [src]="doctor.profilePicture || 'assets/images/default-doctor.png'" 
-             alt="{{ doctor.firstName }} {{ doctor.lastName }}">
-        <div class="verified-badge" *ngIf="doctor.verified" title="Médecin certifié">
+             [alt]="'Dr. ' + doctor.firstName + ' ' + doctor.lastName"
+             (error)="handleImageError($event)">
+        <div class="verified-badge" *ngIf="doctor.certificateStatus === 'APPROVED'" title="Médecin certifié">
           <i class="bi bi-patch-check-fill"></i>
         </div>
       </div>
@@ -58,13 +71,23 @@
       <div class="doctor-info">
         <h3>Dr. {{ doctor.firstName }} {{ doctor.lastName }}</h3>
         <p class="speciality">{{ getSpecialityLabel(doctor.speciality) }}</p>
-        <div class="fee-info">
+        
+        <!-- Hospital info -->
+        <div class="hospital-info" *ngIf="doctor.hospital">
+          <i class="bi bi-building"></i>
+          <span>{{ doctor.hospital }}</span>
+        </div>
+        
+        <!-- Fee info -->
+        <div class="fee-info" *ngIf="doctor.consultationFee">
           <span class="fee-amount">{{ doctor.consultationFee }} TND</span>
           <span class="fee-period">/ consultation</span>
         </div>
-        <div class="doctor-footer" *ngIf="doctor.experience">
+        
+        <!-- Experience -->
+        <div class="doctor-footer" *ngIf="doctor.yearsOfExperience">
           <i class="bi bi-calendar-heart"></i>
-          <span>{{ doctor.experience }} ans d'expérience</span>
+          <span>{{ doctor.yearsOfExperience }} ans d'expérience</span>
         </div>
       </div>
 

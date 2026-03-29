@@ -1,0 +1,213 @@
+<div class="user-list-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <i [class]="getIcon() + ' me-2'"></i>
+        {{ getTitle() }}
+      </h1>
+      <p class="page-subtitle">{{ users.length }} utilisateur(s) enregistré(s)</p>
+    </div>
+    <button class="btn-refresh" (click)="loadUsers()">
+      <i class="bi bi-arrow-repeat me-1"></i> Actualiser
+    </button>
+  </div>
+
+  <!-- Alertes -->
+  <div *ngIf="successMessage" class="alert-success">✅ {{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert-error">❌ {{ errorMessage }}</div>
+
+  <!-- Stats rapides (pour médecins et nutritionnistes) -->
+  <div class="quick-stats" *ngIf="userType !== 'patients'">
+    <div class="qs-item total" (click)="onFilterChange('ALL')" style="cursor:pointer">
+      <span class="qs-value">{{ users.length }}</span>
+      <span class="qs-label">Total</span>
+    </div>
+    <div class="qs-item pending" (click)="onFilterChange('PENDING')" style="cursor:pointer">
+      <span class="qs-value">{{ countByStatus('PENDING') }}</span>
+      <span class="qs-label">En attente</span>
+    </div>
+    <div class="qs-item approved" (click)="onFilterChange('APPROVED')" style="cursor:pointer">
+      <span class="qs-value">{{ countByStatus('APPROVED') }}</span>
+      <span class="qs-label">Approuvés</span>
+    </div>
+    <div class="qs-item rejected" (click)="onFilterChange('REJECTED')" style="cursor:pointer">
+      <span class="qs-value">{{ countByStatus('REJECTED') }}</span>
+      <span class="qs-label">Rejetés</span>
+    </div>
+  </div>
+
+  <!-- Barre recherche + filtre -->
+  <div class="toolbar">
+    <div class="search-box">
+      <i class="bi bi-search"></i>
+      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearch()"
+             placeholder="Rechercher par nom, email...">
+    </div>
+    <div class="filter-tabs" *ngIf="userType !== 'patients'">
+      <button [class.active]="statusFilter==='ALL'" (click)="onFilterChange('ALL')">Tous</button>
+      <button [class.active]="statusFilter==='PENDING'" (click)="onFilterChange('PENDING')">En attente</button>
+      <button [class.active]="statusFilter==='APPROVED'" (click)="onFilterChange('APPROVED')">Approuvés</button>
+      <button [class.active]="statusFilter==='REJECTED'" (click)="onFilterChange('REJECTED')">Rejetés</button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-box">
+    <div class="spinner"></div>
+    <p>Chargement...</p>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!isLoading && filteredUsers.length === 0" class="empty-state">
+    <i class="bi bi-inbox"></i>
+    <p>Aucun utilisateur trouvé</p>
+  </div>
+
+  <!-- Table -->
+  <div class="table-card" *ngIf="!isLoading && filteredUsers.length > 0">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Utilisateur</th>
+          <th *ngIf="userType === 'doctors'">Spécialité</th>
+          <th *ngIf="userType === 'doctors'">Hôpital</th>
+          <th *ngIf="userType === 'nutritionists'">Cabinet</th>
+          <th *ngIf="userType === 'patients'">Type diabète</th>
+          <th *ngIf="userType === 'patients'">Groupe sanguin</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </thead>
+      <tbody>
+        <tr *ngFor="let user of filteredUsers; let i = index">
+          <td class="idx">{{ i + 1 }}</td>
+          <td>
+            <div class="user-cell">
+              <div class="avatar" [ngClass]="{
+                'blue': userType === 'doctors',
+                'purple': userType === 'nutritionists',
+                'green': userType === 'patients'
+              }">
+                <i class="bi bi-person-fill"></i>
+              </div>
+              <div>
+                <p class="name">{{ user.firstName }} {{ user.lastName }}</p>
+                <p class="email">{{ user.email }}</p>
+              </div>
+            </div>
+          </td>
+          <td *ngIf="userType === 'doctors'">
+            <span class="tag blue">{{ user.speciality || '—' }}</span>
+          </td>
+          <td *ngIf="userType === 'doctors'">{{ user.hospital || '—' }}</td>
+          <td *ngIf="userType === 'nutritionists'">
+            <span class="tag purple">{{ user.workplace || '—' }}</span>
+          </td>
+          <td *ngIf="userType === 'patients'">
+            <span class="tag green">{{ getDiabetesLabel(user.diabetesType) }}</span>
+          </td>
+          <td *ngIf="userType === 'patients'">
+            <span class="blood-badge">{{ getBloodTypeLabel(user.bloodType) }}</span>
+          </td>
+          <td>
+            <span *ngIf="userType !== 'patients'" class="status-badge" [ngClass]="getStatusClass(user.certificateStatus)">
+              {{ getStatusLabel(user.certificateStatus) }}
+            </span>
+            <span *ngIf="userType === 'patients'" class="status-badge" [ngClass]="user.enabled ? 'badge-approved' : 'badge-pending'">
+              {{ user.enabled ? 'Actif' : 'Inactif' }}
+            </span>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="btn-icon view" title="Voir détails" (click)="openModal(user)">
+                <i class="bi bi-eye"></i>
+              </button>
+              <button class="btn-icon approve" title="Approuver"
+                      *ngIf="userType !== 'patients' && user.certificateStatus !== 'APPROVED'"
+                      (click)="approve(user)" [disabled]="actionLoading">
+                <i class="bi bi-check-lg"></i>
+              </button>
+              <button class="btn-icon reject" title="Rejeter"
+                      *ngIf="userType !== 'patients' && user.certificateStatus !== 'REJECTED'"
+                      (click)="reject(user)" [disabled]="actionLoading">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL DÉTAILS -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="bi bi-person-vcard-fill me-2"></i>Détails</h3>
+      <button class="modal-close" (click)="closeModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body" *ngIf="selectedUser">
+      <div class="modal-status-bar" *ngIf="userType !== 'patients'">
+        Statut :
+        <span class="status-badge ms-2" [ngClass]="getStatusClass(selectedUser.certificateStatus)">
+          {{ getStatusLabel(selectedUser.certificateStatus) }}
+        </span>
+      </div>
+
+      <div class="modal-section">
+        <h4 class="modal-section-title"><i class="bi bi-person-fill me-2"></i>Informations personnelles</h4>
+        <div class="modal-grid">
+          <div class="modal-field"><label>Nom complet</label><p>{{ selectedUser.firstName }} {{ selectedUser.lastName }}</p></div>
+          <div class="modal-field"><label>Email</label><p>{{ selectedUser.email }}</p></div>
+          <div class="modal-field"><label>Téléphone</label><p>{{ selectedUser.phone || '—' }}</p></div>
+          <div class="modal-field"><label>Ville</label><p>{{ selectedUser.city || '—' }}</p></div>
+        </div>
+      </div>
+
+      <div class="modal-section" *ngIf="userType !== 'patients'">
+        <h4 class="modal-section-title"><i class="bi bi-briefcase-fill me-2"></i>Informations professionnelles</h4>
+        <div class="modal-grid">
+          <div class="modal-field" *ngIf="userType === 'doctors'"><label>Spécialité</label><p>{{ selectedUser.speciality || '—' }}</p></div>
+          <div class="modal-field" *ngIf="userType === 'nutritionists'"><label>Cabinet</label><p>{{ selectedUser.workplace || '—' }}</p></div>
+          <div class="modal-field"><label>N° Licence</label><p>{{ selectedUser.licenseNumber || '—' }}</p></div>
+          <div class="modal-field"><label>Expérience</label><p>{{ selectedUser.yearsOfExperience || '—' }} ans</p></div>
+          <div class="modal-field" *ngIf="userType === 'doctors'"><label>Hôpital</label><p>{{ selectedUser.hospital || '—' }}</p></div>
+          <div class="modal-field" *ngIf="userType === 'doctors'"><label>Frais consultation</label><p>{{ selectedUser.consultationFee || '—' }} DT</p></div>
+        </div>
+      </div>
+
+      <div class="modal-section" *ngIf="userType === 'patients'">
+        <h4 class="modal-section-title"><i class="bi bi-heart-pulse-fill me-2"></i>Informations médicales</h4>
+        <div class="modal-grid">
+          <div class="modal-field"><label>Type de diabète</label><p>{{ getDiabetesLabel(selectedUser.diabetesType) }}</p></div>
+          <div class="modal-field"><label>Groupe sanguin</label><p>{{ getBloodTypeLabel(selectedUser.bloodType) }}</p></div>
+          <div class="modal-field"><label>Poids / Taille</label><p>{{ selectedUser.weight ? selectedUser.weight + ' kg' : '—' }} / {{ selectedUser.height ? selectedUser.height + ' cm' : '—' }}</p></div>
+          <div class="modal-field"><label>Contact urgence</label><p>{{ selectedUser.emergencyContact || '—' }}</p></div>
+          <div class="modal-field" style="grid-column: span 2" *ngIf="selectedUser.familyHistory"><label>Antécédents familiaux</label><p>{{ selectedUser.familyHistory }}</p></div>
+        </div>
+      </div>
+
+      <div class="modal-section" *ngIf="userType !== 'patients' && selectedUser.certificateImage">
+        <h4 class="modal-section-title"><i class="bi bi-file-earmark-image-fill me-2"></i>Certificat</h4>
+        <div class="cert-box">
+          <img [src]="getCertUrl(selectedUser.certificateImage)" class="cert-img" alt="Certificat"
+               (error)="$any($event.target).src='assets/no-image.png'">
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-approve-lg" *ngIf="userType !== 'patients' && selectedUser.certificateStatus !== 'APPROVED'"
+                (click)="approve(selectedUser)" [disabled]="actionLoading">
+          <i class="bi bi-check-circle-fill me-2"></i>{{ actionLoading ? 'En cours...' : 'Approuver' }}
+        </button>
+        <button class="btn-reject-lg" *ngIf="userType !== 'patients' && selectedUser.certificateStatus !== 'REJECTED'"
+                (click)="reject(selectedUser)" [disabled]="actionLoading">
+          <i class="bi bi-x-circle-fill me-2"></i>{{ actionLoading ? 'En cours...' : 'Rejeter' }}
+        </button>
+        <button class="btn-close-modal" (click)="closeModal()">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>

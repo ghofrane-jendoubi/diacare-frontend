@@ -28,18 +28,15 @@
       <div class="stat-content">
         <h3 class="stat-value">{{ stat.value }}</h3>
         <p class="stat-label">{{ stat.label }}</p>
-        <span class="stat-trend" [class.positive]="stat.trend > 0">
-          <i class="bi" [ngClass]="stat.trend > 0 ? 'bi-arrow-up' : 'bi-arrow-down'"></i>
-          {{ stat.trend }}% vs hier
-        </span>
       </div>
     </div>
   </div>
 
-  <!-- Section principale avec 2 colonnes -->
+  <!-- Section principale -->
   <div class="row g-4 mb-4">
-    <!-- Colonne gauche - Rendez-vous du jour -->
+    <!-- Colonne gauche -->
     <div class="col-lg-8">
+      <!-- Rendez-vous du jour -->
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-white py-3">
           <div class="d-flex justify-content-between align-items-center">
@@ -48,11 +45,17 @@
               Rendez-vous du Jour
               <span class="badge bg-primary ms-2">{{ todayAppointments.length }}</span>
             </h5>
-            <a href="#" class="view-all-link">Voir agenda <i class="bi bi-arrow-right"></i></a>
+            <button class="view-all-link btn btn-link" (click)="goToDoctorAppointments()">
+              Voir agenda <i class="bi bi-arrow-right"></i>
+            </button>
           </div>
         </div>
         <div class="card-body p-0">
           <div class="appointments-list">
+            <div *ngIf="loading.appointments" class="text-center py-4">
+              <div class="spinner-border text-primary" role="status"></div>
+              <p class="mt-2">Chargement...</p>
+            </div>
             <div *ngFor="let apt of todayAppointments" class="appointment-item">
               <div class="appointment-time">
                 <span class="time">{{ apt.time }}</span>
@@ -60,15 +63,15 @@
               <div class="appointment-content">
                 <div class="d-flex justify-content-between align-items-start">
                   <div>
-                    <h6 class="mb-1">{{ apt.patientName }} <span class="text-muted">({{ apt.age }} ans)</span></h6>
-                    <p class="mb-1">{{ apt.type }} - {{ apt.reason }}</p>
+                    <h6 class="mb-1">{{ apt.patientName }} <span class="text-muted" *ngIf="apt.age">({{ apt.age }} ans)</span></h6>
+                    <p class="mb-1">{{ apt.type }}</p>
                     <small class="text-muted">
-                      <i class="bi bi-calendar me-1"></i> Dernière visite: {{ apt.lastVisit || 'Première visite' }}
+                      <i class="bi bi-calendar me-1"></i> {{ apt.reason }}
                     </small>
                   </div>
                   <div class="d-flex flex-column align-items-end">
                     <span class="badge mb-2" [ngClass]="getStatusClass(apt.status)">
-                      {{ apt.status === 'confirmed' ? 'Confirmé' : apt.status === 'pending' ? 'En attente' : apt.status === 'urgent' ? 'Urgent' : 'En ligne' }}
+                      {{ apt.status === 'confirmed' ? 'Confirmé' : apt.status === 'pending' ? 'En attente' : apt.status === 'urgent' ? 'Urgent' : 'Planifié' }}
                     </span>
                     <button class="btn btn-sm btn-primary" (click)="startConsultation(apt)">
                       <i class="bi bi-play-fill me-1"></i> Démarrer
@@ -77,6 +80,10 @@
                 </div>
               </div>
             </div>
+            <div *ngIf="!loading.appointments && todayAppointments.length === 0" class="text-center py-4">
+              <i class="bi bi-calendar-x fs-1 text-muted"></i>
+              <p class="mt-2 text-muted">Aucun rendez-vous pour aujourd'hui</p>
+            </div>
           </div>
         </div>
       </div>
@@ -84,17 +91,10 @@
       <!-- Analyses en attente -->
       <div class="card border-0 shadow-sm">
         <div class="card-header bg-white py-3">
-          <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">
-              <i class="bi bi-file-medical-fill text-primary me-2"></i>
-              Analyses en Attente
-            </h5>
-            <select class="form-select form-select-sm w-auto" [(ngModel)]="selectedPeriod">
-              <option value="all">Toutes</option>
-              <option value="urgent">Urgentes</option>
-              <option value="pending">En cours</option>
-            </select>
-          </div>
+          <h5 class="mb-0">
+            <i class="bi bi-file-medical-fill text-primary me-2"></i>
+            Analyses en Attente
+          </h5>
         </div>
         <div class="card-body">
           <div class="table-responsive">
@@ -110,21 +110,9 @@
               </thead>
               <tbody>
                 <tr *ngFor="let analysis of pendingAnalyses">
-                  <td>
-                    <div class="d-flex align-items-center">
-                      <div class="patient-avatar bg-primary bg-opacity-10 me-2">
-                        <i class="bi bi-person-circle text-primary"></i>
-                      </div>
-                      {{ analysis.patientName }}
-                    </div>
-                  </td>
-                  <td>
-                    <span *ngIf="analysis.type.includes('CNN')" class="badge bg-info">Deep Learning</span>
-                    <span *ngIf="analysis.type.includes('ML')" class="badge bg-success">Machine Learning</span>
-                    <span *ngIf="!analysis.type.includes('CNN') && !analysis.type.includes('ML')" class="badge bg-secondary">Standard</span>
-                    {{ analysis.type }}
-                  </td>
-                  <td>{{ analysis.date | date:'dd/MM' }}</td>
+                  <td>{{ analysis.patientName }}</td>
+                  <td>{{ analysis.type }}</td>
+                  <td>{{ analysis.date | date:'dd/MM/yyyy' }}</td>
                   <td>
                     <span class="badge" [ngClass]="getStatusClass(analysis.status)">
                       {{ analysis.status === 'urgent' ? 'Urgent' : analysis.status === 'pending' ? 'En attente' : 'Traité' }}
@@ -136,6 +124,12 @@
                     </button>
                   </td>
                 </tr>
+                <tr *ngIf="pendingAnalyses.length === 0">
+                  <td colspan="5" class="text-center text-muted py-4">
+                    <i class="bi bi-check-circle fs-1"></i>
+                    <p class="mt-2">Aucune analyse en attente</p>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -145,136 +139,83 @@
 
     <!-- Colonne droite -->
     <div class="col-lg-4">
-      <!-- Demandes de consultation en ligne -->
+      <!-- Demandes de consultation -->
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-white py-3">
-          <h5 class="mb-0">
-            <i class="bi bi-chat-dots-fill text-primary me-2"></i>
-            Demandes en Ligne
-            <span class="badge bg-danger ms-2">{{ onlineRequests.length }}</span>
-          </h5>
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-chat-dots-fill text-primary me-2"></i>
+              Messages récents
+              <span class="badge bg-danger ms-2">{{ onlineRequests.length }}</span>
+            </h5>
+            <button class="btn btn-sm btn-link" (click)="goToChat()">
+              <i class="bi bi-arrow-right"></i>
+            </button>
+          </div>
         </div>
         <div class="card-body p-0">
           <div class="requests-list">
+            <div *ngIf="loading.messages" class="text-center py-4">
+              <div class="spinner-border spinner-border-sm text-primary"></div>
+            </div>
             <div *ngFor="let request of onlineRequests" class="request-item">
               <div class="d-flex">
                 <div class="flex-grow-1">
                   <div class="d-flex justify-content-between">
-                    <h6 class="mb-1">{{ request.patientName }} <span class="text-muted">({{ request.age }} ans)</span></h6>
+                    <h6 class="mb-1">{{ request.patientName }}</h6>
                     <span class="badge" [ngClass]="getUrgencyBadge(request.urgency)">
-                      {{ request.urgency === 'high' ? 'Urgent' : request.urgency === 'medium' ? 'Moyen' : 'Faible' }}
+                      {{ request.unreadCount > 0 ? request.unreadCount + ' non lus' : 'Lu' }}
                     </span>
                   </div>
-                  <p class="mb-1">{{ request.reason }}</p>
+                  <p class="mb-1">{{ request.reason | slice:0:60 }}{{ request.reason.length > 60 ? '...' : '' }}</p>
                   <small class="text-muted">{{ request.time }}</small>
                   <div class="mt-2">
-                    <button class="btn btn-sm btn-primary me-2" (click)="acceptRequest(request)">
-                      <i class="bi bi-check-lg"></i> Accepter
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary">
-                      <i class="bi bi-x-lg"></i>
+                    <button class="btn btn-sm btn-primary" (click)="acceptRequest(request)">
+                      <i class="bi bi-chat-dots"></i> Répondre
                     </button>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Graphique patients -->
-      <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white py-3">
-          <h5 class="mb-0">
-            <i class="bi bi-graph-up text-primary me-2"></i>
-            Consultations
-          </h5>
-        </div>
-        <div class="card-body">
-          <div class="chart-container">
-            <div class="d-flex align-items-end justify-content-between" style="height: 150px;">
-              <div *ngFor="let value of weeklyPatients; let i = index" class="chart-bar-container">
-                <div class="chart-bar-wrapper">
-                  <div class="chart-bar" 
-                       [style.height.px]="(value / maxPatients) * 120"
-                       [style.background]="'linear-gradient(180deg, #3498db, #2980b9)'">
-                  </div>
-                </div>
-                <small class="text-muted">{{ weekDays[i] }}</small>
-              </div>
+            <div *ngIf="!loading.messages && onlineRequests.length === 0" class="text-center py-4">
+              <i class="bi bi-chat-dots fs-1 text-muted"></i>
+              <p class="mt-2 text-muted">Aucun message récent</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Alertes médicales -->
+      <!-- Derniers messages -->
       <div class="card border-0 shadow-sm">
         <div class="card-header bg-white py-3">
           <h5 class="mb-0">
-            <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
-            Alertes
+            <i class="bi bi-envelope-fill text-primary me-2"></i>
+            Conversations récentes
           </h5>
         </div>
-        <div class="card-body p-0">
-          <div class="alerts-list">
-            <div *ngFor="let alert of medicalAlerts" class="alert-item">
-              <div class="d-flex">
-                <div class="flex-grow-1">
-                  <div class="d-flex justify-content-between">
-                    <h6 class="mb-1">{{ alert.patient }}</h6>
-                    <span class="badge" [ngClass]="{
-                      'bg-danger': alert.severity === 'high',
-                      'bg-warning': alert.severity === 'medium',
-                      'bg-info': alert.severity === 'low'
-                    }">
-                      {{ alert.severity === 'high' ? 'Haute' : alert.severity === 'medium' ? 'Moyenne' : 'Basse' }}
-                    </span>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12" *ngFor="let msg of recentMessages">
+              <div class="message-card" [class.unread]="msg.unread">
+                <div class="d-flex align-items-center mb-2">
+                  <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2">
+                    <i class="bi bi-person-fill text-primary"></i>
                   </div>
-                  <p class="mb-1">{{ alert.alert }}</p>
-                  <small class="text-muted">{{ alert.time }}</small>
-                  <div class="mt-2">
-                    <button class="btn btn-sm btn-outline-primary" (click)="handleAlert(alert)">
-                      <i class="bi bi-check2"></i> Traiter
-                    </button>
+                  <div>
+                    <h6 class="mb-0">{{ msg.from }}</h6>
+                    <small class="text-muted">{{ msg.time }}</small>
                   </div>
+                  <span *ngIf="msg.unread" class="badge bg-danger ms-auto">Nouveau</span>
                 </div>
+                <p class="mb-0">{{ msg.message | slice:0:80 }}{{ msg.message.length > 80 ? '...' : '' }}</p>
+                <button class="btn btn-sm btn-link text-primary mt-2 p-0" (click)="viewMessage(msg)">
+                  Lire la suite <i class="bi bi-arrow-right"></i>
+                </button>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Derniers messages -->
-  <div class="card border-0 shadow-sm">
-    <div class="card-header bg-white py-3">
-      <div class="d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">
-          <i class="bi bi-envelope-fill text-primary me-2"></i>
-          Messages Récents
-        </h5>
-        <a href="#" class="view-all-link">Voir tous <i class="bi bi-arrow-right"></i></a>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-4" *ngFor="let msg of recentMessages">
-          <div class="message-card" [class.unread]="msg.unread">
-            <div class="d-flex align-items-center mb-2">
-              <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2">
-                <i class="bi bi-person-fill text-primary"></i>
-              </div>
-              <div>
-                <h6 class="mb-0">{{ msg.from }}</h6>
-                <small class="text-muted">{{ msg.time }}</small>
-              </div>
-              <span *ngIf="msg.unread" class="badge bg-danger ms-auto">Nouveau</span>
+            <div *ngIf="recentMessages.length === 0" class="text-center py-3">
+              <p class="text-muted">Aucune conversation</p>
             </div>
-            <p class="mb-0">{{ msg.message }}</p>
-            <button class="btn btn-sm btn-link text-primary mt-2 p-0" (click)="viewMessage(msg)">
-              Lire la suite <i class="bi bi-arrow-right"></i>
-            </button>
           </div>
         </div>
       </div>

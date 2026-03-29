@@ -5,4 +5,5 @@ import { Component } from '@angular/core';
   templateUrl: './doctor-layout.component.html',
   styleUrls: ['./doctor-layout.component.css']
 })
-export class DoctorLayoutComponent { }
+export class DoctorLayoutComponent {
+}

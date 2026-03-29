@@ -1,0 +1,128 @@
+<div class="list-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <i class="bi bi-people-fill me-2"></i>
+        Patients
+      </h1>
+      <p class="page-subtitle">{{ patients.length }} patient(s) enregistré(s)</p>
+    </div>
+    <button class="btn-refresh" (click)="loadPatients()">
+      <i class="bi bi-arrow-repeat me-1"></i> Actualiser
+    </button>
+  </div>
+
+  <div class="quick-stats">
+    <div class="qs-item total">
+      <span class="qs-value">{{ patients.length }}</span>
+      <span class="qs-label">Total patients</span>
+    </div>
+    <div class="qs-item approved">
+      <span class="qs-value">{{ getActiveCount() }}</span>
+      <span class="qs-label">Actifs</span>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <i class="bi bi-search"></i>
+      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearch()"
+             placeholder="Rechercher par nom, email, type de diabète...">
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-box">
+    <div class="spinner"></div>
+    <p>Chargement...</p>
+  </div>
+  
+  <div *ngIf="!isLoading && filteredPatients.length === 0" class="empty-state">
+    <i class="bi bi-inbox"></i>
+    <p>Aucun patient trouvé</p>
+  </div>
+
+  <div class="table-card" *ngIf="!isLoading && filteredPatients.length > 0">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Patient</th>
+          <th>Type de diabète</th>
+          <th>Groupe sanguin</th>
+          <th>Poids / Taille</th>
+          <th>Ville</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of filteredPatients; let i = index">
+          <td class="idx">{{ i + 1 }}</td>
+          <td>
+            <div class="user-cell">
+              <div class="avatar green">
+                <i class="bi bi-person-fill"></i>
+              </div>
+              <div>
+                <p class="name">{{ p.firstName }} {{ p.lastName }}</p>
+                <p class="email">{{ p.email }}</p>
+              </div>
+            </div>
+          </td>
+          <td><span class="tag green">{{ getDiabetesLabel(p.diabetesType) }}</span></td>
+          <td><span class="blood-badge">{{ getBloodTypeLabel(p.bloodType) }}</span></td>
+          <td>{{ p.weight ? p.weight + ' kg' : '—' }} / {{ p.height ? p.height + ' cm' : '—' }}</td>
+          <td>{{ p.city || '—' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="p.enabled ? 'badge-approved' : 'badge-pending'">
+              {{ p.enabled ? 'Actif' : 'Inactif' }}
+            </span>
+          </td>
+          <td>
+            <button class="btn-icon view" (click)="openModal(p)" title="Voir détails">
+              <i class="bi bi-eye"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="bi bi-person-vcard-fill me-2"></i>Dossier Patient</h3>
+      <button class="modal-close" (click)="closeModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body" *ngIf="selectedPatient">
+      <div class="modal-section">
+        <h4 class="modal-section-title"><i class="bi bi-person-fill me-2"></i>Informations personnelles</h4>
+        <div class="modal-grid">
+          <div class="modal-field"><label>Nom complet</label><p>{{ selectedPatient.firstName }} {{ selectedPatient.lastName }}</p></div>
+          <div class="modal-field"><label>Email</label><p>{{ selectedPatient.email }}</p></div>
+          <div class="modal-field"><label>Téléphone</label><p>{{ selectedPatient.phone || '—' }}</p></div>
+          <div class="modal-field"><label>Date de naissance</label><p>{{ selectedPatient.dateOfBirth || '—' }}</p></div>
+          <div class="modal-field"><label>Genre</label><p>{{ selectedPatient.gender || '—' }}</p></div>
+          <div class="modal-field"><label>Ville</label><p>{{ selectedPatient.city || '—' }}</p></div>
+          <div class="modal-field"><label>Adresse</label><p>{{ selectedPatient.address || '—' }}</p></div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h4 class="modal-section-title"><i class="bi bi-heart-pulse-fill me-2"></i>Informations médicales</h4>
+        <div class="modal-grid">
+          <div class="modal-field"><label>Type de diabète</label><p>{{ getDiabetesLabel(selectedPatient.diabetesType) }}</p></div>
+          <div class="modal-field"><label>Groupe sanguin</label><p>{{ getBloodTypeLabel(selectedPatient.bloodType) }}</p></div>
+          <div class="modal-field"><label>Poids</label><p>{{ selectedPatient.weight ? selectedPatient.weight + ' kg' : '—' }}</p></div>
+          <div class="modal-field"><label>Taille</label><p>{{ selectedPatient.height ? selectedPatient.height + ' cm' : '—' }}</p></div>
+          <div class="modal-field"><label>Contact urgence</label><p>{{ selectedPatient.emergencyContact || '—' }}</p></div>
+          <div class="modal-field" style="grid-column: span 2"><label>Antécédents familiaux</label><p>{{ selectedPatient.familyHistory || '—' }}</p></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-close-modal" (click)="closeModal()">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>

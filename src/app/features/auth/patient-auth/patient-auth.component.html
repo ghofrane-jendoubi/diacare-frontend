@@ -1,0 +1,132 @@
+<div class="auth-wrapper">
+  <div class="container">
+
+    <div class="form-container">
+
+      <!-- SIGN IN -->
+      <div *ngIf="!isSignUp" class="form-panel">
+        <h2>Connexion Patient</h2>
+        <p class="subtitle">Connectez-vous à votre espace santé</p>
+        <form (ngSubmit)="signIn()">
+          <div class="input-group">
+            <input type="email" [(ngModel)]="loginData.email" name="email"
+                   placeholder="Email *" required>
+          </div>
+          <div class="input-group">
+            <input type="password" [(ngModel)]="loginData.password" name="password"
+                   placeholder="Mot de passe *" required>
+          </div>
+          <button type="submit" class="btn-primary" [disabled]="isLoading">
+            {{ isLoading ? 'Connexion...' : 'SE CONNECTER' }}
+          </button>
+        </form>
+      </div>
+
+      <!-- SIGN UP -->
+      <div *ngIf="isSignUp" class="form-panel">
+        <h2>Créer un compte Patient</h2>
+        <p class="subtitle">Rejoignez DiaCare pour gérer votre santé</p>
+        <form (ngSubmit)="signUp()">
+
+          <p class="section-label">Informations personnelles</p>
+          <div class="input-row">
+            <div class="input-group half">
+              <input type="text" [(ngModel)]="newPatient.firstName" name="firstName"
+                     placeholder="Prénom *" required>
+            </div>
+            <div class="input-group half">
+              <input type="text" [(ngModel)]="newPatient.lastName" name="lastName"
+                     placeholder="Nom *" required>
+            </div>
+          </div>
+          <div class="input-group">
+            <input type="email" [(ngModel)]="newPatient.email" name="email"
+                   placeholder="Email *" required>
+          </div>
+          <div class="input-group">
+            <input type="tel" [(ngModel)]="newPatient.phone" name="phone"
+                   placeholder="Téléphone *" required>
+          </div>
+          <div class="input-group">
+            <input type="password" [(ngModel)]="newPatient.password" name="password"
+                   placeholder="Mot de passe *" required minlength="6">
+          </div>
+          <div class="input-row">
+            <div class="input-group half">
+              <input type="date" [(ngModel)]="newPatient.dateOfBirth" name="dateOfBirth">
+            </div>
+            <div class="input-group half">
+              <select [(ngModel)]="newPatient.gender" name="gender">
+                <option value="">-- Genre --</option>
+                <option *ngFor="let g of genders" [value]="g">{{ g }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-group">
+            <input type="text" [(ngModel)]="newPatient.address" name="address"
+                   placeholder="Adresse">
+          </div>
+          <div class="input-group">
+            <input type="text" [(ngModel)]="newPatient.city" name="city"
+                   placeholder="Ville">
+          </div>
+
+          <p class="section-label">Informations médicales</p>
+          <div class="input-row">
+            <div class="input-group half">
+              <select [(ngModel)]="newPatient.diabetesType" name="diabetesType">
+                <option value="">-- Type de diabète --</option>
+                <option *ngFor="let d of diabetesTypes" [value]="d">{{ d }}</option>
+              </select>
+            </div>
+            <div class="input-group half">
+              <select [(ngModel)]="newPatient.bloodType" name="bloodType">
+                <option value="">-- Groupe sanguin --</option>
+                <option *ngFor="let b of bloodTypes" [value]="b">{{ b }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-group half">
+              <input type="number" [(ngModel)]="newPatient.weight" name="weight"
+                     placeholder="Poids (kg)" min="0">
+            </div>
+            <div class="input-group half">
+              <input type="number" [(ngModel)]="newPatient.height" name="height"
+                     placeholder="Taille (cm)" min="0">
+            </div>
+          </div>
+          <div class="input-group">
+            <input type="text" [(ngModel)]="newPatient.emergencyContact" name="emergencyContact"
+                   placeholder="Contact d'urgence (Nom + Téléphone)">
+          </div>
+          <div class="input-group">
+            <textarea [(ngModel)]="newPatient.familyHistory" name="familyHistory"
+                      placeholder="Antécédents familiaux" rows="3"></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary" [disabled]="isLoading">
+            {{ isLoading ? 'Inscription...' : 'S\'INSCRIRE' }}
+          </button>
+        </form>
+      </div>
+
+      <div *ngIf="successMessage" class="msg success">✅ {{ successMessage }}</div>
+      <div *ngIf="errorMessage" class="msg error">❌ {{ errorMessage }}</div>
+    </div>
+
+    <!-- PANNEAU DROIT -->
+    <div class="info-panel">
+      <div class="info-content">
+        <h1>{{ isSignUp ? 'Déjà inscrit ?' : 'Nouveau patient ?' }}</h1>
+        <p>{{ isSignUp
+          ? 'Connectez-vous à votre espace santé DiaCare.'
+          : 'Créez votre compte pour suivre votre diabète et accéder à vos professionnels de santé.' }}</p>
+        <button class="btn-outline" (click)="toggleMode()">
+          {{ isSignUp ? 'SE CONNECTER' : 'S\'INSCRIRE' }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

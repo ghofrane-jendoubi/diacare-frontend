@@ -1,4 +1,4 @@
-import { Component, Input, HostListener, OnInit, OnDestroy, Output } from '@angular/core';
+import { Component, Input, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { NotificationService } from '../../../services/notification.service';
 import { Subscription } from 'rxjs';
@@ -11,10 +11,11 @@ import { Subscription } from 'rxjs';
 export class NavbarComponent implements OnInit, OnDestroy {
   @Input() menuItems: any[] = [];
   @Input() isLoggedIn: boolean = false;
-  @Input() userId: number = 1;
-  @Input() userName: string = 'Sophie Martin';
-  @Input() userEmail: string = 'sophie.m@example.com';
-  
+  @Input() userId: number | null = null;
+  @Input() userName: string = '';
+  @Input() userEmail: string = '';
+
+  patientId: number | null = null;
 
   isScrolled = false;
   isMobileMenuOpen = false;
@@ -22,7 +23,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   showNotifications = false;
   activeSection: string = '';
 
-  // Notifications
   notifications: any[] = [];
   unreadCount: number = 0;
   private pollingSubscription: Subscription | null = null;
@@ -33,13 +33,32 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    if (this.isLoggedIn) {
-      // Charger depuis le localStorage d'abord
+    this.loadUserInfo();
+    if (this.isLoggedIn && this.userId) {
       this.loadNotificationsFromStorage();
-      // Puis charger depuis le serveur
       this.loadNotifications();
       this.startPolling();
     }
+  }
+
+  loadUserInfo(): void {
+    const patientIdStr = localStorage.getItem('patient_id');
+    if (patientIdStr) {
+      this.patientId = parseInt(patientIdStr);
+      this.userId = this.patientId;
+    }
+    const firstName = localStorage.getItem('patient_firstName');
+    const lastName = localStorage.getItem('patient_lastName');
+    if (firstName && lastName) {
+      this.userName = `${firstName} ${lastName}`;
+    } else if (firstName) {
+      this.userName = firstName;
+    } else {
+      this.userName = 'Patient';
+    }
+    const email = localStorage.getItem('patient_email');
+    if (email) this.userEmail = email;
+    if (this.userId) this.isLoggedIn = true;
   }
 
   ngOnDestroy(): void {
@@ -47,25 +66,33 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   get userInitials(): string {
+    if (!this.userName) return 'P';
     return this.userName
       .split(' ')
       .map(n => n[0])
       .join('')
-      .toUpperCase();
+      .toUpperCase()
+      .slice(0, 2);
   }
 
-  // ===== GESTION DU STOCKAGE LOCAL =====
+  // ===== STORAGE =====
 
   loadNotificationsFromStorage(): void {
+    if (!this.userId) return;
     const stored = localStorage.getItem(`notifications_${this.userId}`);
     if (stored) {
-      const data = JSON.parse(stored);
-      this.notifications = data.notifications || [];
-      this.unreadCount = data.unreadCount || 0;
+      try {
+        const data = JSON.parse(stored);
+        this.notifications = data.notifications || [];
+        this.unreadCount = data.unreadCount || 0;
+      } catch (e) {
+        console.error('Erreur parsing localStorage:', e);
+      }
     }
   }
 
   saveNotificationsToStorage(): void {
+    if (!this.userId) return;
     const data = {
       notifications: this.notifications,
       unreadCount: this.unreadCount,
@@ -74,9 +101,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
     localStorage.setItem(`notifications_${this.userId}`, JSON.stringify(data));
   }
 
-  // ===== GESTION DES NOTIFICATIONS =====
+  // ===== NOTIFICATIONS =====
 
   loadNotifications(): void {
+    if (!this.userId) return;
     this.notificationService.getUnreadNotifications(this.userId).subscribe({
       next: (data) => {
         this.notifications = data;
@@ -88,93 +116,68 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   startPolling(): void {
+    if (!this.userId) return;
     this.pollingSubscription = this.notificationService.startPolling(this.userId).subscribe({
       next: (count) => {
         this.unreadCount = count;
-        if (count > 0) {
-          this.loadNotifications();
-        }
+        if (count > 0) this.loadNotifications();
       },
-      error: (err) => console.error('Erreur polling notifications:', err)
+      error: (err) => console.error('Erreur polling:', err)
     });
   }
 
   stopPolling(): void {
     if (this.pollingSubscription) {
       this.pollingSubscription.unsubscribe();
+      this.pollingSubscription = null;
     }
   }
 
   toggleNotifications(): void {
     this.showNotifications = !this.showNotifications;
-    if (this.showNotifications) {
-      this.loadNotifications();
-    }
+    this.isUserMenuOpen = false;
+    if (this.showNotifications) this.loadNotifications();
   }
 
   markAsRead(notificationId: number, event?: Event): void {
-  if (event) {
-    event.stopPropagation();
+    if (event) event.stopPropagation();
+    this.notificationService.markAsRead(notificationId).subscribe({
+      next: () => this.loadNotifications(),
+      error: (err) => console.error('Erreur marquage:', err)
+    });
   }
-  this.notificationService.markAsRead(notificationId).subscribe({
-    next: () => {
-      // Recharger les notifications après marquage
-      this.loadNotifications();
-    },
-    error: (err) => console.error('Erreur marquage notification:', err)
-  });
-}
 
   markAllAsRead(): void {
+    if (!this.userId) return;
     this.notificationService.markAllAsRead(this.userId).subscribe({
-      next: () => {
-        this.loadNotifications();
-      },
-      error: (err) => console.error('Erreur marquage toutes:', err)
+      next: () => this.loadNotifications(),
+      error: (err) => console.error('Erreur marquage tous:', err)
     });
   }
 
   openNotification(notification: any): void {
-  this.markAsRead(notification.id);
-  
-  // Déterminer le chemin en fonction du rôle de l'utilisateur
-  let route = notification.link || '/';
-  
-  // Si c'est un patient 
-  if (this.userId < 10) {  
-    if (route === '/appointments' || route === 'appointments') {
-      route = '/patient/appointments';
-    } else if (route.startsWith('/')) {
-      route = `/patient${route}`;
-    } else {
-      route = `/patient/${route}`;
+    if (!notification.id) return;
+    this.markAsRead(notification.id);
+    let route = notification.link || '/';
+    if (this.patientId) {
+      if (route === '/appointments' || route === 'appointments') route = '/patient/appointments';
+      else if (route === '/chat' || route === 'chat') route = '/patient/chat';
+      else if (route === '/doctors' || route === 'doctors') route = '/patient/doctors';
+      else if (route.startsWith('/')) route = `/patient${route}`;
+      else route = `/patient/${route}`;
     }
-  }
-  
-  console.log('Navigation vers:', route);
-  this.router.navigate([route]);
-  this.showNotifications = false;
-}
-
-  getNotificationIcon(title: string): string {
-    const iconMap: { [key: string]: string } = {
-      'Nouveau rendez-vous': 'bi-calendar-check',
-      'Rappel': 'bi-alarm',
-      'Message': 'bi-chat-dots',
-      'Résultat': 'bi-file-medical',
-      'default': 'bi-bell'
-    };
-    return iconMap[title] || iconMap['default'];
+    this.router.navigate([route]);
+    this.showNotifications = false;
   }
 
   formatTime(date: string): string {
+    if (!date) return '';
     const notifDate = new Date(date);
     const now = new Date();
     const diffMs = now.getTime() - notifDate.getTime();
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
-
     if (diffMins < 1) return 'À l\'instant';
     if (diffMins < 60) return `Il y a ${diffMins} min`;
     if (diffHours < 24) return `Il y a ${diffHours} h`;
@@ -183,11 +186,18 @@ export class NavbarComponent implements OnInit, OnDestroy {
     return notifDate.toLocaleDateString('fr-FR');
   }
 
-  // ===== GESTION DU MENU =====
+  // ===== MENU =====
 
   @HostListener('window:scroll', [])
   onScroll() {
     this.isScrolled = window.scrollY > 20;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.user-menu')) this.isUserMenuOpen = false;
+    if (!target.closest('.notifications-wrapper')) this.showNotifications = false;
   }
 
   toggleMobileMenu() {
@@ -196,12 +206,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   toggleUserMenu() {
     this.isUserMenuOpen = !this.isUserMenuOpen;
+    this.showNotifications = false;
+  }
+
+  closeMobileMenu() {
+    this.isMobileMenuOpen = false;
   }
 
   scrollTo(sectionId: string, event?: Event) {
-    if (event) {
-      event.preventDefault();
-    }
+    if (event) event.preventDefault();
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -211,13 +224,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   logout() {
+    ['patient_id', 'patient_email', 'patient_firstName', 'patient_lastName', 'patient_role'].forEach(k =>
+      localStorage.removeItem(k)
+    );
+    if (this.userId) localStorage.removeItem(`notifications_${this.userId}`);
     this.isLoggedIn = false;
+    this.userId = null;
+    this.patientId = null;
+    this.notifications = [];
+    this.unreadCount = 0;
     this.stopPolling();
-    // Nettoyer le localStorage
-    localStorage.removeItem(`notifications_${this.userId}`);
     this.router.navigate(['/']);
   }
-  closeMobileMenu() {
-  this.isMobileMenuOpen = false;
-}
 }

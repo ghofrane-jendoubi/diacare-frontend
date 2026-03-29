@@ -14,7 +14,7 @@ import { NotificationService } from '../../../../services/notification.service';
 export class AppointmentsComponent implements OnInit {
   @ViewChild('calendar') calendarComponent: any;
 
-  doctorId = 4; // ID du médecin connecté
+  doctorId: string | null = null; 
   patients: any[] = [];
   selectedDate: Date = new Date();
   showForm = false;
@@ -31,7 +31,7 @@ export class AppointmentsComponent implements OnInit {
     meetLink: '',
     description: '',
     status: 'planifié',
-    fee: 50 // ✅ Ajout du montant de la consultation
+    fee: 50
   };
 
   // Options du calendrier
@@ -67,12 +67,28 @@ export class AppointmentsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // ✅ Récupérer l'ID du médecin connecté
+    this.doctorId = localStorage.getItem('doctor_id');
+    
+    // ✅ Vérifier si le médecin est connecté
+    if (!this.doctorId) {
+      console.error('Médecin non connecté');
+      alert('Veuillez vous connecter');
+      // Rediriger vers login si nécessaire
+      // this.router.navigate(['/doctor/login']);
+      return;
+    }
+    
     this.loadPatients();
     this.loadAppointments(new Date(), new Date());
   }
 
   loadPatients() {
-    this.appointmentService.getPatientsWithConversations(this.doctorId).subscribe({
+    // ✅ Vérifier que doctorId existe
+    if (!this.doctorId) return;
+    
+    // ✅ Convertir en nombre si nécessaire
+    this.appointmentService.getPatientsWithConversations(parseInt(this.doctorId)).subscribe({
       next: (data) => {
         this.patients = data;
       },
@@ -83,7 +99,11 @@ export class AppointmentsComponent implements OnInit {
   }
 
   loadAppointments(start: Date | null, end: Date | null) {
-    this.appointmentService.getDoctorAppointments(this.doctorId).subscribe({
+    // ✅ Vérifier que doctorId existe
+    if (!this.doctorId) return;
+    
+    // ✅ Convertir en nombre
+    this.appointmentService.getDoctorAppointments(parseInt(this.doctorId)).subscribe({
       next: (data) => {
         this.events = this.mapAppointmentsToEvents(data);
       },
@@ -176,62 +196,79 @@ export class AppointmentsComponent implements OnInit {
   }
 
   saveAppointment() {
-    if (!this.appointmentForm.patientId || !this.appointmentForm.title || !this.appointmentForm.date || !this.appointmentForm.time) {
-      alert('Veuillez remplir tous les champs obligatoires');
-      return;
-    }
-
-    const patient = this.patients.find(p => p.id === this.appointmentForm.patientId);
-    
-    const start = new Date(`${this.appointmentForm.date}T${this.appointmentForm.time}`);
-    const end = new Date(start);
-    end.setMinutes(end.getMinutes() + this.appointmentForm.duration);
-
-    const appointmentData = {
-      doctorId: this.doctorId,
-      patientId: this.appointmentForm.patientId,
-      patientName: patient?.firstName + ' ' + patient?.lastName,
-      title: this.appointmentForm.title,
-      start: start.toISOString(),
-      end: end.toISOString(),
-      description: this.appointmentForm.description,
-      type: this.appointmentForm.type,
-      meetLink: this.appointmentForm.type === 'online' ? this.generateMeetLink() : null,
-      status: 'planifié',
-      fee: this.appointmentForm.fee // ✅ Inclure le montant
-    };
-
-    const request = this.editingAppointment
-      ? this.appointmentService.updateAppointment(this.editingAppointment.id, appointmentData)
-      : this.appointmentService.createAppointment(appointmentData);
-
-    request.subscribe({
-      next: (savedAppointment) => {
-        // ✅ Notification complète avec toutes les informations
-        const notificationMessage = `Rendez-vous #${savedAppointment.id} : "${this.appointmentForm.title}" 
-          prévu le ${this.formatDate(start)} à ${this.formatTime(start)}. 
-          Montant: ${this.appointmentForm.fee} TND. 
-          Lien: ${savedAppointment.meetLink || this.appointmentForm.meetLink || 'À venir'}`;
-        
-        this.notificationService.sendNotification(
-          this.appointmentForm.patientId!,
-          'Nouveau rendez-vous - Paiement requis',
-          notificationMessage,
-          `/patient/appointments/${savedAppointment.id}/pay`
-        ).subscribe();
-
-        this.loadAppointments(new Date(), new Date());
-        this.showForm = false;
-        this.resetForm();
-        
-        alert(this.editingAppointment ? 'Rendez-vous modifié avec succès' : 'Rendez-vous créé avec succès');
-      },
-      error: (err) => {
-        console.error('Erreur sauvegarde:', err);
-        alert('Erreur lors de la sauvegarde');
-      }
-    });
+  if (!this.doctorId) {
+    alert('Erreur: Médecin non identifié');
+    return;
   }
+
+  if (!this.appointmentForm.patientId || !this.appointmentForm.title || 
+      !this.appointmentForm.date || !this.appointmentForm.time) {
+    alert('Veuillez remplir tous les champs obligatoires');
+    return;
+  }
+
+  const patient = this.patients.find(p => p.id === this.appointmentForm.patientId);
+  const start = new Date(`${this.appointmentForm.date}T${this.appointmentForm.time}`);
+  const end = new Date(start);
+  end.setMinutes(end.getMinutes() + this.appointmentForm.duration);
+
+  //  Format LocalDateTime sans le 'Z' : "2025-03-27T10:00:00"
+  const formatForJava = (date: Date): string => {
+    return date.getFullYear() + '-' +
+      String(date.getMonth() + 1).padStart(2, '0') + '-' +
+      String(date.getDate()).padStart(2, '0') + 'T' +
+      String(date.getHours()).padStart(2, '0') + ':' +
+      String(date.getMinutes()).padStart(2, '0') + ':' +
+      String(date.getSeconds()).padStart(2, '0');
+  };
+
+  const appointmentData = {
+    doctorId: parseInt(this.doctorId),
+    patientId: this.appointmentForm.patientId,
+    patientName: patient ? `${patient.firstName} ${patient.lastName}` : '',
+    title: this.appointmentForm.title,
+    start: formatForJava(start),   
+    end: formatForJava(end),       
+    description: this.appointmentForm.description || '',
+    type: this.appointmentForm.type,
+    meetLink: this.appointmentForm.type === 'online' ? this.generateMeetLink() : null,
+    status: 'planifié',
+    fee: this.appointmentForm.fee
+  };
+
+  console.log('Données envoyées:', appointmentData);
+
+  const request = this.editingAppointment
+    ? this.appointmentService.updateAppointment(this.editingAppointment.id, appointmentData)
+    : this.appointmentService.createAppointment(appointmentData);
+
+  // appointments.component.ts - saveAppointment()
+request.subscribe({
+  next: (savedAppointment) => {
+    const notificationMessage = `Rendez-vous #${savedAppointment.id} : "${this.appointmentForm.title}" 
+      prévu le ${this.formatDate(start)} à ${this.formatTime(start)}. 
+      Montant: ${this.appointmentForm.fee} TND. 
+      Lien: ${savedAppointment.meetLink || this.appointmentForm.meetLink || 'À venir'}`;
+    
+    this.notificationService.sendNotification(
+      this.appointmentForm.patientId!,
+      'Nouveau rendez-vous - Paiement requis',
+      notificationMessage,
+      `/patient/appointments/${savedAppointment.id}/pay` 
+    ).subscribe();
+
+    this.loadAppointments(new Date(), new Date());
+    this.showForm = false;
+    this.resetForm();
+    
+    alert(this.editingAppointment ? 'Rendez-vous modifié avec succès' : 'Rendez-vous créé avec succès');
+  },
+  error: (err) => {
+    console.error('Erreur sauvegarde:', err);
+    alert('Erreur lors de la sauvegarde');
+  }
+});
+}
 
   deleteAppointment() {
     if (!this.editingAppointment) return;

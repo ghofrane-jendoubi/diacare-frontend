@@ -1,40 +1,56 @@
-<div class="sidebar">
+<div class="sidebar" [class.collapsed]="isCollapsed">
+  <!-- Toggle Button -->
+  <button class="sidebar-toggle" (click)="toggleSidebar()">
+    <i class="bi" [ngClass]="isCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
+  </button>
+
   <!-- Logo et Brand -->
-  <div class="text-center py-4">
-    <div class="logo-wrapper" (click)="navigateTo('/doctor')">
+  <div class="brand-section" (click)="navigateTo('/doctor')">
+    <div class="logo-wrapper">
       <div class="logo-icon">
-        <i class="bi bi-heart-pulse-fill"></i>
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 2L2 9L16 16L30 9L16 2Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 16L16 23L30 16" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 23L16 30L30 23" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="16" cy="16" r="2" fill="white"/>
+        </svg>
       </div>
-      <h4 class="mb-0 fw-bold text-white">DiaCare</h4>
-      <small class="text-white-50">Espace Médecin</small>
+      <div class="brand-text" [class.hidden]="isCollapsed">
+        <h4>DiaCare</h4>
+        <span>Espace Médecin</span>
+      </div>
     </div>
   </div>
 
   <!-- Informations médecin -->
-  <div class="doctor-info text-center mb-4 mx-3">
+  <div class="doctor-section" [class.collapsed]="isCollapsed">
     <div class="doctor-card">
       <div class="doctor-avatar">
-        <img [src]="doctorInfo.profilePicture || 'assets/images/default-doctor.png'" 
-             alt="Doctor" 
-             class="avatar-img">
-        <span class="online-dot" [class.online]="doctorInfo.online"></span>
+        <div class="avatar-initials">
+          {{ doctorInfo.firstName?.charAt(0) || 'D' }}{{ doctorInfo.lastName?.charAt(0) || 'R' }}
+        </div>
+        <span class="online-status" [class.online]="doctorInfo.online"></span>
       </div>
-      <h6 class="mb-1 text-white mt-2">{{ doctorInfo.name }}</h6>
-      <small class="text-white-50">{{ doctorInfo.speciality }}</small>
-      <div class="d-flex justify-content-center gap-2 mt-2">
-        <span class="badge status-badge" [class.online]="doctorInfo.online">
-          {{ doctorInfo.online ? 'En ligne' : 'Hors ligne' }}
-        </span>
-        <span class="badge license-badge">N° {{ doctorInfo.licenseNumber }}</span>
+      <div class="doctor-details" [class.hidden]="isCollapsed">
+        <h6>{{ doctorInfo.name }}</h6>
+        <span class="speciality">{{ doctorInfo.speciality }}</span>
+        <div class="doctor-meta">
+          <span class="license">
+            <i class="bi bi-card-list"></i> N° {{ doctorInfo.licenseNumber }}
+          </span>
+          <span class="experience" *ngIf="doctorInfo.yearsOfExperience">
+            <i class="bi bi-calendar-heart"></i> {{ doctorInfo.yearsOfExperience }} ans
+          </span>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Menu Principal -->
-  <div class="menu-wrapper">
-    <ul class="nav flex-column px-3">
+  <!-- Navigation -->
+  <div class="nav-section">
+    <ul class="nav-menu">
       <!-- Dashboard -->
-      <li class="nav-item mb-1">
+      <li class="nav-item">
         <a class="nav-link" (click)="navigateTo('/doctor')" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
           <i class="bi bi-speedometer2"></i>
           <span>Tableau de bord</span>
@@ -42,100 +58,80 @@
       </li>
 
       <!-- Rendez-vous -->
-      <li class="nav-item mb-1">
-        <a class="nav-link" (click)="navigateTo('/doctor/appointments')">
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/doctor_appointments')" routerLinkActive="active">
           <i class="bi bi-calendar-check"></i>
           <span>Rendez-vous</span>
-          <span class="badge ms-auto" *ngIf="pendingAppointmentsCount > 0">
+          <span class="badge" *ngIf="pendingAppointmentsCount > 0">
             {{ pendingAppointmentsCount }}
           </span>
         </a>
       </li>
 
-      <!-- Mes Patients -->
-      <li class="nav-item mb-1">
-        <a class="nav-link" (click)="navigateTo('/doctor/patients')">
-          <i class="bi bi-people"></i>
-          <span>Mes Patients</span>
-          <span class="badge ms-auto" *ngIf="totalPatientsCount > 0">
-            {{ totalPatientsCount }}
-          </span>
+      <!-- Agenda -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/appointments')" routerLinkActive="active">
+          <i class="bi bi-calendar-week"></i>
+          <span>Agenda</span>
         </a>
       </li>
 
-      <!-- Messages / Chat -->
-      <li class="nav-item mb-1">
-        <a class="nav-link" (click)="navigateTo('/doctor/chat')">
+      <!-- Messages -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/chat')" routerLinkActive="active">
           <i class="bi bi-chat-dots"></i>
           <span>Messages</span>
-          <span class="badge ms-auto" [class.has-messages]="unreadMessagesCount > 0" *ngIf="unreadMessagesCount > 0">
+          <span class="badge has-messages" *ngIf="unreadMessagesCount > 0">
             {{ unreadMessagesCount }}
           </span>
         </a>
       </li>
 
+      <li class="nav-divider"></li>
+
+      <!-- Patients -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/patients')" routerLinkActive="active">
+          <i class="bi bi-people"></i>
+          <span>Mes patients</span>
+          <span class="badge" *ngIf="totalPatientsCount > 0">
+            {{ totalPatientsCount }}
+          </span>
+        </a>
+      </li>
+
       <!-- Consultations en ligne -->
-      <li class="nav-item mb-1">
-        <a class="nav-link" (click)="navigateTo('/doctor/consultations')">
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/consultations')" routerLinkActive="active">
           <i class="bi bi-camera-video"></i>
           <span>Consultations en ligne</span>
         </a>
       </li>
 
       <!-- Analyses -->
-      <li class="nav-item mb-1">
-        <a class="nav-link" (click)="navigateTo('/doctor/analyses')">
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/analyses')" routerLinkActive="active">
           <i class="bi bi-file-medical"></i>
           <span>Analyses</span>
-          <span class="badge ms-auto" *ngIf="pendingAnalysesCount > 0">
+          <span class="badge" *ngIf="pendingAnalysesCount > 0">
             {{ pendingAnalysesCount }}
           </span>
         </a>
       </li>
 
-      <li class="nav-item mt-3">
-        <hr class="divider">
-      </li>
-
-      <!-- Prescriptions -->
-      <li class="nav-item mb-1">
-        <a class="nav-link" (click)="navigateTo('/doctor/prescriptions')">
-          <i class="bi bi-prescription2"></i>
-          <span>Prescriptions</span>
-        </a>
-      </li>
-
-      <!-- Dossiers médicaux -->
-      <li class="nav-item mb-1">
-        <a class="nav-link" (click)="navigateTo('/doctor/medical-records')">
-          <i class="bi bi-folder2-open"></i>
-          <span>Dossiers médicaux</span>
-        </a>
-      </li>
-
-      <!-- Statistiques -->
-      <li class="nav-item mb-1">
-        <a class="nav-link" (click)="navigateTo('/doctor/statistics')">
-          <i class="bi bi-graph-up"></i>
-          <span>Statistiques</span>
-        </a>
-      </li>
-
-      <li class="nav-item mt-3">
-        <hr class="divider">
-      </li>
+      <li class="nav-divider"></li>
 
       <!-- Paramètres -->
-      <li class="nav-item mb-1">
-        <a class="nav-link" (click)="navigateTo('/doctor/settings')">
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/settings')" routerLinkActive="active">
           <i class="bi bi-gear"></i>
           <span>Paramètres</span>
         </a>
       </li>
 
       <!-- Aide -->
-      <li class="nav-item mb-1">
-        <a class="nav-link" (click)="navigateTo('/doctor/help')">
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/help')" routerLinkActive="active">
           <i class="bi bi-question-circle"></i>
           <span>Aide</span>
         </a>
@@ -143,14 +139,12 @@
     </ul>
   </div>
 
-  <!-- Footer avec Déconnexion -->
+  <!-- Footer avec déconnexion -->
   <div class="sidebar-footer">
-    <hr class="divider mx-3">
-    <div class="px-3 py-3">
-      <a class="nav-link logout-btn" (click)="logout()">
-        <i class="bi bi-box-arrow-right"></i>
-        <span>Déconnexion</span>
-      </a>
-    </div>
+    <div class="footer-divider"></div>
+    <button class="logout-btn" (click)="logout()">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Déconnexion</span>
+    </button>
   </div>
 </div>

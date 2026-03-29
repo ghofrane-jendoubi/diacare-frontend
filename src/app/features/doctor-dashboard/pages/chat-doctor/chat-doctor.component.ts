@@ -22,7 +22,7 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
   // Données des messages
   messages: any[] = [];
   newMessage = '';
-  currentDoctorId = 4; // ID du médecin connecté
+  currentDoctorId: number | null = null;
   loading = false;
   refreshInterval: any;
   
@@ -75,54 +75,61 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-  // Charger les conversations immédiatement
+  // Debug
+  console.log('localStorage doctor_id:', localStorage.getItem('doctor_id'));
+  console.log('Toutes les clés:', Object.keys(localStorage));
+  
+  const doctorIdStr = localStorage.getItem('doctor_id') || localStorage.getItem('doctorId');;
+  
+  if (!doctorIdStr) {
+    console.error('doctor_id absent du localStorage');
+    
+    return;
+  }
+  
+  this.currentDoctorId = parseInt(doctorIdStr);
+  console.log('Médecin connecté ID:', this.currentDoctorId);
+  
   this.loadConversations();
 
-  // Écouter les changements de route
-  this.route.params.subscribe(params => {
-    const patientIdFromUrl = params['patientId'];
+    this.route.params.subscribe(params => {
+      const patientIdFromUrl = params['patientId'];
 
-    if (patientIdFromUrl) {
-      const patientId = Number(patientIdFromUrl);
-      this.selectedPatientId = patientId;
-      this.showMobileConversations = false;
-      this.loadMessages(true, true);
+      if (patientIdFromUrl) {
+        const patientId = Number(patientIdFromUrl);
+        this.selectedPatientId = patientId;
+        this.showMobileConversations = false;
+        this.loadMessages(true, true);
 
-      // Chercher le patient dans les conversations déjà chargées
-      const existing = this.conversations.find(c => c.patientId === patientId);
-      if (existing) {
-        this.currentPatient = {
-          id: existing.patientId,
-          firstName: existing.patientName.split(' ')[0],
-          lastName: existing.patientName.split(' ').slice(1).join(' '),
-          profilePicture: existing.patientProfilePicture,
-          diabetesType: existing.diabetesType,
-          online: existing.online || false
-        };
+        const existing = this.conversations.find(c => c.patientId === patientId);
+        if (existing) {
+          this.currentPatient = {
+            id: existing.patientId,
+            firstName: existing.patientName.split(' ')[0],
+            lastName: existing.patientName.split(' ').slice(1).join(' '),
+            profilePicture: existing.patientProfilePicture,
+            diabetesType: existing.diabetesType,
+            online: existing.online || false
+          };
+        }
       } else {
-        // Conversations pas encore chargées → attendre le callback
-        // (géré dans loadConversations())
+        this.selectedPatientId = null;
+        this.currentPatient = null;
+        this.messages = [];
+        this.showMobileConversations = true;
       }
-    } else {
-      // Route /doctor/chat sans patientId → afficher uniquement la sidebar
-      this.selectedPatientId = null;
-      this.currentPatient = null;
-      this.messages = [];
-      this.showMobileConversations = true;
-    }
-  });
+    });
 
-  setTimeout(() => this.setupScrollListener(), 500);
+    setTimeout(() => this.setupScrollListener(), 500);
 
-  this.refreshInterval = setInterval(() => {
-    this.loadConversations();
-    if (this.selectedPatientId) {
-      this.loadMessages(false, false);
-    }
-  }, 30000);
-}
+    this.refreshInterval = setInterval(() => {
+      this.loadConversations();
+      if (this.selectedPatientId) {
+        this.loadMessages(false, false);
+      }
+    }, 300000);
+  }
   
-  // Créer une nouvelle conversation avec un patient
   private createNewConversation(patientId: number) {
     console.log('Création d\'une nouvelle conversation avec le patient:', patientId);
     this.selectedPatientId = patientId;
@@ -133,7 +140,6 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
         this.currentPatient = data;
         this.loadMessages(true, true);
         
-        // Ajouter le patient à la liste des conversations s'il n'existe pas déjà
         const exists = this.conversations.some(c => c.patientId === data.id);
         if (!exists) {
           const newConversation = {
@@ -164,7 +170,6 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
         };
         this.messages = [];
         
-        // Ajouter quand même à la liste
         const exists = this.conversations.some(c => c.patientId === patientId);
         if (!exists) {
           const newConversation = {
@@ -202,8 +207,6 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ===== GESTION DU SCROLL =====
-  
   scrollToBottom(force: boolean = false) {
     if (this.userScrolled && !force) {
       return;
@@ -233,51 +236,50 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
           }
           this.scrollTimeout = setTimeout(() => {
             this.userScrolled = false;
-          }, 5000);
+          }, 500000);
         }
       });
     }
   }
 
-  // ===== GESTION DES CONVERSATIONS =====
-
   loadConversations() {
-  this.loadingConversations = true;
+    if (!this.currentDoctorId) return;
+    
+    this.loadingConversations = true;
+    
+    this.messageService.getDoctorConversations(this.currentDoctorId).subscribe({
+      next: (data: any[]) => {
+        this.conversations = data;
+        this.filterConversations();
+        this.loadingConversations = false;
 
-  this.messageService.getDoctorConversations(this.currentDoctorId).subscribe({
-    next: (data: any[]) => {
-  this.conversations = data;
-  this.filterConversations();
-  this.loadingConversations = false;
-
-  if (this.selectedPatientId) {
-    const conv = this.conversations.find(c => c.patientId === this.selectedPatientId);
-    if (conv) {
-      // ✅ Résoudre currentPatient depuis la liste
-      this.currentPatient = {
-        id: conv.patientId,
-        firstName: conv.patientName.split(' ')[0],
-        lastName: conv.patientName.split(' ').slice(1).join(' '),
-        profilePicture: conv.patientProfilePicture,
-        diabetesType: conv.diabetesType,
-        online: conv.online || false
-      };
-    } else if (!this.currentPatient) {
-      // Patient pas encore dans les conversations (première fois)
-      this.createNewConversation(this.selectedPatientId);
-    }
-  }
-},
-    error: (err: any) => {
-      console.error('Erreur chargement conversations', err);
-      this.loadingConversations = false;
-      if (!this.conversations.length) {
-        this.conversations = [];
-        this.filteredConversations = [];
+        if (this.selectedPatientId) {
+          const conv = this.conversations.find(c => c.patientId === this.selectedPatientId);
+          if (conv) {
+            this.currentPatient = {
+              id: conv.patientId,
+              firstName: conv.patientName.split(' ')[0],
+              lastName: conv.patientName.split(' ').slice(1).join(' '),
+              profilePicture: conv.patientProfilePicture,
+              diabetesType: conv.diabetesType,
+              online: conv.online || false
+            };
+          } else if (!this.currentPatient) {
+            this.createNewConversation(this.selectedPatientId);
+          }
+        }
+      },
+      error: (err: any) => {
+        console.error('Erreur chargement conversations', err);
+        this.loadingConversations = false;
+        if (!this.conversations.length) {
+          this.conversations = [];
+          this.filteredConversations = [];
+        }
       }
-    }
-  });
-}
+    });
+  }
+  
   filterConversations() {
     if (!this.searchTerm) {
       this.filteredConversations = [...this.conversations];
@@ -298,12 +300,10 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
       return;
     }
     
-    // Mettre à jour l'URL sans recharger la page
     this.router.navigate(['/doctor/chat', patientId], { replaceUrl: true });
     
     this.selectedPatientId = patientId;
     
-    // Récupérer les informations du patient depuis la conversation
     const conversation = this.conversations.find(c => c.patientId === patientId);
     if (conversation) {
       console.log('Patient trouvé dans les conversations:', conversation);
@@ -317,7 +317,6 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
       };
       this.loadMessages(true, true);
     } else {
-      // Si le patient n'est pas dans les conversations, le charger
       this.patientService.getPatientById(patientId).subscribe({
         next: (data) => {
           console.log('Patient chargé depuis API:', data);
@@ -339,20 +338,16 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
       });
     }
     
-    // Marquer les messages comme lus
     this.markMessagesAsRead();
     
-    // Sur mobile, masquer la sidebar
     if (window.innerWidth <= 768) {
       this.showMobileConversations = false;
     }
   }
 
-  // ===== GESTION DES MESSAGES =====
-  
   loadMessages(markAsRead: boolean = true, forceScroll: boolean = false) {
-    if (!this.selectedPatientId) {
-      console.log('Aucun patient sélectionné');
+    if (!this.currentDoctorId || !this.selectedPatientId) {
+      console.log('Médecin non connecté ou patient non sélectionné');
       return;
     }
     
@@ -364,7 +359,6 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
         const oldHeight = this.messagesContainer?.nativeElement?.scrollHeight;
         this.messages = data;
         
-        // Mettre à jour le dernier message dans la conversation
         if (data.length > 0) {
           const lastMessage = data[data.length - 1];
           const conversation = this.conversations.find(c => c.patientId === this.selectedPatientId);
@@ -380,7 +374,6 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
           }
         }
         
-        // Gestion du scroll
         if (!this.userScrolled || forceScroll) {
           this.scrollToBottom(forceScroll);
         } else {
@@ -392,7 +385,7 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
                 this.messagesContainer.nativeElement.scrollTop += scrollDiff;
               }
             }
-          }, 100);
+          }, 10000);
         }
         
         if (markAsRead) {
@@ -406,6 +399,11 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
   }
 
   sendMessage() {
+    if (!this.currentDoctorId) {
+      alert('Erreur: Médecin non identifié');
+      return;
+    }
+    
     if (this.isRecording) {
       alert('Veuillez arrêter l\'enregistrement avant d\'envoyer');
       return;
@@ -439,7 +437,7 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
       this.uploadService.uploadImage(this.selectedImage).subscribe({
         next: (res) => {
           const request: SendMessageRequest = {
-            senderId: this.currentDoctorId,
+            senderId: this.currentDoctorId!,
             receiverId: this.selectedPatientId!,
             content: messageContent,
             imageUrl: res.imageUrl
@@ -467,7 +465,7 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
       this.uploadService.uploadDocument(this.selectedDocument).subscribe({
         next: (res) => {
           const request: SendMessageRequest = {
-            senderId: this.currentDoctorId,
+            senderId: this.currentDoctorId!,
             receiverId: this.selectedPatientId!,
             content: messageContent,
             documentUrl: res.documentUrl
@@ -496,7 +494,7 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
       this.uploadService.uploadAudio(audioFile).subscribe({
         next: (res) => {
           const request: SendMessageRequest = {
-            senderId: this.currentDoctorId,
+            senderId: this.currentDoctorId!,
             receiverId: this.selectedPatientId!,
             content: messageContent,
             audioUrl: res.audioUrl,
@@ -522,7 +520,7 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
     }
     else if (this.newMessage.trim()) {
       const request: SendMessageRequest = {
-        senderId: this.currentDoctorId,
+        senderId: this.currentDoctorId!,
         receiverId: this.selectedPatientId!,
         content: this.newMessage
       };
@@ -539,7 +537,7 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
   }
 
   markMessagesAsRead() {
-    if (!this.selectedPatientId) return;
+    if (!this.currentDoctorId || !this.selectedPatientId) return;
     
     this.messageService.markMessagesAsRead(this.currentDoctorId, this.selectedPatientId).subscribe({
       next: () => {
@@ -555,8 +553,6 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ===== GESTION DES FICHIERS (le reste reste identique) =====
-  
   getFullUrl(url: string): string {
     if (!url) return '';
     if (url.startsWith('http')) return url;
@@ -564,7 +560,7 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
   }
 
   onImageError(event: any) {
-    event.target.src = 'assets/images/default-image.png';
+    event.target.src = '/default-image.png';
   }
 
   openImage(url: string) {
@@ -681,8 +677,6 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  // ===== GESTION DE L'AUDIO =====
-
   async startRecording() {
     try {
       await this.audioRecorder.startRecording();
@@ -742,8 +736,6 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
     return this.currentPlayingMessage === message;
   }
 
-  // ===== UTILITAIRES =====
-
   formatTime(date: string): string {
     const messageDate = new Date(date);
     const today = new Date();
@@ -761,8 +753,6 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
     const secs = Math.floor(seconds % 60);
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   }
-
-  // ===== NAVIGATION =====
 
   goToPatients() {
     this.router.navigate(['/doctor/patients']);
