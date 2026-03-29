@@ -1,89 +1,154 @@
 <app-navbar></app-navbar>
 
-<div class="marketplace-container">
-  <div class="filter-bar">
-    <div class="search-wrapper">
-      <i class="fas fa-search search-icon"></i>
-      <input type="text" placeholder="Rechercher un produit..." [(ngModel)]="searchTerm" (input)="onSearchChange()" class="search-input" />
-    </div>
-
-    <div class="filter-buttons">
-      <button class="filter-btn" [class.active]="selectedType === 'all'" (click)="selectedType = 'all'; onTypeChange()">
-        Tous les produits
-      </button>
-      <button class="filter-btn" [class.active]="selectedType === 'ALIMENTAIRE'" (click)="selectedType = 'ALIMENTAIRE'; onTypeChange()">
-        Alimentaire
-      </button>
-      <button class="filter-btn" [class.active]="selectedType === 'MEDICAL'" (click)="selectedType = 'MEDICAL'; onTypeChange()">
-        Médical
-      </button>
-    </div>
-
-    <div class="cart-wrapper" (click)="goToCart()">
-      <i class="fas fa-shopping-cart cart-icon"></i>
-      <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
-    </div>
-  </div>
-
-  <div *ngIf="isLoading" class="loading-spinner">
-    <i class="fas fa-spinner fa-spin"></i> Chargement...
-  </div>
-
-  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
-
-  <div class="products-grid" *ngIf="!isLoading && !error && filteredProducts.length > 0">
-    <div class="product-card" *ngFor="let product of filteredProducts">
-      <div class="card-image">
-        <img *ngIf="product.image && !imageErrorMap[product.id!]"
-             [src]="getImageUrl(product.image)"
-             [alt]="product.name"
-             (error)="onImageError(product)" />
-        <div *ngIf="!product.image || imageErrorMap[product.id!]" class="no-image">
-          <i class="fas fa-image"></i> Aucune image
-        </div>
+<div class="container py-4" style="margin-top: 100px;">
+  <!-- Filter Bar -->
+  <div class="row g-3 mb-4 align-items-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="input-group">
+        <span class="input-group-text bg-white border-end-0">
+          <i class="bi bi-search"></i>
+        </span>
+        <input type="text"
+               class="form-control border-start-0 ps-0"
+               placeholder="Rechercher un produit..."
+               [(ngModel)]="searchTerm"
+               (input)="onSearchChange()">
       </div>
+    </div>
 
-      <div class="card-body">
-        <div class="product-category">
-          {{ product.type === 'MEDICAL' ? 'Médical' : 'Alimentaire' }}
-        </div>
+    <div class="col-md-auto">
+      <div class="btn-group flex-wrap gap-2" role="group">
+        <button type="button"
+                class="btn btn-outline-primary rounded-pill px-4"
+                [class.active]="selectedType === 'all'"
+                (click)="selectedType = 'all'; onTypeChange()">
+          Tous les produits
+        </button>
+        <button type="button"
+                class="btn btn-outline-primary rounded-pill px-4"
+                [class.active]="selectedType === 'ALIMENTAIRE'"
+                (click)="selectedType = 'ALIMENTAIRE'; onTypeChange()">
+          Alimentaire
+        </button>
+        <button type="button"
+                class="btn btn-outline-primary rounded-pill px-4"
+                [class.active]="selectedType === 'MEDICAL'"
+                (click)="selectedType = 'MEDICAL'; onTypeChange()">
+          Médical
+        </button>
+      </div>
+    </div>
 
-        <div class="product-seller">
-          <i class="fas fa-user-circle"></i> {{ getSeller(product) }}
-        </div>
+    <div class="col-md-auto ms-md-auto">
+      <button class="btn btn-light position-relative rounded-circle p-2 shadow-sm"
+              (click)="goToCart()">
+        <i class="bi bi-cart3 fs-5"></i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+              *ngIf="cartCount > 0">
+          {{ cartCount }}
+          <span class="visually-hidden">articles dans le panier</span>
+        </span>
+      </button>
+    </div>
+  </div>
 
-        <h3 class="product-title">{{ product.name }}</h3>
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="mt-2 text-muted">Chargement des produits...</p>
+  </div>
 
-        <p class="product-description">
-          {{ product.description ? (product.description | slice:0:80) + (product.description.length > 80 ? '...' : '') : 'Aucune description' }}
-        </p>
+  <!-- Error -->
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ error }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
 
-        <div class="product-price">
-          <span class="current-price">{{ product.price | number:'1.2-2' }} DT</span>
-          <span class="old-price" *ngIf="product.sugarLevel > 20">{{ (product.price + 20) | number:'1.2-2' }} DT</span>
-        </div>
+  <!-- Products Grid -->
+  <div *ngIf="!isLoading && !error && filteredProducts.length > 0"
+       class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
 
-        <!-- Quantity selector or buy button -->
-        <div class="product-action">
-          <div *ngIf="productQuantities[product.id!] && productQuantities[product.id!] > 0; else buyButton" class="quantity-selector">
-            <button class="qty-btn" (click)="decrementQuantity(product)">-</button>
-            <span class="qty-number">{{ productQuantities[product.id!] }}</span>
-            <button class="qty-btn" (click)="incrementQuantity(product)">+</button>
-            <button class="confirm-btn" (click)="addToCart(product)">✓</button>
+    <div class="col" *ngFor="let product of filteredProducts">
+      <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden hover-shadow transition">
+        <!-- Image -->
+        <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+             style="height: 200px;">
+          <img *ngIf="product.image && !imageErrorMap[product.id!]"
+               [src]="getImageUrl(product.image)"
+               [alt]="product.name"
+               class="img-fluid p-3"
+               style="max-height: 100%; object-fit: contain;"
+               (error)="onImageError(product)">
+          <div *ngIf="!product.image || imageErrorMap[product.id!]" class="text-muted">
+            <i class="bi bi-image fs-1"></i>
+            <p class="small mb-0">Aucune image</p>
           </div>
-          <ng-template #buyButton>
-            <button class="btn-buy" (click)="toggleQuantity(product)">
-              Acheter <i class="fas fa-chevron-down"></i>
-            </button>
-          </ng-template>
+        </div>
+
+        <!-- Body -->
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="badge bg-light text-dark rounded-pill px-3 py-1 fw-normal">
+              {{ product.type === 'MEDICAL' ? 'Médical' : 'Alimentaire' }}
+            </span>
+            <small class="text-muted">
+              <i class="bi bi-person-circle me-1"></i> {{ getSeller(product) }}
+            </small>
+          </div>
+
+          <h5 class="card-title fw-bold text-dark mb-2">{{ product.name }}</h5>
+          <p class="card-text text-muted small mb-3">
+            {{ product.description ? (product.description | slice:0:80) + (product.description.length > 80 ? '...' : '') : 'Aucune description' }}
+          </p>
+
+          <div class="mt-auto">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <span class="fs-4 fw-bold text-primary">
+                  {{ product.price | number:'1.2-2' }} DT
+                </span>
+                <span class="text-muted text-decoration-line-through ms-2 small"
+                      *ngIf="product.sugarLevel > 20">
+                  {{ (product.price + 20) | number:'1.2-2' }} DT
+                </span>
+              </div>
+            </div>
+
+            <!-- Quantity Selector or Buy Button -->
+            <div class="product-action">
+              <ng-container *ngIf="(productQuantities[product.id!] || 0) === 0; else quantityBlock">
+                <button class="btn btn-primary w-100 rounded-pill py-2"
+                        (click)="incrementAndUpdate(product)">
+                  <i class="bi bi-cart-plus me-2"></i> Acheter
+                </button>
+              </ng-container>
+              <ng-template #quantityBlock>
+                <div class="d-flex align-items-center justify-content-between bg-light rounded-pill p-1">
+                  <button class="btn btn-sm btn-outline-secondary rounded-circle"
+                          (click)="decrementAndUpdate(product)">
+                    <i class="bi bi-dash"></i>
+                  </button>
+                  <span class="fw-semibold mx-2">{{ productQuantities[product.id!] }}</span>
+                  <button class="btn btn-sm btn-outline-secondary rounded-circle"
+                          (click)="incrementAndUpdate(product)">
+                    <i class="bi bi-plus"></i>
+                  </button>
+                </div>
+              </ng-template>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div *ngIf="!isLoading && !error && filteredProducts.length === 0" class="empty-state">
-    <i class="fas fa-box-open"></i>
-    <p>Aucun produit ne correspond à votre recherche.</p>
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !error && filteredProducts.length === 0"
+       class="text-center py-5">
+    <i class="bi bi-box-seam fs-1 text-muted"></i>
+    <p class="mt-3 text-muted">Aucun produit ne correspond à votre recherche.</p>
   </div>
 </div>
 

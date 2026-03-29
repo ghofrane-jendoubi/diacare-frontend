@@ -8,10 +8,16 @@ import { MarketplacePatientComponent } from './marketplace-patient/marketplace-p
 
 import { SharedModule } from '../../shared/shared.module';
 import { FormsModule } from '@angular/forms';
+import { CartComponent } from './cart/cart.component';
+import { OrdersComponent } from './orders/orders.component';
+import { PaiementComponent } from './paiement/paiement.component';
 @NgModule({
   declarations: [
     PatientHomeComponent,
-    MarketplacePatientComponent ,
+    MarketplacePatientComponent,
+    CartComponent,
+    OrdersComponent,
+    PaiementComponent ,
       // <-- must be present
   ],
   imports: [

@@ -1,0 +1,38 @@
+/* Override primary button with gradient */
+.btn-primary {
+  background: linear-gradient(135deg, #6c63ff, #9c6bff);
+  border: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+.btn-primary:disabled {
+  opacity: 0.6;
+  transform: none;
+  cursor: not-allowed;
+}
+
+/* Input group styling */
+.input-group-text {
+  background-color: #fff;
+  border-right: none;
+  color: #6c63ff;
+}
+.input-group .form-control {
+  border-left: none;
+}
+.input-group .form-control:focus {
+  border-color: #ced4da;
+  box-shadow: none;
+}
+
+/* Card hover effect */
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 1rem 2rem rgba(0,0,0,0.1) !important;
+}

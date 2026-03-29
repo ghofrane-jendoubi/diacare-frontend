@@ -1,0 +1,32 @@
+/* Status badge colors */
+.bg-success {
+  background-color: #28a745 !important;
+  color: #fff;
+}
+.bg-warning {
+  background-color: #ffc107 !important;
+  color: #212529;
+}
+.bg-secondary {
+  background-color: #6c757d !important;
+  color: #fff;
+}
+
+/* Card hover effect */
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 1rem 2rem rgba(0,0,0,0.1) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .order-header .row > div {
+    text-align: left !important;
+  }
+  .card-footer {
+    justify-content: flex-start;
+  }
+}

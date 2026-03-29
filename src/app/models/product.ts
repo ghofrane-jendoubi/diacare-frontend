@@ -9,5 +9,6 @@ export interface Product {
   type: string;           // 'ALIMENTAIRE' or 'MEDICAL'
   description: string;
   image: string;
+  
   category?: any;
 }

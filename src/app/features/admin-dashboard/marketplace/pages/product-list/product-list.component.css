@@ -1,3 +1,4 @@
+/* Keep the left margin if your sidebar is fixed */
 .page-container {
   margin-left: 260px;
   padding: 40px;
@@ -5,378 +6,45 @@
   min-height: 100vh;
 }
 
-.product-table-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 24px;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.header h2 {
-  margin: 0;
-  font-size: 24px;
-  color: #333;
-}
-
+/* Override Bootstrap primary button gradient */
 .btn-primary {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
-
 .btn-primary:hover {
-  transform: translateY(-2px);
+  opacity: 0.9;
+  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
-
-.loading-spinner {
-  text-align: center;
-  padding: 40px;
-  font-size: 18px;
-  color: #667eea;
-}
-
-.alert {
-  padding: 12px 20px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-.alert-danger {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-.table-responsive {
-  overflow-x: auto;
-}
-
-.product-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.product-table th,
-.product-table td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.product-table th {
-  background-color: #f8f9fa;
-  font-weight: 600;
-  color: #495057;
-}
-
-.product-table tr:hover {
-  background-color: #f8f9fa;
-}
-
-.image-cell {
-  width: 80px;
-}
-
-.product-thumbnail {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid #dee2e6;
-}
-
-.no-image {
-  width: 60px;
-  height: 60px;
-  background-color: #f8f9fa;
-  border: 1px dashed #dee2e6;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  color: #6c757d;
-}
-
-.badge {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.badge-medical {
-  background-color: #dc3545;
-  color: white;
-}
-
-.badge-alimentaire {
-  background-color: #28a745;
-  color: white;
-}
-
-.actions {
-  display: flex;
-  gap: 12px;
-}
-
-.btn-icon {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  font-size: 16px;
-  width: 32px;
-  height: 32px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-icon.edit {
-  color: #0d6efd;
-  background-color: #e7f1ff;
-}
-
-.btn-icon.edit:hover {
-  background-color: #0d6efd;
-  color: white;
-  transform: scale(1.1);
-}
-
-.btn-icon.delete {
-  color: #dc3545;
-  background-color: #ffe7e9;
-}
-
-.btn-icon.delete:hover {
-  background-color: #dc3545;
-  color: white;
-  transform: scale(1.1);
-}
-
-.no-data {
-  text-align: center;
-  padding: 60px;
-  color: #6c757d;
-}
-
-.no-data i {
-  font-size: 48px;
-  margin-bottom: 16px;
-  color: #dee2e6;
-}
-
-.no-data p {
-  font-size: 16px;
-  margin: 0;
-}
-
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s ease;
-}
-
-.modal-container {
-  background: white;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  animation: slideUp 0.3s ease;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 20px;
-  color: #333;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 28px;
-  cursor: pointer;
-  color: #999;
-  transition: color 0.2s;
-}
-
-.close-btn:hover {
-  color: #333;
-}
-
-.modal-body {
-  padding: 24px;
-}
-
-.modal-footer {
-  padding: 16px 24px;
-  border-top: 1px solid #e9ecef;
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-.form-group {
-  margin-bottom: 16px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 500;
-  color: #555;
-}
-
-.form-control {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-}
-
-.form-row {
-  display: flex;
-  gap: 16px;
-}
-
-.form-group.half {
-  flex: 1;
-}
-
-.btn {
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
-}
-
 .btn-primary:disabled {
   opacity: 0.6;
+  transform: none;
   cursor: not-allowed;
 }
 
-.btn-secondary {
-  background: #6c757d;
-  color: white;
+/* Table hover and border */
+.table th {
+  border-top: none;
+  font-weight: 600;
+  background-color: #f8f9fa;
+}
+.table-hover tbody tr:hover {
+  background-color: rgba(102, 126, 234, 0.05);
+}
+
+/* Badge custom sizing */
+.badge {
+  font-weight: 500;
+}
+
+/* Modal backdrop handled by inline style, no extra overlay needed */
+.modal.show {
+  display: block;
+  background-color: rgba(0,0,0,0.5);
+}
+.modal-content {
   border: none;
-}
-
-.btn-secondary:hover {
-  background: #5a6268;
-}
-
-.invalid-feedback {
-  color: #dc3545;
-  font-size: 12px;
-  margin-top: 4px;
-}
-
-.current-image, .image-preview {
-  margin-bottom: 10px;
-  text-align: center;
-}
-
-.preview-img {
-  max-width: 150px;
-  max-height: 150px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  padding: 4px;
-}
-
-.file-upload-area {
-  border: 2px dashed #ccc;
-  border-radius: 8px;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
-  background: #f9f9f9;
-  transition: all 0.3s;
-}
-
-.file-upload-area:hover {
-  border-color: #667eea;
-  background: #f0f0ff;
-}
-
-.remove-image {
-  margin-top: 8px;
-  background: none;
-  border: none;
-  color: #dc3545;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* Responsive */
@@ -385,69 +53,7 @@
     margin-left: 0;
     padding: 20px;
   }
-  
-  .header {
-    flex-direction: column;
-    gap: 15px;
-    text-align: center;
+  .btn-group .btn {
+    padding: 0.25rem 0.5rem;
   }
-  
-  .product-table th,
-  .product-table td {
-    padding: 8px;
-    font-size: 14px;
-  }
-  
-  .actions {
-    flex-direction: column;
-    gap: 4px;
-  }
-  
-  .btn-icon {
-    width: 28px;
-    height: 28px;
-    font-size: 14px;
-  }
-  
-  .form-row {
-    flex-direction: column;
-    gap: 0;
-  }
-}
-.invalid-feedback {
-  display: block;
-  color: #dc3545;
-  font-size: 12px;
-  margin-top: 4px;
-}
-.is-invalid {
-  border: 1px solid #dc3545;
-}
-
-.invalid-feedback {
-  color: #dc3545;
-  font-size: 13px;
-}
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.modal-overlay {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.4);
-}
-
-.modal-content {
-  position: relative;
-  background: white;
-  width: 500px;
-  margin: 80px auto;
-  padding: 20px;
-  border-radius: 12px;
 }
