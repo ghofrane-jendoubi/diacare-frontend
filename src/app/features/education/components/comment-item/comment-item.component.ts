@@ -36,7 +36,11 @@ export class CommentItemComponent {
   }
 
   timeAgo(dateStr: string): string {
+    if (!dateStr) return 'à l\'instant';
+    
     const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return 'à l\'instant'; // Date invalide
+    
     const now = new Date();
     const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
     if (diff < 60) return 'à l\'instant';

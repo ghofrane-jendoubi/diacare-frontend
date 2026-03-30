@@ -4,7 +4,9 @@ import { ActivatedRoute } from '@angular/router';
 import { EducationService } from '../../services/education.service';
 import { ContentDetail, CATEGORY_LABELS, CATEGORY_ICONS, DIFFICULTY_LABELS } from '../../models/content';
 import { QuizService, QuizQuestion } from '../../services/quiz.service';
-import { AuthService } from '../../../../shared/services/auth.service';
+import { DoctorEducationService } from '../../../doctor-dashboard/services/doctor-education.service';
+import { PatientMessagingService } from '../../../patient-messaging/services/patient-messaging.service';
+import { AuthService, CurrentUser } from '../../../../shared/services/auth.service';
 
 @Component({
   selector: 'app-article-detail',
@@ -31,6 +33,13 @@ export class ArticleDetailComponent implements OnInit {
   isReading = false;
   utterance: SpeechSynthesisUtterance | null = null;
 
+  // ===== MESSAGING =====
+  showMessageModal = false;
+  messageText = '';
+  isSendingMessage = false;
+  userRole: string = 'PATIENT'; // TODO: get from auth
+  userName: string = 'Patient'; // TODO: get from auth
+
   // ===== QUIZ =====
   quizQuestions: QuizQuestion[] = [];
   quizAnswers: { [key: number]: string } = {};
@@ -43,6 +52,8 @@ export class ArticleDetailComponent implements OnInit {
     private educationService: EducationService,
     private http: HttpClient,
     private quizService: QuizService,
+    private doctorService: DoctorEducationService,
+    private patientMessagingService: PatientMessagingService,
     private authService: AuthService
   ) {}
 
@@ -176,6 +187,74 @@ export class ArticleDetailComponent implements OnInit {
 
   isQuizComplete(): boolean {
     return this.quizQuestions.length > 0 && Object.keys(this.quizAnswers).length === this.quizQuestions.length;
+  }
+
+  // ===== MESSAGING =====
+  openMessageModal() {
+    this.showMessageModal = true;
+    this.messageText = '';
+  }
+
+  closeMessageModal() {
+    this.showMessageModal = false;
+    this.messageText = '';
+  }
+
+  sendMessage() {
+    if (!this.messageText.trim() || !this.article) return;
+
+    // Check if authorId exists
+    if (!this.article.authorId) {
+      alert('Erreur: ID de l\'auteur non disponible');
+      return;
+    }
+
+    this.isSendingMessage = true;
+
+    // Détecter le rôle de l'utilisateur
+    const currentUser = this.authService.currentUser;
+    const isDoctor = currentUser?.role === 'DOCTOR' || this.userRole === 'DOCTOR';
+    
+    if (isDoctor) {
+      // Médecin envoie un message au patient
+      this.doctorService.sendPrivateMessage(
+        this.article.authorId, 
+        this.article.authorName, 
+        this.messageText.trim(), 
+        this.article.id
+      ).subscribe({
+        next: () => {
+          this.isSendingMessage = false;
+          this.closeMessageModal();
+          alert('Message envoyé avec succès !');
+        },
+        error: (err) => {
+          this.isSendingMessage = false;
+          console.error('Erreur envoi message:', err);
+          alert('Erreur lors de l\'envoi du message');
+        }
+      });
+    } else {
+      // Patient envoie un message au médecin (auteur)
+      const patientName = currentUser?.name || 'Patient DiaCare';
+      this.patientMessagingService.sendMessage(
+        this.article.authorId,
+        this.article.authorName,
+        this.messageText.trim(),
+        this.article.id
+      ).subscribe({
+        next: () => {
+          this.isSendingMessage = false;
+          this.closeMessageModal();
+          alert('Message envoyé au médecin avec succès !');
+        },
+        error: (err) => {
+          this.isSendingMessage = false;
+          console.error('Erreur envoi message:', err);
+          alert('Erreur lors de l\'envoi du message');
+        }
+      });
+    }
   }
 
   // ===== ACTIONS EXISTANTES =====

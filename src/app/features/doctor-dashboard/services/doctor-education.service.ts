@@ -86,4 +86,8 @@ export class DoctorEducationService {
   markMessageAsRead(messageId: number): Observable<void> {
     return this.http.patch<void>(`${this.apiUrl}/messages/${messageId}/read`, {});
   }
+
+  deleteMessage(messageId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/messages/${messageId}`);
+  }
 }

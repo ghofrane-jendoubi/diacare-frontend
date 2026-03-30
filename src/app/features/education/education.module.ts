@@ -12,6 +12,7 @@ import { MyBookmarksComponent } from './pages/my-bookmarks/my-bookmarks.componen
 import { ArticleCardComponent } from './components/article-card/article-card.component';
 import { ArticleFiltersComponent } from './components/article-filters/article-filters.component';
 import { CommentSectionComponent } from './components/comment-section/comment-section.component';
+import { CommentSectionDoctorComponent } from './components/comment-section-doctor/comment-section-doctor.component';
 import { CommentItemComponent } from './components/comment-item/comment-item.component';
 import { HeroBannerComponent } from './components/hero-banner/hero-banner.component';
 
@@ -23,6 +24,7 @@ import { HeroBannerComponent } from './components/hero-banner/hero-banner.compon
     ArticleCardComponent,
     ArticleFiltersComponent,
     CommentSectionComponent,
+    CommentSectionDoctorComponent,
     CommentItemComponent,
     HeroBannerComponent
   ],

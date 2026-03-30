@@ -13,6 +13,7 @@ export class MessagesInboxComponent implements OnInit {
   selectedMessage: PrivateMessage | null = null;
   replyText = '';
   isLoading = true;
+  isDeleting = false;
 
   constructor(private doctorService: DoctorEducationService) {}
 
@@ -58,5 +59,25 @@ export class MessagesInboxComponent implements OnInit {
     if (diff < 3600) return `il y a ${Math.floor(diff / 60)} min`;
     if (diff < 86400) return `il y a ${Math.floor(diff / 3600)}h`;
     return new Date(dateStr).toLocaleDateString('fr');
+  }
+
+  deleteMessage() {
+    if (!this.selectedMessage) return;
+    
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce message ?')) {
+      this.isDeleting = true;
+      this.doctorService.deleteMessage(this.selectedMessage.id).subscribe({
+        next: () => {
+          this.messages = this.messages.filter(m => m.id !== this.selectedMessage!.id);
+          this.selectedMessage = null;
+          this.isDeleting = false;
+          alert('Message supprimé avec succès');
+        },
+        error: () => {
+          this.isDeleting = false;
+          alert('Erreur lors de la suppression du message');
+        }
+      });
+    }
   }
 }

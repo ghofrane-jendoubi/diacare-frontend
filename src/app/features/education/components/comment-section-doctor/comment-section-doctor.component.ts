@@ -1,15 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { PatientCommentService } from '../../../patient-messaging/services/patient-comment.service';
+import { EducationService } from '../../services/education.service';
 import { EducationComment } from '../../models/comment';
 import { AuthService } from '../../../../shared/services/auth.service';
 
 @Component({
-  selector: 'app-comment-section',
-  templateUrl: './comment-section.component.html',
-  styleUrls: ['./comment-section.component.css']
+  selector: 'app-comment-section-doctor',
+  templateUrl: './comment-section-doctor.component.html',
+  styleUrls: ['../comment-section/comment-section.component.css']
 })
-export class CommentSectionComponent implements OnInit {
+export class CommentSectionDoctorComponent implements OnInit {
   @Input() contentId!: number;
   @Input() commentCount = 0;
 
@@ -19,7 +19,7 @@ export class CommentSectionComponent implements OnInit {
   isLoading = false;
 
   constructor(
-    private patientCommentService: PatientCommentService,
+    private educationService: EducationService,
     private authService: AuthService
   ) {}
 
@@ -28,7 +28,7 @@ export class CommentSectionComponent implements OnInit {
   }
 
   loadComments(): void {
-    this.patientCommentService.getComments(this.contentId).subscribe(data => {
+    this.educationService.getComments(this.contentId).subscribe(data => {
       this.comments = data;
       this.isLoading = false;
     });
@@ -38,9 +38,9 @@ export class CommentSectionComponent implements OnInit {
     if (!this.newComment.trim()) return;
     this.isSubmitting = true;
 
-    const userName = this.authService.currentUser?.name || 'Patient DiaCare';
+    const userName = this.authService.currentUser?.name || 'Dr. DiaCare';
 
-    this.patientCommentService.addComment(this.contentId, this.newComment, undefined, userName).subscribe(comment => {
+    this.educationService.addComment(this.contentId, this.newComment, undefined, userName).subscribe(comment => {
       this.comments.unshift(comment);
       this.newComment = '';
       this.isSubmitting = false;

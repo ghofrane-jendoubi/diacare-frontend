@@ -3,13 +3,17 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ContentSummary, ContentDetail, PageResponse } from '../models/content';
 import { EducationComment } from '../models/comment';
+import { AuthService } from '../../../shared/services/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class EducationService {
 
   private apiUrl = 'http://localhost:8090/api/education'; // ← change selon ton port
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) {}
 
   getAllContents(page = 0, size = 9): Observable<PageResponse<ContentSummary>> {
     const params = new HttpParams().set('page', page).set('size', size);

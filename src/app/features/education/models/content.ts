@@ -7,6 +7,7 @@ export interface ContentSummary {
   category: ContentCategory;
   contentType: ContentType;
   thumbnailUrl: string;
+  authorId: number;
   authorName: string;
   viewCount: number;
   likeCount: number;

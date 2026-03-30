@@ -67,6 +67,10 @@
                   rows="4"></textarea>
         <div class="reply-actions">
           <button class="btn-cancel" (click)="selectedMessage = null">Fermer</button>
+          <button class="btn-delete" (click)="deleteMessage()" 
+                  [disabled]="isDeleting">
+            🗑️ Supprimer
+          </button>
           <button class="btn-reply" (click)="sendReply()"
                   [disabled]="!replyText.trim()">
             ✉️ Envoyer la réponse
