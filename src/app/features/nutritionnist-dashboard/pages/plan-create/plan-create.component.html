@@ -1,213 +1,160 @@
-<!-- plan-create.component.html -->
-<div class="wizard-wrapper">
+<div class="create-wrapper">
 
-  <!-- Progress bar -->
-  <div class="progress-bar-wrapper">
-    <div class="progress-steps">
-      <div class="progress-step" *ngFor="let s of [1,2,3,4]" [class.active]="step >= s" [class.current]="step === s">
-        <div class="step-circle">{{ s }}</div>
-        <span class="step-label">
-          {{ s === 1 ? 'Patient' : s === 2 ? 'Plan' : s === 3 ? 'Repas' : 'Terminé' }}
-        </span>
+  <!-- HEADER -->
+  <div class="page-header">
+    <button class="btn-back" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i>
+    </button>
+
+    <div class="header-info">
+      <div class="plan-icon">
+        <i class="bi bi-journal-plus"></i>
       </div>
-    </div>
-    <div class="progress-line">
-      <div class="progress-line-fill" [style.width.%]="((step - 1) / 3) * 100"></div>
+      <div>
+        <h1>Créer un plan alimentaire</h1>
+        <p>Patient #{{ patientId }}</p>
+      </div>
     </div>
   </div>
 
-  <!-- Error -->
-  <div class="alert-error" *ngIf="errorMsg">
-    <i class="bi bi-exclamation-circle"></i> {{ errorMsg }}
-    <button (click)="errorMsg = ''">×</button>
+  <!-- ALERTS -->
+  <div class="alert success" *ngIf="savedSuccess">
+    <i class="bi bi-check-circle-fill"></i>
+    Plan créé avec succès !
   </div>
 
-  <!-- ── STEP 1: Select patient ───────────────────── -->
-  <div class="step-content" *ngIf="step === 1">
-    <div class="step-header">
-      <h2><i class="bi bi-person-check-fill"></i> Sélectionner un patient</h2>
-      <p>Choisissez le patient pour lequel vous souhaitez créer un plan</p>
-    </div>
-
-    <div class="loading-state" *ngIf="isLoadingPatients">
-      <div class="spinner-border spinner-border-sm text-success"></div> Chargement...
-    </div>
-
-    <div class="patients-grid" *ngIf="!isLoadingPatients">
-      <div class="patient-card"
-           *ngFor="let patient of patients"
-           [class.selected]="selectedPatient?.id === patient.id"
-           (click)="selectPatient(patient)">
-        <div class="patient-avatar">{{ patient.name.charAt(0) }}</div>
-        <div>
-          <div class="patient-name">{{ patient.name }}</div>
-          <div class="patient-type" *ngIf="patient.diabetesType">Diabète {{ patient.diabetesType }}</div>
-        </div>
-        <div class="check-icon" *ngIf="selectedPatient?.id === patient.id">
-          <i class="bi bi-check-circle-fill"></i>
-        </div>
-      </div>
-    </div>
-
-    <div class="step-actions">
-      <button class="btn-next" (click)="goToStep2()" [disabled]="!selectedPatient">
-        Continuer <i class="bi bi-arrow-right"></i>
-      </button>
-    </div>
+  <div class="alert error" *ngIf="errorMsg">
+    <i class="bi bi-x-circle-fill"></i>
+    {{ errorMsg }}
   </div>
 
-  <!-- ── STEP 2: Plan info ──────────────────────────── -->
-  <div class="step-content" *ngIf="step === 2">
-    <div class="step-header">
-      <h2><i class="bi bi-clipboard2-plus-fill"></i> Créer le plan alimentaire</h2>
-      <p>Pour <strong>{{ selectedPatient?.name }}</strong></p>
-    </div>
-
-    <div class="form-card">
-      <div class="form-group">
-        <label>Titre du plan *</label>
-        <input type="text"
-               [(ngModel)]="planForm.title"
-               placeholder="ex: Régime diabétique équilibré - Phase 1"
-               class="form-control-custom">
-      </div>
-
-      <div class="form-group">
-        <label>Description</label>
-        <textarea
-          [(ngModel)]="planForm.description"
-          placeholder="Décrivez les objectifs du plan, les restrictions alimentaires, la durée..."
-          class="form-control-custom"
-          rows="4">
-        </textarea>
-      </div>
-
-      <div class="plan-preview" *ngIf="planForm.title">
-        <div class="preview-label">Aperçu</div>
-        <div class="preview-title">{{ planForm.title }}</div>
-        <div class="preview-patient">Patient : {{ selectedPatient?.name }}</div>
-      </div>
-    </div>
-
-    <div class="step-actions">
-      <button class="btn-back" (click)="step = 1">
-        <i class="bi bi-arrow-left"></i> Retour
-      </button>
-      <button class="btn-next" (click)="createPlan()" [disabled]="!planForm.title || isSavingPlan">
-        <span *ngIf="isSavingPlan" class="spinner-border spinner-border-sm"></span>
-        Créer le plan <i class="bi bi-arrow-right"></i>
-      </button>
-    </div>
+  <!-- STEPPER -->
+  <div class="stepper">
+    <div class="step" [class.active]="activeStep >= 1">1</div>
+    <div class="line" [class.active]="activeStep >= 2"></div>
+    <div class="step" [class.active]="activeStep >= 2">2</div>
+    <div class="line" [class.active]="activeStep >= 3"></div>
+    <div class="step" [class.active]="activeStep >= 3">3</div>
   </div>
 
-  <!-- ── STEP 3: Add meals ──────────────────────────── -->
-  <div class="step-content" *ngIf="step === 3">
-    <div class="step-header">
-      <h2><i class="bi bi-egg-fried"></i> Ajouter des repas</h2>
-      <p>Plan : <strong>{{ createdPlan?.title }}</strong></p>
-    </div>
+  <!-- STEP 1 -->
+  <div *ngIf="activeStep === 1" class="card">
 
-    <div class="meals-layout">
+    <h3>Informations générales</h3>
 
-      <!-- Meal form -->
-      <div class="meal-form-card">
-        <h3>Nouveau repas</h3>
+    <input class="input" [(ngModel)]="plan.title" placeholder="Titre du plan">
 
-        <div class="form-group">
-          <label>Type de repas</label>
-          <div class="meal-type-grid">
-            <button *ngFor="let mt of mealTypes"
-                    class="meal-type-btn"
-                    [class.active]="mealForm.mealType === mt.value"
-                    (click)="mealForm.mealType = mt.value">
-              {{ mt.label }}
-            </button>
-          </div>
-        </div>
+    <textarea class="input"
+              [(ngModel)]="plan.description"
+              placeholder="Description"></textarea>
 
-        <div class="form-group">
-          <label>Aliment / Repas *</label>
-          <input type="text"
-                 [(ngModel)]="mealForm.food"
-                 placeholder="ex: Salade de lentilles + poisson grillé + eau"
-                 class="form-control-custom">
-        </div>
+    <div class="grid">
 
-        <div class="form-group">
-          <label>Calories estimées (kcal)</label>
-          <input type="number"
-                 [(ngModel)]="mealForm.calories"
-                 placeholder="ex: 350"
-                 class="form-control-custom"
-                 min="0">
-        </div>
+  <div class="input-group">
+    <label>🔥 Calories</label>
+    <input class="input" type="number"
+           [(ngModel)]="plan.targetCalories"
+           placeholder="ex: 1800">
+  </div>
 
-        <div class="form-group">
-          <label>Notes / Instructions</label>
-          <textarea
-            [(ngModel)]="mealForm.notes"
-            placeholder="ex: Éviter les sauces grasses, bien mâcher..."
-            class="form-control-custom"
-            rows="2">
-          </textarea>
-        </div>
+  <div class="input-group">
+    <label>🌾 Glucides</label>
+    <input class="input" type="number"
+           [(ngModel)]="plan.targetCarbs"
+           placeholder="ex: 180">
+  </div>
 
-        <button class="btn-add-meal" (click)="addMeal()" [disabled]="!mealForm.food || isAddingMeal">
-          <span *ngIf="isAddingMeal" class="spinner-border spinner-border-sm"></span>
-          <i class="bi bi-plus-circle-fill" *ngIf="!isAddingMeal"></i>
-          Ajouter ce repas
-        </button>
+  <div class="input-group">
+    <label>🥩 Protéines</label>
+    <input class="input" type="number"
+           [(ngModel)]="plan.targetProtein"
+           placeholder="ex: 90">
+  </div>
+
+  <div class="input-group">
+    <label>🥑 Lipides</label>
+    <input class="input" type="number"
+           [(ngModel)]="plan.targetFat"
+           placeholder="ex: 60">
+  </div>
+
+</div>
+
+    <button class="btn-primary" (click)="nextStep()" [disabled]="!isStep1Valid()">
+      Suivant →
+    </button>
+  </div>
+
+  <!-- STEP 2 -->
+  <div *ngIf="activeStep === 2" class="card">
+
+    <!-- Progress glucides -->
+    <div class="progress-container" *ngIf="plan.targetCarbs">
+      <div class="progress-text">
+        {{ getTotalCarbs() }}g / {{ plan.targetCarbs }}g
       </div>
-
-      <!-- Added meals list -->
-      <div class="meals-added">
-        <h3>Repas ajoutés ({{ addedMeals.length }})</h3>
-
-        <div class="meals-empty" *ngIf="addedMeals.length === 0">
-          <i class="bi bi-egg-fried"></i>
-          <p>Aucun repas ajouté pour l'instant</p>
-        </div>
-
-        <div class="added-meal-item" *ngFor="let meal of addedMeals; let i = index">
-          <div class="added-meal-type">{{ getMealTypeLabel(meal.mealType) }}</div>
-          <div class="added-meal-food">{{ meal.food }}</div>
-          <div class="added-meal-meta">
-            <span *ngIf="meal.calories">{{ meal.calories }} kcal</span>
-            <span *ngIf="meal.notes">· {{ meal.notes }}</span>
-          </div>
-          <button class="remove-btn" (click)="removeMealLocally(i)">
-            <i class="bi bi-x"></i>
-          </button>
-        </div>
+      <div class="progress-bar">
+        <div class="progress-fill"
+             [style.width.%]="getCarbsPercentage()"></div>
       </div>
     </div>
 
-    <div class="step-actions">
-      <div class="finalize-note">
-        <i class="bi bi-info-circle"></i>
-        Vous pouvez ajouter d'autres repas plus tard. Cliquez sur "Finaliser" quand vous êtes prêt.
-      </div>
-      <button class="btn-finish" (click)="finalize()">
-        Finaliser le plan <i class="bi bi-check2-circle"></i>
+    <!-- Meals -->
+    <div class="meal-card" *ngFor="let meal of meals; let i = index">
+      <select [(ngModel)]="meal.mealType" class="input">
+        <option *ngFor="let t of mealTypes" [value]="t.value">
+          {{ t.label }}
+        </option>
+      </select>
+
+      <textarea class="input" [(ngModel)]="meal.food"
+                placeholder="Aliments..."></textarea>
+
+      <input class="input" type="number"
+             [(ngModel)]="meal.targetCarbs"
+             placeholder="Glucides">
+
+      <input class="input" [(ngModel)]="meal.notes"
+             placeholder="Notes">
+
+      <button class="btn-danger" (click)="removeMeal(i)">
+        Supprimer
       </button>
+    </div>
+
+    <button class="btn-secondary" (click)="addMeal()">
+      + Ajouter repas
+    </button>
+
+    <div class="actions">
+      <button class="btn-light" (click)="prevStep()">← Retour</button>
+      <button class="btn-primary" (click)="nextStep()">Suivant →</button>
     </div>
   </div>
 
-  <!-- ── STEP 4: Done ───────────────────────────────── -->
-  <div class="step-content done-step" *ngIf="step === 4">
-    <div class="done-icon"><i class="bi bi-check-circle-fill"></i></div>
-    <h2>Plan créé avec succès !</h2>
-    <p>Le plan <strong>{{ createdPlan?.title }}</strong> a été créé pour <strong>{{ selectedPatient?.name }}</strong>
-       avec {{ addedMeals.length }} repas.</p>
-    <p>Le patient peut maintenant le consulter depuis son espace.</p>
-    <div class="done-actions">
-      <button class="btn-next" (click)="resetAll()">
-        <i class="bi bi-plus-circle"></i> Créer un autre plan
-      </button>
-      <a routerLink="/nutritionist/dashboard" class="btn-back">
-        Retour au dashboard
-      </a>
+  <!-- STEP 3 -->
+  <div *ngIf="activeStep === 3" class="card">
+
+    <h3>{{ plan.title }}</h3>
+    <p>{{ plan.description }}</p>
+
+    <div class="summary">
+      <span>🔥 {{ plan.targetCalories }}</span>
+      <span>🌾 {{ plan.targetCarbs }}</span>
+      <span>🥩 {{ plan.targetProtein }}</span>
+      <span>🥑 {{ plan.targetFat }}</span>
     </div>
+
+    <div *ngFor="let meal of meals" class="summary-meal">
+      <strong>{{ getMealLabel(meal.mealType) }}</strong>
+      <p>{{ meal.food }}</p>
+    </div>
+
+    <div class="actions">
+      <button class="btn-light" (click)="prevStep()">Modifier</button>
+      <button class="btn-primary" (click)="savePlan()">Enregistrer</button>
+    </div>
+
   </div>
 
 </div>

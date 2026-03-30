@@ -1,12 +1,13 @@
-// plan-create.component.ts
-import { Component, OnInit } from '@angular/core';
-import { NutritionService} from '../../../../services/nutrition.service';
-import { DietPlan, DietMeal, FoodItem, FoodEntry, FoodAnalysisResult } from '../../../../models/diet-plan.model';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { NutritionService } from '../../../../services/nutrition.service';
 
-interface PatientOption {
-  id: number;
-  name: string;
-  diabetesType?: string;
+interface MealForm {
+  mealType: string;
+  food: string;
+  targetCarbs: number | null;
+  notes: string;
 }
 
 @Component({
@@ -16,143 +17,180 @@ interface PatientOption {
 })
 export class PlanCreateComponent implements OnInit {
 
-  step = 1;
+  // ── IDs ───────────────────────────────────────────────────
+  patientId:      number = 1;
+  nutritionistId: number = 1;  // TODO: depuis AuthService
 
-  patients: PatientOption[] = [];
-  selectedPatient: PatientOption | null = null;
+  // ── Profil patient (pour afficher les besoins) ────────────
+  patientProfile: any = null;
 
-  planForm = {
-    title: '',
-    description: ''
+  // ── Formulaire plan ───────────────────────────────────────
+  plan = {
+    title:          '',
+    description:    '',
+    targetCalories: null as number | null,
+    targetCarbs:    null as number | null,
+    targetProtein:  null as number | null,
+    targetFat:      null as number | null,
   };
 
-  createdPlan: DietPlan | null = null;
+  // ── Repas du plan ─────────────────────────────────────────
+  meals: MealForm[] = [
+    { mealType: 'breakfast', food: '', targetCarbs: null, notes: '' },
+    { mealType: 'lunch',     food: '', targetCarbs: null, notes: '' },
+    { mealType: 'dinner',    food: '', targetCarbs: null, notes: '' },
+  ];
 
-  mealForm = {
-    mealType: 'breakfast' as DietMeal['mealType'],
-    food: '',
-    calories: null as number | null,
-    notes: ''
-  };
-
-  addedMeals: DietMeal[] = [];
-  isLoadingPatients = false;
-  isSavingPlan = false;
-  isAddingMeal = false;
-  errorMsg = '';
-
-  // TODO: nutritionistId — remplacer par user.id quand AuthService sera prêt
-  // const user = JSON.parse(localStorage.getItem('user') || '{}');
-  // nutritionistId = user.id;
-  nutritionistId: number = 1;
-
-  mealTypes: Array<{ value: DietMeal['mealType']; label: string }> = [
+  mealTypes = [
     { value: 'breakfast', label: '🌅 Petit-déjeuner' },
     { value: 'lunch',     label: '☀️ Déjeuner'       },
     { value: 'dinner',    label: '🌙 Dîner'           },
-    { value: 'snack',     label: '🍎 Collation'       }
+    { value: 'snack',     label: '🍎 Collation'       },
   ];
 
+  // ── UI ────────────────────────────────────────────────────
+  isSaving    = false;
+  savedSuccess = false;
+  errorMsg    = '';
+  activeStep  = 1;   // 1 = infos plan, 2 = repas, 3 = confirmation
+
   constructor(
-    private nutritionService: NutritionService
+    private route:            ActivatedRoute,
+    private router:           Router,
+    private nutritionService: NutritionService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
-    this.loadPatients();
+    if (isPlatformBrowser(this.platformId)) {
+      // Récupérer patientId depuis query params
+      this.route.queryParams.subscribe(params => {
+        this.patientId = +params['patientId'] || 1;
+        this.loadPatientProfile();
+      });
+    }
   }
 
-  loadPatients(): void {
-    this.isLoadingPatients = true;
-    // TODO: remplacer par un vrai appel API quand UserService sera prêt
-    // this.userService.getPatients().subscribe({ ... })
-    // Pour l'instant mock statique
-    this.patients = [
-      { id: 1, name: 'Ahmed Ben Ali',  diabetesType: 'Type 2' },
-      { id: 2, name: 'Fatima Zahra',   diabetesType: 'Type 1' },
-      { id: 3, name: 'Mohamed Salah',  diabetesType: 'Type 2' },
-    ];
-    this.isLoadingPatients = false;
-  }
-
-  selectPatient(patient: PatientOption): void {
-    this.selectedPatient = patient;
-  }
-
-  goToStep2(): void {
-    if (!this.selectedPatient) return;
-    this.step = 2;
-  }
-
-  createPlan(): void {
-    if (!this.planForm.title || !this.selectedPatient) return;
-    this.isSavingPlan = true;
-    this.errorMsg = '';
-
-    const plan: DietPlan = {
-      title: this.planForm.title,
-      description: this.planForm.description,
-      patientId: this.selectedPatient.id,
-      nutritionistId: this.nutritionistId
-    };
-
-    this.nutritionService.createDietPlan(plan).subscribe({
-      next: (created) => {
-        this.createdPlan = created;
-        this.isSavingPlan = false;
-        this.step = 3;
+  // ── Charger profil patient pour afficher les targets ──────
+  loadPatientProfile(): void {
+    this.nutritionService.getNutritionProfile(this.patientId).subscribe({
+      next: (data) => {
+        if (data?.id) {
+          this.patientProfile = data;
+          // Pré-remplir avec les targets du patient
+          this.plan.targetCalories = data.targetCalories || null;
+          this.plan.targetCarbs    = data.targetCarbs    || null;
+          this.plan.targetProtein  = data.targetProtein  || null;
+          this.plan.targetFat      = data.targetFat      || null;
+          // Répartir les glucides par repas (3 repas principaux)
+          if (data.targetCarbs) {
+            this.meals[0].targetCarbs = Math.round(data.targetCarbs * 0.25);  // 25% matin
+            this.meals[1].targetCarbs = Math.round(data.targetCarbs * 0.40);  // 40% midi
+            this.meals[2].targetCarbs = Math.round(data.targetCarbs * 0.35);  // 35% soir
+          }
+        }
       },
-      error: () => {
-        this.errorMsg = 'Erreur lors de la création du plan.';
-        this.isSavingPlan = false;
-      }
+      error: () => console.log('Profil non disponible')
     });
   }
+  getCarbsPercentage(): number {
+  const total = this.getTotalCarbs();
+  const target = this.plan.targetCarbs || 0;
 
+  if (!target) return 0;
+
+  const pct = (total / target) * 100;
+  return Math.min(pct, 100);
+}
+
+  // ── Gestion repas ─────────────────────────────────────────
   addMeal(): void {
-    if (!this.mealForm.food || !this.createdPlan?.id) return;
-    this.isAddingMeal = true;
+    this.meals.push({ mealType: 'snack', food: '', targetCarbs: null, notes: '' });
+  }
 
-    const meal: DietMeal = {
-      mealType: this.mealForm.mealType,
-      food: this.mealForm.food,
-      calories: this.mealForm.calories || undefined,
-      notes: this.mealForm.notes || undefined
+  removeMeal(index: number): void {
+    if (this.meals.length > 1) {
+      this.meals.splice(index, 1);
+    }
+  }
+
+  // ── Totaux ────────────────────────────────────────────────
+  getTotalCarbs(): number {
+    return this.meals.reduce((sum, m) => sum + (m.targetCarbs || 0), 0);
+  }
+
+  getCarbsStatus(): string {
+    const total  = this.getTotalCarbs();
+    const target = this.plan.targetCarbs || 0;
+    if (!target) return '';
+    const pct = (total / target) * 100;
+    if (pct > 110) return 'over';
+    if (pct >= 90)  return 'ok';
+    return 'under';
+  }
+
+  // ── Navigation steps ──────────────────────────────────────
+  nextStep(): void {
+    if (this.activeStep < 3) this.activeStep++;
+  }
+
+  prevStep(): void {
+    if (this.activeStep > 1) this.activeStep--;
+  }
+
+  isStep1Valid(): boolean {
+    return !!this.plan.title && !!this.plan.targetCalories && !!this.plan.targetCarbs;
+  }
+
+  isStep2Valid(): boolean {
+    return this.meals.every(m => !!m.food);
+  }
+
+  // ── Soumettre le plan ─────────────────────────────────────
+  savePlan(): void {
+    if (!this.isStep1Valid() || !this.isStep2Valid()) return;
+
+    this.isSaving = true;
+    this.errorMsg = '';
+
+    const payload = {
+      patientId:      this.patientId,
+      nutritionistId: this.nutritionistId,
+      title:          this.plan.title,
+      description:    this.plan.description,
+      targetCalories: this.plan.targetCalories,
+      targetCarbs:    this.plan.targetCarbs,
+      targetProtein:  this.plan.targetProtein,
+      targetFat:      this.plan.targetFat,
+      meals: this.meals.map(m => ({
+        mealType:    m.mealType,
+        food:        m.food,
+        targetCarbs: m.targetCarbs,
+        notes:       m.notes
+      }))
     };
 
-    this.nutritionService.addMealToPlan(this.createdPlan.id, meal).subscribe({
+    this.nutritionService.createDietPlan(payload as any).subscribe({
       next: () => {
-        this.addedMeals.push({ ...meal });
-        this.mealForm.food = '';
-        this.mealForm.calories = null;
-        this.mealForm.notes = '';
-        this.isAddingMeal = false;
+        this.isSaving     = false;
+        this.savedSuccess = true;
+        setTimeout(() => {
+          this.router.navigate(['/nutritionnist/patient', this.patientId]);
+        }, 2000);
       },
-      error: () => {
-        this.errorMsg = "Erreur lors de l'ajout du repas.";
-        this.isAddingMeal = false;
+      error: (err) => {
+        this.isSaving = false;
+        this.errorMsg = 'Erreur lors de la création du plan. Veuillez réessayer.';
+        console.error(err);
       }
     });
   }
 
-  removeMealLocally(index: number): void {
-    this.addedMeals.splice(index, 1);
+  goBack(): void {
+    this.router.navigate(['/nutritionnist/patient', this.patientId]);
   }
 
-  finalize(): void {
-    this.step = 4;
-  }
-
-  resetAll(): void {
-    this.step = 1;
-    this.selectedPatient = null;
-    this.planForm = { title: '', description: '' };
-    this.createdPlan = null;
-    this.addedMeals = [];
-    this.mealForm = { mealType: 'breakfast', food: '', calories: null, notes: '' };
-    this.errorMsg = '';
-  }
-
-  getMealTypeLabel(type: string): string {
-    return this.nutritionService.getMealTypeLabel(type);
+  getMealLabel(type: string): string {
+    return this.mealTypes.find(m => m.value === type)?.label || type;
   }
 }

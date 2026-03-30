@@ -55,6 +55,13 @@
     <!-- Plan detail -->
     <div class="plan-detail" *ngIf="selectedPlan">
       <div class="detail-header">
+        <!-- Après detail-header, ajoute les objectifs nutritionnels -->
+<div class="plan-macros" *ngIf="selectedPlan.targetCalories">
+  <div class="macro-chip">🔥 {{ selectedPlan.targetCalories }} kcal</div>
+  <div class="macro-chip">🌾 {{ selectedPlan.targetCarbs }}g glucides</div>
+  <div class="macro-chip">🥩 {{ selectedPlan.targetProtein }}g protéines</div>
+  <div class="macro-chip">🥑 {{ selectedPlan.targetFat }}g lipides</div>
+</div>
         <div>
           <h2>{{ selectedPlan.title }}</h2>
           <p class="detail-desc">{{ selectedPlan.description }}</p>

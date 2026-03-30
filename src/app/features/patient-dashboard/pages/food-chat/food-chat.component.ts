@@ -251,4 +251,16 @@ analyzeImageWithClarifai(base64: string): void {
     }
   });
 }
+deleteEntry(id: number): void {
+  if (!confirm('Supprimer cet élément ?')) return;
+
+  this.nutritionService.deleteFoodEntry(id).subscribe({
+    next: () => {
+      this.history = this.history.filter(e => e.id !== id);
+    },
+    error: (err) => {
+      console.error('Erreur suppression', err);
+    }
+  });
+}
 }

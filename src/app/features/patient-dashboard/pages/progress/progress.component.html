@@ -1,0 +1,212 @@
+<!-- progress.component.html -->
+<div class="progress-wrapper">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1><i class="bi bi-graph-up-arrow"></i> Ma Progression</h1>
+      <p>Suivi glycémique sur 7 jours · Objectif : {{ targetCarbs }}g glucides/jour</p>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner-border text-success"></div>
+    <p>Analyse de vos données...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+
+    <!-- ── Résumé rapide ─────────────────────────────────────── -->
+    <div class="summary-cards">
+
+      <div class="summary-card ok">
+        <div class="sc-emoji">✅</div>
+        <div class="sc-val">{{ countOk() }}<span>/7</span></div>
+        <div class="sc-label">Jours respectés</div>
+      </div>
+
+      <div class="summary-card warn">
+        <div class="sc-emoji">⚠️</div>
+        <div class="sc-val">{{ countWarn() }}<span>/7</span></div>
+        <div class="sc-label">Jours limites</div>
+      </div>
+
+      <div class="summary-card danger">
+        <div class="sc-emoji">🔴</div>
+        <div class="sc-val">{{ countDanger() }}<span>/7</span></div>
+        <div class="sc-label">Jours dépassés</div>
+      </div>
+
+      <div class="summary-card score"
+           [style.border-color]="getComplianceColor()">
+        <div class="sc-emoji">📊</div>
+        <div class="sc-val" [style.color]="getComplianceColor()">
+          {{ getComplianceScore() }}<span>%</span>
+        </div>
+        <div class="sc-label">Score conformité</div>
+      </div>
+
+      <div class="summary-card avg">
+        <div class="sc-emoji">🌾</div>
+        <div class="sc-val">{{ getAvgCarbs() }}<span>g</span></div>
+        <div class="sc-label">Moy. glucides/jour</div>
+      </div>
+
+    </div>
+
+    <!-- ── Courbe glucides ───────────────────────────────────── -->
+    <div class="chart-card">
+
+      <div class="chart-header">
+        <div>
+          <h2>Glucides réels vs objectif</h2>
+          <p>7 derniers jours — ligne rouge = objectif {{ targetCarbs }}g</p>
+        </div>
+        <div class="legend">
+          <span class="leg-item">
+            <span class="leg-dot" style="background:#10b981"></span>
+            Glucides réels
+          </span>
+          <span class="leg-item">
+            <span class="leg-dash"></span>
+            Objectif {{ targetCarbs }}g
+          </span>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div class="empty-chart" *ngIf="hasNoData">
+        <i class="bi bi-journal-x"></i>
+        <p>Aucun repas analysé cette semaine.</p>
+        <a routerLink="/patient/nutrition" class="btn-analyze">
+          <i class="bi bi-cpu-fill"></i> Analyser un repas
+        </a>
+      </div>
+
+      <!-- SVG courbe -->
+      <div class="svg-container" *ngIf="hasData">
+
+        <div class="y-labels">
+          <span>{{ getMaxY() | number:'1.0-0' }}g</span>
+          <span>{{ getMaxY() / 2 | number:'1.0-0' }}g</span>
+          <span>0g</span>
+        </div>
+
+        <div class="svg-body">
+          <svg [attr.viewBox]="'0 0 ' + W + ' ' + H"
+               class="the-svg" preserveAspectRatio="none">
+
+            <!-- Dégradé vert -->
+            <defs>
+              <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stop-color="#10b981" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#10b981" stop-opacity="0.02"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Grilles horizontales -->
+            <line x1="0" [attr.y1]="grid1" [attr.x2]="W" [attr.y2]="grid1"
+                  stroke="#f3f4f6" stroke-width="1"/>
+            <line x1="0" [attr.y1]="grid2" [attr.x2]="W" [attr.y2]="grid2"
+                  stroke="#f3f4f6" stroke-width="1"/>
+            <line x1="0" [attr.y1]="grid3" [attr.x2]="W" [attr.y2]="grid3"
+                  stroke="#f3f4f6" stroke-width="1"/>
+
+            <!-- Zone sous la courbe -->
+            <path [attr.d]="getAreaPath()" fill="url(#areaGrad)"/>
+
+            <!-- Ligne objectif (rouge pointillée) -->
+            <line x1="0" [attr.y1]="getObjectiveY()"
+                  [attr.x2]="W" [attr.y2]="getObjectiveY()"
+                  stroke="#ef4444" stroke-width="2"
+                  stroke-dasharray="10,6" opacity="0.8"/>
+
+            <!-- Label objectif -->
+            <rect [attr.x]="labelRectX" [attr.y]="objRectY"
+                  width="88" height="14" rx="4"
+                  fill="white" opacity="0.9"/>
+            <text [attr.x]="labelTextX" [attr.y]="objTextY"
+                  text-anchor="middle" font-size="10"
+                  fill="#ef4444" font-weight="600">
+              Objectif {{ targetCarbs }}g
+            </text>
+
+            <!-- Courbe lissée -->
+            <path [attr.d]="getCurvePath()"
+                  fill="none" stroke="#10b981"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"/>
+
+            <!-- Points + valeurs -->
+            <ng-container *ngFor="let pt of getPoints(); let i = index">
+
+              <!-- Valeur au-dessus si données -->
+              <text *ngIf="weekData[i].entries > 0"
+                    [attr.x]="pt.x"
+                    [attr.y]="getPtLabelY(pt.y)"
+                    text-anchor="middle"
+                    font-size="11"
+                    [attr.fill]="pointColor(weekData[i])"
+                    font-weight="700">
+                {{ pt.carbs }}g
+              </text>
+
+              <!-- Point coloré -->
+              <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="6"
+                      [attr.fill]="pointColor(weekData[i])"
+                      stroke="white" stroke-width="2.5"/>
+
+              <!-- Tiret si pas de données -->
+              <text *ngIf="weekData[i].entries === 0"
+                    [attr.x]="pt.x" [attr.y]="emptyDotY"
+                    text-anchor="middle" font-size="10" fill="#d1d5db">
+                —
+              </text>
+
+            </ng-container>
+
+          </svg>
+
+          <!-- Labels X (jours) -->
+          <div class="x-labels">
+            <div class="x-item" *ngFor="let d of weekData"
+                 [class.today]="d.isToday">
+              <span class="x-day">{{ d.label }}</span>
+              <span class="x-status">{{ getDayStatus(d) }}</span>
+              <span class="x-diff" *ngIf="d.entries > 0"
+                    [style.color]="getDiffColor(d)">
+                {{ getDiff(d) }}
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Légende couleurs -->
+      <div class="color-legend">
+        <span><span class="cl-dot" style="background:#10b981"></span> Respecté</span>
+        <span><span class="cl-dot" style="background:#f59e0b"></span> Limite (85–100%)</span>
+        <span><span class="cl-dot" style="background:#ef4444"></span> Dépassement</span>
+        <span><span class="cl-dot" style="background:#e5e7eb"></span> Pas de données</span>
+      </div>
+
+    </div>
+
+    <!-- ── CTA ───────────────────────────────────────────────── -->
+    <div class="cta-row">
+      <a routerLink="/patient/nutrition" class="cta-btn nutrition">
+        <i class="bi bi-cpu-fill"></i> Analyser un repas
+      </a>
+      <a routerLink="/patient/my-plans" class="cta-btn plans">
+        <i class="bi bi-journal-text"></i> Voir mon plan
+      </a>
+      <a routerLink="/patient/chat" class="cta-btn chat">
+        <i class="bi bi-chat-dots-fill"></i> Mon nutritionniste
+      </a>
+    </div>
+
+  </ng-container>
+</div>

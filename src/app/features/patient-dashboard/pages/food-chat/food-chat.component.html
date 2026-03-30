@@ -43,25 +43,29 @@
              [class.patient-row]="msg.type === 'patient'"
              [class.ai-row]="msg.type === 'ai' || msg.type === 'loading'">
 
-          <!-- AI avatar -->
-          <div class="msg-avatar ai-avatar-sm" *ngIf="msg.type === 'ai' || msg.type === 'loading'">
+          <!-- Avatar AI -->
+          <div class="msg-avatar ai-avatar-sm"
+               *ngIf="msg.type === 'ai' || msg.type === 'loading'">
             <i class="bi bi-cpu-fill"></i>
           </div>
 
-          <!-- Loading bubble -->
+          <!-- Loading dots -->
           <div class="bubble loading-bubble" *ngIf="msg.type === 'loading'">
-            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
           </div>
 
-          <!-- Text message bubble -->
-          <div class="bubble text-bubble" *ngIf="msg.type !== 'loading' && !msg.result"
+          <!-- Texte simple (sans résultat ML) -->
+          <div class="bubble text-bubble"
+               *ngIf="msg.type !== 'loading' && !msg.result"
                [class.patient-bubble]="msg.type === 'patient'"
                [class.ai-bubble]="msg.type === 'ai'">
             {{ msg.text }}
             <span class="msg-time">{{ msg.timestamp | date:'HH:mm' }}</span>
           </div>
 
-          <!-- AI Result Card -->
+                  <!-- AI Result Card -->
           <div class="result-card" *ngIf="msg.type === 'ai' && msg.result">
             <div class="result-header">
               <i class="bi bi-check-circle-fill text-success"></i>
@@ -249,26 +253,40 @@
       </div>
 
     </div>
-
     <!-- History Sidebar -->
     <div class="history-sidebar" *ngIf="showHistory">
+
       <h3 class="history-title">Historique alimentaire</h3>
+
       <div class="history-empty" *ngIf="history.length === 0">
         <i class="bi bi-journal-x"></i>
         <p>Aucune entrée pour l'instant</p>
       </div>
+
       <div class="history-entry" *ngFor="let entry of history">
+
+        <button class="btn-delete" (click)="deleteEntry(entry.id!)">
+          <i class="bi bi-trash"></i>
+        </button>
+
         <div class="entry-text">{{ entry.text }}</div>
-        <div class="entry-date">{{ entry.createdAt | date:'dd/MM HH:mm' }}</div>
+
+        <div class="entry-date">
+          {{ entry.createdAt | date:'dd/MM HH:mm' }}
+        </div>
+
         <div class="entry-foods" *ngIf="entry.parsedResult?.foods">
           <span class="food-tag" *ngFor="let f of entry.parsedResult!.foods">
             {{ f.name }}
           </span>
         </div>
+
         <div class="entry-cals" *ngIf="entry.parsedResult?.foods">
           {{ getTotals(entry.parsedResult!.foods).calories | number:'1.0-0' }} kcal total
         </div>
+
       </div>
+
     </div>
 
   </div>

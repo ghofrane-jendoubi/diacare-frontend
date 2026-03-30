@@ -1,4 +1,15 @@
+/* patient-layout.component.css */
 .patient-content {
-  margin-top: 80px; /* Hauteur de la navbar */
-  min-height: calc(100vh - 80px - 300px); /* Hauteur totale - navbar - footer */
+  margin-top: 80px;
+  min-height: calc(100vh - 80px - 300px);
+}
+
+/* Quand sidebar nutrition visible → décaler le contenu */
+.with-sidebar {
+  margin-left: 240px; /* largeur de la nutrition-tabs sidebar */
+  transition: margin-left 0.3s ease;
+}
+/* ← Ajoute ça : footer suit le même décalage */
+app-footer {
+  display: block;
 }

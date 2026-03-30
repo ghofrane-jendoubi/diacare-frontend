@@ -16,7 +16,7 @@
 .page-header h1 {
   font-size: 22px;
   font-weight: 600;
-  color: #065f46;
+  color: #1e3a8a;
   margin-bottom: 4px;
 }
 
@@ -24,7 +24,7 @@
 
 .btn-chat {
   padding: 10px 20px;
-  background: #10b981;
+  background: #2563eb;
   color: white;
   border-radius: 10px;
   text-decoration: none;
@@ -35,7 +35,7 @@
   transition: background 0.2s;
 }
 
-.btn-chat:hover { background: #059669; color: white; }
+.btn-chat:hover { background: #1d4ed8; color: white; }
 
 .loading-state {
   text-align: center;
@@ -58,7 +58,7 @@
   color: #9ca3af;
 }
 
-.empty-state i { font-size: 48px; display: block; margin-bottom: 16px; color: #d1fae5; }
+.empty-state i { font-size: 48px; display: block; margin-bottom: 16px; color: #dbeafe; }
 .empty-state h3 { color: #374151; margin-bottom: 8px; }
 .empty-state p { font-size: 14px; margin-bottom: 6px; }
 
@@ -66,7 +66,7 @@
   display: inline-block;
   margin-top: 16px;
   padding: 10px 24px;
-  background: #10b981;
+  background: #2563eb;
   color: white;
   border-radius: 10px;
   text-decoration: none;
@@ -86,7 +86,7 @@
   background: #fff;
   border-radius: 12px;
   padding: 16px;
-  border: 1px solid #d1fae5;
+  border: 1px solid #dbeafe;
 }
 
 .list-title {
@@ -109,24 +109,24 @@
   margin-bottom: 4px;
 }
 
-.plan-card-mini:hover { background: #f0fdf4; }
-.plan-card-mini.active { background: #d1fae5; }
+.plan-card-mini:hover { background: #eff6ff; }
+.plan-card-mini.active { background: #dbeafe; }
 
 .plan-mini-icon {
   width: 36px;
   height: 36px;
-  background: #ecfdf5;
+  background: #eff6ff;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #10b981;
+  color: #2563eb;
   font-size: 16px;
   flex-shrink: 0;
 }
 
 .plan-card-mini.active .plan-mini-icon {
-  background: #10b981;
+  background: #2563eb;
   color: white;
 }
 
@@ -143,14 +143,14 @@
 .plan-detail {
   background: #fff;
   border-radius: 12px;
-  border: 1px solid #d1fae5;
+  border: 1px solid #dbeafe;
   overflow: hidden;
 }
 
 .detail-header {
   padding: 20px 24px;
-  background: #ecfdf5;
-  border-bottom: 1px solid #d1fae5;
+  background: #eff6ff;
+  border-bottom: 1px solid #dbeafe;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -159,7 +159,7 @@
 .detail-header h2 {
   font-size: 18px;
   font-weight: 600;
-  color: #065f46;
+  color: #1e3a8a;
   margin-bottom: 4px;
 }
 
@@ -173,7 +173,7 @@
 }
 
 .detail-meta span { font-size: 12px; color: #6b7280; }
-.detail-meta i { margin-right: 4px; color: #10b981; }
+.detail-meta i { margin-right: 4px; color: #2563eb; }
 
 /* Meals */
 .meals-day { padding: 20px 24px; }
@@ -187,8 +187,8 @@
 .meal-type-label {
   font-size: 14px;
   font-weight: 600;
-  color: #065f46;
-  background: #ecfdf5;
+  color: #1e3a8a;
+  background: #eff6ff;
   padding: 4px 12px;
   border-radius: 20px;
 }
@@ -198,7 +198,7 @@
   background: #f9fafb;
   border-radius: 8px;
   margin-bottom: 6px;
-  border-left: 3px solid #10b981;
+  border-left: 3px solid #2563eb;
 }
 
 .meal-food {
@@ -209,7 +209,7 @@
 
 .meal-cals {
   font-size: 12px;
-  color: #10b981;
+  color: #2563eb;
   font-weight: 600;
   margin-top: 2px;
 }
@@ -225,6 +225,25 @@
   text-align: center;
   padding: 40px;
   color: #9ca3af;
+}
+
+.plan-macros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 24px;
+  border-bottom: 1px solid #dbeafe;
+  background: #f9fafb;
+}
+
+.macro-chip {
+  padding: 4px 12px;
+  background: white;
+  border: 1px solid #dbeafe;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1e3a8a;
 }
 
 .no-meals i { font-size: 32px; display: block; margin-bottom: 8px; }

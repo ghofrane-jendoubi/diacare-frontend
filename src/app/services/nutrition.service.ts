@@ -89,23 +89,28 @@ export class NutritionService {
 
   // ── HELPERS ────────────────────────────────────────────────────
 
-  parseAnalysisResult(entry: FoodEntry): FoodAnalysisResult | null {
-    try {
-      if (!entry.analysisResult) return null;
-      const raw = JSON.parse(entry.analysisResult);
-      const foods: FoodItem[] = (raw.foods_detected || []).map((f: any) => ({
-        name: f.food,
-        calories: f.calories,
-        carbs: f.carbs,
-        protein: f.protein,
-        fat: f.fat,
-        fiber: f.fibre,
-      }));
-      return { foods, rawText: raw.text || entry.text };
-    } catch {
-      return null;
-    }
+parseAnalysisResult(entry: FoodEntry): FoodAnalysisResult | null {
+  try {
+    if (!entry.analysisResult) return null;
+
+    // ← Trim pour enlever le \n à la fin
+    const raw = JSON.parse(entry.analysisResult.trim());
+
+    const foods: FoodItem[] = (raw.foods_detected || []).map((f: any) => ({
+      name:     f.food,
+      calories: f.calories,
+      carbs:    f.carbs,
+      protein:  f.protein,
+      fat:      f.fat,
+      fiber:    f.fibre,    // ← ton Flask retourne 'fibre' pas 'fiber'
+    }));
+
+    return { foods, rawText: raw.text || entry.text };
+  } catch (e) {
+    console.error('parseAnalysisResult error:', e);
+    return null;
   }
+}
 
   extractFoodsFromClarifai(response: any): string[] {
     const concepts = response?.outputs?.[0]?.data?.concepts || [];
@@ -152,4 +157,10 @@ export class NutritionService {
     if (bmi < 30) return 'Surpoids';
     return 'Obésité';
   }
+  deleteFoodEntry(id: number): Observable<void> {
+  return this.http.delete<void>(
+    `${this.apiUrl}/foods/${id}`,
+    { headers: this.getHeaders() }
+  );
+}
 }

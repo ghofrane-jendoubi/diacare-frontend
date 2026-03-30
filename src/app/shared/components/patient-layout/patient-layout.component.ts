@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-patient-layout',
@@ -6,6 +8,36 @@ import { Component } from '@angular/core';
   styleUrls: ['./patient-layout.component.css']
 })
 export class PatientLayoutComponent {
+   // ← déjà dans ton HTML : *ngIf="showNutritionTabs"
+  showNutritionTabs = false;
+
+  private nutritionRoutes = [
+    '/patient/nutrition',
+    '/patient/my-plans',
+    '/patient/profile',
+    '/patient/chat'
+  ];
+
+  constructor(private router: Router) {}
+
+  ngOnInit(): void {
+    // Vérifier au chargement initial
+    this.checkRoute(this.router.url);
+
+    // Vérifier à chaque navigation
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd)
+    ).subscribe((e: any) => {
+      this.checkRoute(e.urlAfterRedirects);
+    });
+  }
+
+  private checkRoute(url: string): void {
+    this.showNutritionTabs = this.nutritionRoutes
+      .some(route => url.startsWith(route));
+  }
+
+
   // Menu patient
   patientMenuItems = [
     { id: 'doctors', label: 'Médecins', icon: 'bi bi-person-badge', link: '/patient/doctors' },
@@ -17,6 +49,4 @@ export class PatientLayoutComponent {
     { id: 'reclamations', label: 'Support', icon: 'bi bi-exclamation-triangle', link: '/patient/reclamations' }
   ];
 
-  // ⚡ Propriété manquante pour le template
-  showNutritionTabs = true; // ou false selon ton besoin
 }

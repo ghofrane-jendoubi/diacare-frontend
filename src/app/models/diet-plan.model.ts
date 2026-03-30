@@ -23,22 +23,29 @@ export interface FoodEntry {
   parsedResult?: FoodAnalysisResult;
 }
 
-export interface DietMeal {
-  id?: number;
-  mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
-  food: string;
-  calories?: number;
-  notes?: string;
-}
-
 export interface DietPlan {
   id?: number;
   title: string;
-  description: string;
-  patientId: number;
-  nutritionistId?: number;
-  meals?: DietMeal[];
+  description?: string;
+  status?: string;
+  targetCalories?: number;
+  targetCarbs?: number;
+  targetProtein?: number;
+  targetFat?: number;
   createdAt?: string;
+  meals?: DietMeal[];
+  patient?: any;        // ← objet User
+  nutritionist?: any;   // ← objet User
+}
+
+export interface DietMeal {
+  id?: number;
+  mealType: string;
+  food: string;
+  targetCarbs?: number;
+  calories?: number;    // ← gardé pour compatibilité
+  notes?: string;
+  dietPlan?: any;
 }
 // ==================== NOUVELLES INTERFACES POUR PATIENT-LIST ====================
 // Ces interfaces sont ajoutées sans modifier les interfaces existantes
@@ -131,4 +138,17 @@ export interface GlucoseLevel {
   date: Date;
   value: number;
   mealTime?: string;
+}
+// ==================== CHAT ====================
+
+export interface ChatMessage {
+  id?: number;
+  content: string;
+  senderId: number;
+  senderRole: 'patient' | 'nutritionist';
+  receiverId: number;
+  receiverRole: 'patient' | 'nutritionist';
+  patientId: number;
+  isRead?: boolean;
+  createdAt?: string;
 }

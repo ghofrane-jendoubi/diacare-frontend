@@ -8,12 +8,16 @@ import { DietPlanViewComponent } from './pages/diet-plan-view/diet-plan-view.com
 import { RouterModule } from '@angular/router';
 import { SharedModule } from '../../shared/shared.module';
 import { PatientProfileComponent } from './pages/patient-profile/patient-profile.component';
+import { PatientChatComponent } from './pages/patient-chat/patient-chat.component';
+import { ProgressComponent } from './pages/progress/progress.component';
 
 @NgModule({
   declarations: [
     FoodChatComponent,
     DietPlanViewComponent,
-    PatientProfileComponent
+    PatientProfileComponent,
+    PatientChatComponent,
+    ProgressComponent
   ],
   imports: [
     CommonModule,
