@@ -27,6 +27,7 @@ export class ProductService {
   addWithImage(formData: FormData): Observable<any> {
     return this.http.post(`${this.apiUrl}/upload`, formData);
   }
+  
 
   // ✅ UPDATE
   update(id: number, product: Product): Observable<Product> {
@@ -34,9 +35,9 @@ export class ProductService {
   }
 
   // ✅ UPDATE WITH IMAGE
-  updateWithImage(id: number, formData: FormData): Observable<any> {
-    return this.http.put(`${this.apiUrl}/upload/${id}`, formData);
-  }
+  updateWithImage(id: number, formData: FormData) {
+  return this.http.put<Product>(`/api/products/${id}`, formData);
+}
 
   // ✅ DELETE
   delete(id: number) {

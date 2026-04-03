@@ -1,121 +1,115 @@
 <app-navbar></app-navbar>
 
 <div class="container py-5" style="margin-top: 100px;">
-  <div class="row g-4">
-    <!-- Cart Section -->
-    <div class="col-lg-6">
-      <div class="card border-0 shadow-sm rounded-4 h-100">
-        <div class="card-body p-4">
-          <h2 class="mb-4">
-            <i class="bi bi-cart3 me-2"></i> Panier
-          </h2>
+  <!-- ==================== EMAIL ACTION MODE ==================== -->
+  <div *ngIf="action">
+    <div *ngIf="emailActionProcessing" class="text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-2">
+        {{ action === 'confirm' ? 'Confirmation en cours...' : 'Annulation en cours...' }}
+      </p>
+    </div>
+    <div *ngIf="emailActionError" class="alert alert-danger text-center">{{ emailActionError }}</div>
+    <div *ngIf="emailActionSuccess && action === 'confirm'" class="text-center">
+      <i class="bi bi-check-circle-fill fs-1 text-success"></i>
+      <h2>Commande confirmée !</h2>
+      <p>Votre commande n°{{ emailActionOrder?.id }} a été confirmée.</p>
+      <p>La facture a été téléchargée automatiquement.</p>
+      <a routerLink="/orders" class="btn btn-primary">Voir mes commandes</a>
+    </div>
+    <div *ngIf="emailActionSuccess && action === 'cancel'" class="text-center">
+      <i class="bi bi-x-circle-fill fs-1 text-danger"></i>
+      <h2>Commande annulée</h2>
+      <p>Votre commande a bien été annulée.</p>
+      <a routerLink="/orders" class="btn btn-primary">Voir mes commandes</a>
+    </div>
+  </div>
 
-          <!-- Cart Items -->
-          <div *ngIf="cart?.items?.length > 0; else emptyCart">
-            <div *ngFor="let item of cart.items" class="d-flex align-items-center mb-3 pb-2 border-bottom">
-              <div class="bg-light rounded-3 p-2 me-3" style="width: 70px; height: 70px;">
-                <img [src]="'http://localhost:8080/api/products/images/' + item.product.image"
-                     class="img-fluid rounded-3"
-                     style="max-height: 100%; object-fit: contain;"
-                     alt="{{ item.product.name }}"
-                     onerror="this.src='assets/placeholder.png'">
+  <!-- ==================== NORMAL PAYMENT MODE ==================== -->
+  <div *ngIf="!action">
+    <div class="row g-4">
+      <!-- Cart section -->
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+          <div class="card-body p-4">
+            <h2 class="mb-4"><i class="bi bi-cart3 me-2"></i> Panier</h2>
+            <div *ngIf="cart?.items?.length > 0; else emptyCart">
+              <div *ngFor="let item of cart.items" class="d-flex align-items-center mb-3 pb-2 border-bottom">
+                <div class="bg-light rounded-3 p-2 me-3" style="width: 70px; height: 70px;">
+                  <img [src]="'http://localhost:8080/api/products/images/' + item.product.image"
+                       class="img-fluid rounded-3"
+                       style="max-height: 100%; object-fit: contain;"
+                       alt="{{ item.product.name }}"
+                       onerror="this.src='assets/placeholder.png'">
+                </div>
+                <div class="flex-grow-1">
+                  <h5 class="mb-1 fw-semibold">{{ item.product.name }}</h5>
+                  <p class="text-muted mb-0 small">{{ item.quantity }} x {{ item.product.price }} DT</p>
+                </div>
+                <div class="fw-bold text-primary">{{ item.product.price * item.quantity }} DT</div>
               </div>
-              <div class="flex-grow-1">
-                <h5 class="mb-1 fw-semibold">{{ item.product.name }}</h5>
-                <p class="text-muted mb-0 small">
-                  {{ item.quantity }} x {{ item.product.price }} DT
-                </p>
-              </div>
-              <div class="fw-bold text-primary">
-                {{ item.product.price * item.quantity }} DT
+              <div class="d-flex justify-content-between mt-4 pt-2 border-top">
+                <span class="fs-5 fw-semibold">Total</span>
+                <span class="fs-5 fw-bold text-primary">{{ total }} DT</span>
               </div>
             </div>
-
-            <div class="d-flex justify-content-between mt-4 pt-2 border-top">
-              <span class="fs-5 fw-semibold">Total</span>
-              <span class="fs-5 fw-bold text-primary">{{ total }} DT</span>
-            </div>
+            <ng-template #emptyCart>
+              <div class="text-center py-4">
+                <i class="bi bi-cart-x fs-1 text-muted"></i>
+                <p class="mt-3 text-muted">Votre panier est vide.</p>
+                <a routerLink="/products" class="btn btn-outline-primary rounded-pill">
+                  <i class="bi bi-arrow-left me-2"></i> Retour aux produits
+                </a>
+              </div>
+            </ng-template>
           </div>
-
-          <ng-template #emptyCart>
-            <div class="text-center py-4">
-              <i class="bi bi-cart-x fs-1 text-muted"></i>
-              <p class="mt-3 text-muted">Votre panier est vide.</p>
-              <a routerLink="/products" class="btn btn-outline-primary rounded-pill">
-                <i class="bi bi-arrow-left me-2"></i> Retour aux produits
-              </a>
-            </div>
-          </ng-template>
         </div>
       </div>
-    </div>
 
-    <!-- Payment Section -->
-    <div class="col-lg-6">
-      <div class="card border-0 shadow-sm rounded-4 h-100">
-        <div class="card-body p-4">
-          <h2 class="mb-4">
-            <i class="bi bi-credit-card me-2"></i> Paiement
-          </h2>
-
-          <form (ngSubmit)="payer()" #paymentForm="ngForm">
-            <div class="mb-3">
-              <label class="form-label">Nom du titulaire</label>
-              <div class="input-group">
-                <span class="input-group-text bg-white border-end-0">
-                  <i class="bi bi-person"></i>
-                </span>
-                <input type="text"
-                       class="form-control border-start-0"
-                       [(ngModel)]="nom"
-                       name="nom"
-                       placeholder="Jean Dupont"
-                       required>
+      <!-- Payment form -->
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+          <div class="card-body p-4">
+            <h2 class="mb-4"><i class="bi bi-credit-card me-2"></i> Paiement</h2>
+            <form (ngSubmit)="payer()" #paymentForm="ngForm">
+              <div class="mb-3">
+                <label class="form-label">Nom du titulaire</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-white border-end-0"><i class="bi bi-person"></i></span>
+                  <input type="text" class="form-control border-start-0" [(ngModel)]="nom" name="nom" placeholder="Jean Dupont" required>
+                </div>
               </div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Numéro de carte</label>
-              <div class="input-group">
-                <span class="input-group-text bg-white border-end-0">
-                  <i class="bi bi-credit-card"></i>
-                </span>
-                <input type="text"
-                       class="form-control border-start-0"
-                       [(ngModel)]="numero"
-                       name="numero"
-                       placeholder="1234 5678 9012 3456"
-                       required>
+              <div class="mb-3">
+                <label class="form-label">Numéro de carte</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-white border-end-0"><i class="bi bi-credit-card"></i></span>
+                  <input type="text" class="form-control border-start-0" [(ngModel)]="numero" name="numero" placeholder="1234 5678 9012 3456" required>
+                </div>
               </div>
-            </div>
-
-            <div class="row g-3 mb-4">
-              <div class="col-md-6">
-                <label class="form-label">Date d'expiration</label>
-                <input type="text"
-                       class="form-control"
-                       [(ngModel)]="date"
-                       name="date"
-                       placeholder="MM/YY"
-                       required>
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Date d'expiration</label>
+                  <input type="text" class="form-control" [(ngModel)]="date" name="date" placeholder="MM/YY" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">CVC</label>
+                  <input type="text" class="form-control" [(ngModel)]="cvc" name="cvc" placeholder="123" required>
+                </div>
               </div>
-              <div class="col-md-6">
-                <label class="form-label">CVC</label>
-                <input type="text"
-                       class="form-control"
-                       [(ngModel)]="cvc"
-                       name="cvc"
-                       placeholder="123"
-                       required>
+              <div class="mb-4">
+                <label class="form-label">Adresse email</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-white border-end-0"><i class="bi bi-envelope"></i></span>
+                  <input type="email" class="form-control border-start-0" [(ngModel)]="email" name="email" placeholder="votre@email.com" required>
+                </div>
               </div>
-            </div>
-
-            <button type="submit"
-                    class="btn btn-primary w-100 rounded-pill py-2"
-                    [disabled]="!cart?.items?.length">
-              <i class="bi bi-lock me-2"></i> Payer maintenant
-            </button>
-          </form>
+              <button type="submit" class="btn btn-primary w-100 rounded-pill py-2" [disabled]="!cart?.items?.length">
+                <i class="bi bi-lock me-2"></i> Payer maintenant
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>

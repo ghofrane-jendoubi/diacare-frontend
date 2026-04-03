@@ -15,7 +15,8 @@ import { FormsModule } from '@angular/forms';
   imports: [
     CommonModule,
     MarketplaceRoutingModule,
-    FormsModule
+    FormsModule,
+    
   ]
 })
 export class MarketplaceModule { }

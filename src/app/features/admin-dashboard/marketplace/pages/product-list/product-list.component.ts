@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { ProductService } from '../../../../../services/serv-market/product.service';
 import { Product } from '../../../../../models/product';
+import { ChartConfiguration } from 'chart.js';
+import { isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-product-list',
@@ -49,30 +51,41 @@ export class ProductListComponent implements OnInit {
   };
   selectedFile: File | null = null;
   imagePreview: string | null = null;
-
+  totalProducts = 0;
+alimentaireCount = 0;
+medicalCount = 0;
+lowStockCount = 0;
+totalStock = 0;
+isBrowser = false;
   constructor(
     public productService: ProductService,
-    private router: Router
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
+  ngAfterViewInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.isBrowser = true;
+    }}
 
   ngOnInit(): void {
     this.loadProducts();
   }
 
   loadProducts(): void {
-    this.isLoading = true;
-    this.productService.getAll().subscribe({
-      next: (data) => {
-        this.products = data;
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Error loading products:', err);
-        this.errorMessage = 'Failed to load products. Please try again.';
-        this.isLoading = false;
-      }
-    });
-  }
+  this.isLoading = true;
+  this.productService.getAll().subscribe({
+    next: (data) => {
+      this.products = data;
+      this.isLoading = false;
+      this.calculateStats(); // ← ADD THIS LINE
+    },
+    error: (err) => {
+      console.error('Error loading products:', err);
+      this.errorMessage = 'Failed to load products. Please try again.';
+      this.isLoading = false;
+    }
+  });
+}
 
   // -------------------- Delete --------------------
   deleteProduct(id: number): void {
@@ -195,40 +208,36 @@ export class ProductListComponent implements OnInit {
   }
 
   updateProduct(): void {
-
-  if (!this.selectedProduct.name || this.selectedProduct.name.length < 3) {
-    this.errorMessage = "Nom invalide";
-    return;
-  }
-
-  if (!this.selectedProduct.price || this.selectedProduct.price <= 0) {
-    this.errorMessage = "Prix invalide";
-    return;
-  }
-
-  if (!this.selectedProduct.type) {
-    this.errorMessage = "Type obligatoire";
+  if (!this.selectedProduct.name || !this.selectedProduct.type || this.selectedProduct.price <= 0) {
+    alert('Veuillez remplir correctement tous les champs obligatoires.');
     return;
   }
 
   const formData = new FormData();
+  formData.append('id', this.selectedProduct.id!.toString());
   formData.append('name', this.selectedProduct.name);
   formData.append('price', this.selectedProduct.price.toString());
   formData.append('type', this.selectedProduct.type);
-
-  if (this.selectedFile) formData.append('image', this.selectedFile);
   if (this.selectedProduct.barcode) formData.append('barcode', this.selectedProduct.barcode);
-  if (this.selectedProduct.stock) formData.append('stock', this.selectedProduct.stock.toString());
-  if (this.selectedProduct.sugarLevel) formData.append('sugarLevel', this.selectedProduct.sugarLevel.toString());
+  if (this.selectedProduct.stock != null) formData.append('stock', this.selectedProduct.stock.toString());
+  if (this.selectedProduct.sugarLevel != null) formData.append('sugarLevel', this.selectedProduct.sugarLevel.toString());
   if (this.selectedProduct.description) formData.append('description', this.selectedProduct.description);
+  if (this.selectedFile) formData.append('image', this.selectedFile);
 
   this.productService.updateWithImage(this.selectedProduct.id!, formData).subscribe({
-    next: () => {
-      this.closeEditModal();
-      this.loadProducts();
+    next: (updatedProduct) => {
+      // Replace the old product in the list with the updated one
+      const index = this.products.findIndex(p => p.id === updatedProduct.id);
+      if (index > -1) this.products[index] = updatedProduct;
+
+      this.showEditModal = false;
+      this.selectedFile = null;
+      this.imagePreview = null;
+      this.showNotification('Produit mis à jour avec succès ✔', 'success');
     },
-    error: () => {
-      this.errorMessage = "Échec de mise à jour";
+    error: (err) => {
+      console.error('Erreur mise à jour produit:', err);
+      this.showNotification('Erreur lors de la mise à jour du produit', 'error');
     }
   });
 }
@@ -247,4 +256,45 @@ export class ProductListComponent implements OnInit {
   private showNotification(message: string, type: 'success' | 'error'): void {
     alert(message); // Replace with a toast notification if desired
   }
+  // Chart data
+ public barChartData: ChartConfiguration<'bar'>['data'] = {
+    labels: ['Alimentaire', 'Médical', 'Stock bas'],
+    datasets: [
+      {
+        data: [0, 0, 0],
+        label: 'Nombre de produits',
+        backgroundColor: ['#28a745', '#dc3545', '#ffc107'],
+        borderRadius: 8
+      }
+    ]
+  };
+
+  public barChartOptions: ChartConfiguration<'bar'>['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top' as const,    // fixes the type error
+      },
+      title: {
+        display: true,
+        text: 'Répartition des produits'
+      }
+    }};
+calculateStats(): void {
+  console.log('Products length:', this.products.length);
+  console.log('First product type:', this.products[0]?.type);
+  console.log('All types:', this.products.map(p => p.type));
+
+  this.totalProducts = this.products.length;
+  this.alimentaireCount = this.products.filter(p => p.type === 'ALIMENTAIRE').length;
+  this.medicalCount = this.products.filter(p => p.type === 'MEDICAL').length;
+  this.lowStockCount = this.products.filter(p => p.stock < 10).length;
+  this.totalStock = this.products.reduce((sum, p) => sum + p.stock, 0);
+
+  console.log('alimentaireCount:', this.alimentaireCount);
+  console.log('medicalCount:', this.medicalCount);
+  console.log('lowStockCount:', this.lowStockCount);
+}
+
 }

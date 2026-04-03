@@ -11,7 +11,10 @@ const routes: Routes = [
   { path: 'marketplace', component: MarketplacePatientComponent },
   { path: 'cart', component: CartComponent },
   { path: 'orders', component: OrdersComponent },
-  { path: 'paiement', component: PaiementComponent }
+  {
+  path: 'paiement',
+  component: PaiementComponent
+}
 ];
 
 @NgModule({

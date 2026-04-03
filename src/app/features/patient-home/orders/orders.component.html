@@ -34,7 +34,7 @@
         <!-- Header -->
         <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
           <div class="row align-items-center g-3">
-            <div class="col-md-6">
+            <div class="col-md-8">
               <div class="d-flex flex-wrap gap-3">
                 <span class="badge bg-light text-dark rounded-pill px-3 py-2">
                   <i class="bi bi-upc-scan me-1"></i> #{{ order.id }}
@@ -51,10 +51,23 @@
                 </span>
               </div>
             </div>
-            <div class="col-md-6 text-md-end">
-              <h5 class="mb-0 text-primary">
+            <div class="col-md-4 text-md-end">
+              <h5 class="mb-2 text-primary">
                 Total: {{ order.totalPrice | number:'1.2-2' }} DT
               </h5>
+              <div class="d-flex justify-content-md-end gap-2">
+                <!-- Payment button (only if not paid/delivered) -->
+                <button *ngIf="order.status !== 'PAID' && order.status !== 'LIVRÉ' && order.status !== 'DELIVERED'"
+        class="btn btn-sm btn-success rounded-pill px-3"
+        (click)="goToPayment(order)">
+  <i class="bi bi-credit-card me-1"></i> Payer
+</button>
+                <!-- Delete button -->
+                <button class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                        (click)="deleteOrder(order.id)">
+                  <i class="bi bi-trash3 me-1"></i> Supprimer
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -85,10 +98,11 @@
           </div>
         </div>
 
-        <!-- Footer (optional action) -->
+        <!-- Footer (tracking button) -->
         <div class="card-footer bg-white border-top-0 pb-4 pt-0">
           <div class="d-flex justify-content-end">
-            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" *ngIf="order.status !== 'LIVRÉ' && order.status !== 'DELIVERED'">
+            <button class="btn btn-sm btn-outline-primary rounded-pill px-3"
+                    *ngIf="order.status !== 'LIVRÉ' && order.status !== 'DELIVERED'">
               <i class="bi bi-truck me-1"></i> Suivre la commande
             </button>
           </div>

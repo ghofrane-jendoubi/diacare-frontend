@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { OrderService } from '../../../services/serv-market/order.service';
 import { Order } from '../../../models/order';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { PaiementService } from '../../../services/serv-market/paiement.service';
 @Component({
   selector: 'app-orders',
   templateUrl: './orders.component.html',
@@ -14,7 +16,9 @@ export class OrdersComponent implements OnInit {
   error = '';
 
   constructor(private orderService: OrderService,
-      private http: HttpClient
+      private http: HttpClient,
+      private router: Router,
+      private paiementService: PaiementService
 
   ) {}
 
@@ -43,4 +47,22 @@ pay(orderId: number) {
       this.loadOrders();
     });
 }
+deleteOrder(id: number): void {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette commande ?')) {
+      this.orderService.deleteOrder(id).subscribe({
+        next: () => {
+          // Remove from list locally
+          this.orders = this.orders.filter(o => o.id !== id);
+          console.log('Order deleted');
+        },
+        error: (err) => console.error('Error deleting order', err)
+      });
+    }}
+goToPayment(order: any): void {
+  localStorage.setItem('pendingOrder', JSON.stringify(order));
+  this.router.navigate(['/patient/paiement']);
 }
+
+}
+
+    

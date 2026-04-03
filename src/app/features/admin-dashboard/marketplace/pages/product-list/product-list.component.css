@@ -4,6 +4,7 @@
   padding: 40px;
   background: #f4f6f9;
   min-height: 100vh;
+  
 }
 
 /* Override Bootstrap primary button gradient */
@@ -56,4 +57,14 @@
   .btn-group .btn {
     padding: 0.25rem 0.5rem;
   }
+}
+.row.g-3.mb-4 {
+  margin-left: 0 ;
+  margin-right: 0 ;
+  padding: 0 16px;
+  justify-content: center;
+}
+:host {
+  display: block;
+  padding: 0 20px;
 }
