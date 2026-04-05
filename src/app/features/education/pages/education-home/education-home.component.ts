@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { EducationService } from '../../services/education.service';
 import { AuthService } from '../../../../shared/services/auth.service';
+import { Router } from '@angular/router';
 import { ContentSummary, ContentCategory, CATEGORY_LABELS, CATEGORY_ICONS } from '../../models/content';
 
 @Component({
@@ -22,6 +23,22 @@ export class EducationHomeComponent implements OnInit {
   pageSize = 9;
   activeTab: 'all' | 'featured' | 'bookmarks' = 'all';
 
+  // Propriétés pour le navbar
+  isScrolled = false;
+  isMobileMenuOpen = false;
+  isUserMenuOpen = false;
+  activeSection: string = '';
+  isLoggedIn = true; // Simuler l'utilisateur connecté
+
+  // Menu items pour le navbar
+  menuItems = [
+    { id: 'accueil', label: 'Accueil', link: '/patient/home' },
+    { id: 'services', label: 'Services', link: '/patient/education' },
+    { id: 'comment-ca-marche', label: 'Comment ça marche', link: '#comment-ca-marche' },
+    { id: 'temoignages', label: 'Témoignages', link: '/temoignages' },
+    { id: 'contact', label: 'Contact', link: '/contact' }
+  ];
+
   categories = Object.entries(CATEGORY_LABELS).map(([key, label]) => ({
     key: key as ContentCategory,
     label,
@@ -30,7 +47,8 @@ export class EducationHomeComponent implements OnInit {
 
   constructor(
     private educationService: EducationService,
-    public auth: AuthService
+    public auth: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -39,12 +57,63 @@ export class EducationHomeComponent implements OnInit {
     this.loadArticles();
   }
 
+  @HostListener('window:scroll', [])
+  onScroll() {
+    this.isScrolled = window.scrollY > 20;
+  }
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  toggleUserMenu() {
+    this.isUserMenuOpen = !this.isUserMenuOpen;
+  }
+
+  scrollTo(sectionId: string, event?: Event) {
+    if (event) {
+      event.preventDefault();
+    }
+    
+    // Si c'est un lien interne avec #
+    if (sectionId.startsWith('#')) {
+      const element = document.getElementById(sectionId.substring(1));
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // Sinon, naviguer vers la route
+      this.router.navigate([sectionId]);
+    }
+    
+    this.activeSection = sectionId;
+    this.isMobileMenuOpen = false;
+  }
+
+  getUserInitial(): string {
+    const name = this.auth.currentUser?.name || 'Sophie Martin';
+    return name ? name.split(' ').map(n => n.charAt(0)).join('').toUpperCase() : 'SM';
+  }
+
+  getUserName(): string {
+    return this.auth.currentUser?.name || 'Sophie Martin';
+  }
+
+  getUserEmail(): string {
+    return this.auth.currentUser?.email || 'sophie.martin@example.com';
+  }
+
+  logout() {
+    this.auth.logout();
+    this.router.navigate(['/login']);
+  }
+
   get currentUserName(): string {
-    return this.auth.currentUser?.name ?? 'Patient';
+    return this.auth.currentUser?.name ?? 'Sophie Martin';
   }
 
   get currentUserFirstName(): string {
-    return this.auth.currentUser?.name?.split(' ')[0] ?? 'Patient';
+    return this.auth.currentUser?.name?.split(' ')[0] ?? 'Sophie';
   }
 
   loadFeatured() {

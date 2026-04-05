@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { PatientCommentService } from '../../../patient-messaging/services/patient-comment.service';
 import { EducationComment } from '../../models/comment';
+import { EducationService } from '../../services/education.service';
 import { AuthService } from '../../../../shared/services/auth.service';
 
 @Component({
@@ -19,7 +19,7 @@ export class CommentSectionComponent implements OnInit {
   isLoading = false;
 
   constructor(
-    private patientCommentService: PatientCommentService,
+    private educationService: EducationService,
     private authService: AuthService
   ) {}
 
@@ -28,22 +28,39 @@ export class CommentSectionComponent implements OnInit {
   }
 
   loadComments(): void {
-    this.patientCommentService.getComments(this.contentId).subscribe(data => {
-      this.comments = data;
-      this.isLoading = false;
+    if (!this.contentId) return;
+    
+    this.isLoading = true;
+    this.educationService.getComments(this.contentId).subscribe({
+      next: (comments) => {
+        this.comments = comments;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Erreur chargement commentaires:', err);
+        this.isLoading = false;
+      }
     });
   }
 
   submitComment(): void {
-    if (!this.newComment.trim()) return;
+    if (!this.newComment.trim() || !this.contentId) return;
+    
     this.isSubmitting = true;
 
     const userName = this.authService.currentUser?.name || 'Patient DiaCare';
 
-    this.patientCommentService.addComment(this.contentId, this.newComment, undefined, userName).subscribe(comment => {
-      this.comments.unshift(comment);
-      this.newComment = '';
-      this.isSubmitting = false;
+    this.educationService.addComment(this.contentId, this.newComment, undefined, userName).subscribe({
+      next: (comment) => {
+        this.comments.unshift(comment);
+        this.newComment = '';
+        this.isSubmitting = false;
+      },
+      error: (err) => {
+        console.error('Erreur ajout commentaire:', err);
+        this.isSubmitting = false;
+        alert('Erreur lors de la publication du commentaire');
+      }
     });
   }
 

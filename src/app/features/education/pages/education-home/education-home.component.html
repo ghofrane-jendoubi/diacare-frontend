@@ -1,3 +1,113 @@
+<nav class="navbar" [class.scrolled]="isScrolled">
+  <div class="nav-container">
+    <!-- Logo -->
+    <div class="logo">
+      <div class="logo-icon">
+        <i class="bi bi-hexagon-fill"></i>
+        <span class="logo-text">DC</span>
+      </div>
+      <span class="brand-name">DiaCare</span>
+    </div>
+
+    <!-- Menu Desktop -->
+    <ul class="nav-links">
+      <ng-container *ngFor="let item of menuItems">
+        <li>
+          <a [href]="item.link" 
+             [class.active]="activeSection === item.id"
+             (click)="scrollTo(item.id, $event)">
+            {{ item.label }}
+          </a>
+        </li>
+      </ng-container>
+    </ul>
+
+    <!-- Profil utilisateur -->
+    <div class="nav-actions">
+      <ng-container *ngIf="!isLoggedIn; else userMenu">
+        <a routerLink="/login" class="btn btn-outline-primary">Se connecter</a>
+        <a routerLink="/register" class="btn btn-primary">S'inscrire</a>
+      </ng-container>
+      
+      <ng-template #userMenu>
+        <div class="user-menu">
+          <button class="user-button" (click)="toggleUserMenu()">
+            <div class="user-avatar">
+              <span>SM</span>
+            </div>
+            <span class="user-name">Sophie Martin</span>
+            <i class="bi bi-chevron-down" [class.rotated]="isUserMenuOpen"></i>
+          </button>
+          
+          <div class="dropdown-menu" [class.show]="isUserMenuOpen">
+            <div class="dropdown-header">
+              <div class="dropdown-user-info">
+                <strong>Sophie Martin</strong>
+                <span>sophie.m&#64;example.com</span>
+              </div>
+            </div>
+            
+            <a routerLink="/profile" class="dropdown-item">
+              <i class="bi bi-person"></i> Mon profil
+            </a>
+            <a routerLink="/appointments" class="dropdown-item">
+              <i class="bi bi-calendar"></i> Mes rendez-vous
+            </a>
+            <a routerLink="/orders" class="dropdown-item">
+              <i class="bi bi-box"></i> Mes commandes
+            </a>
+            
+            <div class="dropdown-divider"></div>
+            
+            <a routerLink="/settings" class="dropdown-item">
+              <i class="bi bi-gear"></i> Paramètres
+            </a>
+            <a (click)="logout()" class="dropdown-item text-danger">
+              <i class="bi bi-box-arrow-right"></i> Déconnexion
+            </a>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- Menu mobile toggle -->
+    <button class="mobile-toggle" (click)="toggleMobileMenu()">
+      <i class="bi" [ngClass]="isMobileMenuOpen ? 'bi-x' : 'bi-list'"></i>
+    </button>
+  </div>
+
+  <!-- Menu Mobile -->
+  <div class="mobile-menu" [class.open]="isMobileMenuOpen">
+    <ng-container *ngFor="let item of menuItems">
+      <a [href]="item.link" class="mobile-link" (click)="scrollTo(item.id, $event)">
+        {{ item.label }}
+      </a>
+    </ng-container>
+    
+    <div class="mobile-buttons">
+      <ng-container *ngIf="!isLoggedIn; else mobileUserMenu">
+        <a routerLink="/login" class="btn btn-outline-primary w-100 mb-2">Se connecter</a>
+        <a routerLink="/register" class="btn btn-primary w-100">S'inscrire</a>
+      </ng-container>
+      
+      <ng-template #mobileUserMenu>
+        <div class="mobile-user-header">
+          <div class="mobile-user-avatar">SM</div>
+          <div class="mobile-user-info">
+            <strong>Sophie Martin</strong>
+            <span>sophie.m&#64;example.com</span>
+          </div>
+        </div>
+        <a routerLink="/profile" class="btn btn-outline-primary w-100 mb-2">Mon profil</a>
+        <a routerLink="/appointments" class="btn btn-outline-primary w-100 mb-2">Mes rendez-vous</a>
+        <a routerLink="/orders" class="btn btn-outline-primary w-100 mb-2">Mes commandes</a>
+        <a routerLink="/settings" class="btn btn-outline-primary w-100 mb-2">Paramètres</a>
+        <a (click)="logout()" class="btn btn-danger w-100">Déconnexion</a>
+      </ng-template>
+    </div>
+  </div>
+</nav>
+
 <div class="education-container">
 
   <!-- Hero Section with Personalized Header -->

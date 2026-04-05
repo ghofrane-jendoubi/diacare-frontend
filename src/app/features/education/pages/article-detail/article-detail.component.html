@@ -196,15 +196,6 @@
           </svg>
           <span>Partager</span>
         </button>
-
-        <button class="action-btn message-btn"
-                *ngIf="userRole === 'PATIENT'"
-                (click)="openMessageModal()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
-          <span>Message au Dr.</span>
-        </button>
       </div>
 
       <app-comment-section
@@ -272,40 +263,6 @@
 
   </div>
 </div>
-
-<!-- ===== MESSAGE MODAL ===== -->
-<div class="modal fade" [class.show]="showMessageModal" [style.display]="showMessageModal ? 'block' : 'none'" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Envoyer un message au Dr. {{ article?.authorName }}</h5>
-        <button type="button" class="btn-close" (click)="closeMessageModal()"></button>
-      </div>
-      <div class="modal-body">
-        <p class="text-muted mb-3">
-          Posez votre question concernant l'article "{{ article?.title }}"
-        </p>
-        <textarea class="form-control"
-                  rows="4"
-                  placeholder="Votre message..."
-                  [(ngModel)]="messageText"
-                  maxlength="500"></textarea>
-        <small class="text-muted">{{ messageText.length }}/500 caractères</small>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeMessageModal()">Annuler</button>
-        <button type="button"
-                class="btn btn-primary"
-                (click)="sendMessage()"
-                [disabled]="!messageText.trim() || isSendingMessage">
-          <span *ngIf="isSendingMessage" class="spinner-border spinner-border-sm me-2"></span>
-          Envoyer
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal-backdrop fade show" *ngIf="showMessageModal"></div>
 
 <div class="detail-loading" *ngIf="isLoading">
   <div class="spinner"></div>

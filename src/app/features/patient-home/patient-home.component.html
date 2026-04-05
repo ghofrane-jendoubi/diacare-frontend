@@ -1,5 +1,105 @@
-<!-- Navbar spécifique patient avec menu adapté -->
-<app-navbar [menuItems]="patientMenuItems" [isLoggedIn]="true"></app-navbar>
+<!-- Header Patient - Style Home -->
+<nav class="navbar" [class.scrolled]="isScrolled">
+  <div class="nav-container">
+    <!-- Logo -->
+    <div class="logo">
+      <div class="logo-icon">
+        <i class="bi bi-hexagon-fill"></i>
+        <span class="logo-text">DC</span>
+      </div>
+      <span class="brand-name">DiaCare</span>
+    </div>
+
+    <!-- Menu Desktop Patient -->
+    <ul class="nav-links">
+      <ng-container *ngFor="let item of patientMenuItems">
+        <li>
+          <a [routerLink]="item.link" 
+             [class.active]="activeSection === item.id"
+             (click)="setActiveSection(item.id)">
+            <i [class]="item.icon"></i>
+            {{ item.label }}
+          </a>
+        </li>
+      </ng-container>
+    </ul>
+
+    <!-- Profil utilisateur patient -->
+    <div class="nav-actions">
+      <div class="user-menu">
+        <button class="user-button" (click)="toggleUserMenu()">
+          <div class="user-avatar">
+            <span>{{ getUserInitial() }}</span>
+          </div>
+          <span class="user-name">{{ getUserName() }}</span>
+          <i class="bi bi-chevron-down" [class.rotated]="isUserMenuOpen"></i>
+        </button>
+        
+        <div class="dropdown-menu" [class.show]="isUserMenuOpen">
+          <div class="dropdown-header">
+            <div class="dropdown-user-info">
+              <strong>{{ getUserName() }}</strong>
+              <span>{{ getUserEmail() }}</span>
+            </div>
+          </div>
+          
+          <a routerLink="/patient/profile" class="dropdown-item">
+            <i class="bi bi-person"></i> Mon profil
+          </a>
+          <a routerLink="/patient/appointments" class="dropdown-item">
+            <i class="bi bi-calendar"></i> Mes rendez-vous
+          </a>
+          <a routerLink="/patient/education" class="dropdown-item">
+            <i class="bi bi-book"></i> Éducation
+          </a>
+          <a routerLink="/patient/forum" class="dropdown-item">
+            <i class="bi bi-people"></i> Forum
+          </a>
+          
+          <div class="dropdown-divider"></div>
+          
+          <a routerLink="/patient/settings" class="dropdown-item">
+            <i class="bi bi-gear"></i> Paramètres
+          </a>
+          <a (click)="logout()" class="dropdown-item text-danger">
+            <i class="bi bi-box-arrow-right"></i> Déconnexion
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu mobile toggle -->
+    <button class="mobile-toggle" (click)="toggleMobileMenu()">
+      <i class="bi" [ngClass]="isMobileMenuOpen ? 'bi-x' : 'bi-list'"></i>
+    </button>
+  </div>
+
+  <!-- Menu Mobile -->
+  <div class="mobile-menu" [class.open]="isMobileMenuOpen">
+    <ng-container *ngFor="let item of patientMenuItems">
+      <a [routerLink]="item.link" class="mobile-link" (click)="closeMobileMenu()">
+        <i [class]="item.icon"></i>
+        {{ item.label }}
+      </a>
+    </ng-container>
+    
+    <div class="mobile-buttons">
+      <div class="mobile-user-header">
+        <div class="mobile-user-avatar">{{ getUserInitial() }}</div>
+        <div class="mobile-user-info">
+          <strong>{{ getUserName() }}</strong>
+          <span>{{ getUserEmail() }}</span>
+        </div>
+      </div>
+      <a routerLink="/patient/profile" class="btn btn-outline-primary w-100 mb-2">Mon profil</a>
+      <a routerLink="/patient/appointments" class="btn btn-outline-primary w-100 mb-2">Mes rendez-vous</a>
+      <a routerLink="/patient/education" class="btn btn-outline-primary w-100 mb-2">Éducation</a>
+      <a routerLink="/patient/forum" class="btn btn-outline-primary w-100 mb-2">Forum</a>
+      <a routerLink="/patient/settings" class="btn btn-outline-primary w-100 mb-2">Paramètres</a>
+      <a (click)="logout()" class="btn btn-danger w-100">Déconnexion</a>
+    </div>
+  </div>
+</nav>
 
 <!-- HERO SECTION -->
 <section id="accueil" class="hero" [style.backgroundImage]="'url(' + heroImage + ')'">
@@ -265,90 +365,3 @@
     </div>
   </div>
 </section>
-
-<!-- SECTION TÉMOIGNAGES -->
-<section id="temoignages" class="testimonials">
-  <div class="container">
-    <div class="section-header">
-      <span class="section-badge">💬 Témoignages</span>
-      <h2>Ce que disent nos patients</h2>
-      <p>Découvrez les retours de notre communauté</p>
-    </div>
-
-    <div class="testimonials-grid">
-      <div class="testimonial-card">
-        <div class="testimonial-rating">
-          <i class="bi bi-star-fill"></i>
-          <i class="bi bi-star-fill"></i>
-          <i class="bi bi-star-fill"></i>
-          <i class="bi bi-star-fill"></i>
-          <i class="bi bi-star-fill"></i>
-        </div>
-        <!-- Carte Forum dans la grille services -->
-<div class="service-card" routerLink="/patient/forum">
-  <div class="service-icon" style="background: #f3e8ff">
-    <i class="bi bi-people-fill" style="color: #8b5cf6"></i>
-  </div>
-  <h3>Communauté DiaCare</h3>
-  <p>Partagez et échangez avec d'autres patients diabétiques.</p>
-  <ul class="service-features">
-    <li><i class="bi bi-check-circle-fill"></i> Expériences partagées</li>
-    <li><i class="bi bi-check-circle-fill"></i> Recettes adaptées</li>
-    <li><i class="bi bi-check-circle-fill"></i> Modération IA</li>
-  </ul>
-  <a routerLink="/patient/forum" class="service-link">Rejoindre →</a>
-</div>
-        <p class="testimonial-text">"Grâce à DiaCare, je peux consulter mon endocrinologue sans me déplacer. Les nutritionnistes m'ont aidé à rééquilibrer mon alimentation."</p>
-        <div class="testimonial-author">
-          <div class="author-avatar">F</div>
-          <div class="author-info">
-            <h4>Fatima B.</h4>
-            <p>Patiente diabétique type 2</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="testimonial-card">
-        <div class="testimonial-rating">
-          <i class="bi bi-star-fill"></i>
-          <i class="bi bi-star-fill"></i>
-          <i class="bi bi-star-fill"></i>
-          <i class="bi bi-star-fill"></i>
-          <i class="bi bi-star-fill"></i>
-        </div>
-        <p class="testimonial-text">"L'IA m'alerte quand ma glycémie risque de monter. J'ai pu éviter plusieurs crises grâce aux prédictions."</p>
-        <div class="testimonial-author">
-          <div class="author-avatar">A</div>
-          <div class="author-info">
-            <h4>Ahmed M.</h4>
-            <p>Patient diabétique type 1</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="testimonial-card">
-        <div class="testimonial-rating">
-          <i class="bi bi-star-fill"></i>
-          <i class="bi bi-star-fill"></i>
-          <i class="bi bi-star-fill"></i>
-          <i class="bi bi-star-fill"></i>
-          <i class="bi bi-star-fill"></i>
-        </div>
-        <p class="testimonial-text">"En tant que nutritionniste, je peux suivre l'évolution de mes patients en temps réel. Un outil indispensable !"</p>
-        <div class="testimonial-author">
-          <div class="author-avatar">S</div>
-          <div class="author-info">
-            <h4>Sophie L.</h4>
-            <p>Nutritionniste</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<app-footer></app-footer>
-
-<!-- ===== CHATBOT FLOTTANT ===== -->
-<app-chatbot></app-chatbot>

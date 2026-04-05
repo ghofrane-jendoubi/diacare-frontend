@@ -50,14 +50,6 @@
         <span class="stat-label">Commentaires</span>
       </div>
     </div>
-    <div class="stat-card orange" [routerLink]="['/doctor/education/messages']">
-      <div class="stat-icon">✉️</div>
-      <div class="stat-info">
-        <span class="stat-value">{{ stats.unreadMessages }}</span>
-        <span class="stat-label">Messages non lus</span>
-      </div>
-      <span class="badge-new" *ngIf="stats.unreadMessages > 0">Nouveau</span>
-    </div>
   </div>
 
   <!-- Navigation tabs -->
@@ -69,13 +61,6 @@
     <button class="tab" [class.active]="activeTab === 'comments'"
             [routerLink]="['/doctor/education/comments']">
       💬 Commentaires
-    </button>
-    <button class="tab" [class.active]="activeTab === 'messages'"
-            [routerLink]="['/doctor/education/messages']">
-      ✉️ Messages
-      <span class="badge" *ngIf="stats.unreadMessages > 0">
-        {{ stats.unreadMessages }}
-      </span>
     </button>
   </div>
 

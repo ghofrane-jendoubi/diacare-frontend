@@ -15,11 +15,15 @@ export class ChatbotService {
   private sessionId: string;
 
   constructor(private http: HttpClient) {
-    this.sessionId = this.generateSessionId();
+    // Session persistante dans localStorage
+    this.sessionId = localStorage.getItem('chatbot_session') ||
+                     this.generateSessionId();
+    localStorage.setItem('chatbot_session', this.sessionId);
   }
 
   private generateSessionId(): string {
-    return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    return 'session_' + Date.now() + '_' +
+           Math.random().toString(36).substr(2, 9);
   }
 
   sendMessage(message: string, patientId = 1): Observable<any> {
@@ -31,7 +35,13 @@ export class ChatbotService {
   }
 
   getHistory(): Observable<ChatMessage[]> {
-    return this.http.get<ChatMessage[]>(`${this.apiUrl}/history/${this.sessionId}`);
+    return this.http.get<ChatMessage[]>(
+      `${this.apiUrl}/history/${this.sessionId}`);
+  }
+
+  resetSession(): void {
+    this.sessionId = this.generateSessionId();
+    localStorage.setItem('chatbot_session', this.sessionId);
   }
 
   getSessionId(): string { return this.sessionId; }

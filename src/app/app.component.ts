@@ -17,7 +17,7 @@ export class AppComponent {
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd)
     ).subscribe((e: any) => {
-      this.isAuthPage = ['/login', '/register'].includes(e.urlAfterRedirects);
+      this.isAuthPage = ['/login', '/register', '/doctor/education', '/doctor/education/new', '/doctor/education/comments', '/patient/education'].includes(e.urlAfterRedirects);
       this.showUserMenu = false;
       this.showMobileMenu = false;
     });

@@ -13,8 +13,6 @@ export class CommentsManagerComponent implements OnInit {
   isLoading = true;
   replyingTo: number | null = null;
   replyText = '';
-  privateMessageTo: number | null = null;
-  privateMessage = '';
   filter = 'all';
 
   constructor(private doctorService: DoctorEducationService) {}
@@ -31,7 +29,6 @@ export class CommentsManagerComponent implements OnInit {
 
   startReply(commentId: number) {
     this.replyingTo = commentId;
-    this.privateMessageTo = null;
     this.replyText = '';
   }
 
@@ -45,24 +42,6 @@ export class CommentsManagerComponent implements OnInit {
       }
       this.replyingTo = null;
       this.replyText = '';
-    });
-  }
-
-  startPrivateMessage(commentId: number) {
-    this.privateMessageTo = commentId;
-    this.replyingTo = null;
-    this.privateMessage = '';
-  }
-
-  sendPrivateMessage(comment: EducationComment) {
-    if (!this.privateMessage.trim()) return;
-    this.doctorService.sendPrivateMessage(
-      comment.id, comment.userName,
-      this.privateMessage, comment.contentId, comment.id
-    ).subscribe(() => {
-      alert('Message privé envoyé à ' + comment.userName);
-      this.privateMessageTo = null;
-      this.privateMessage = '';
     });
   }
 

@@ -3,7 +3,6 @@ export interface DoctorStats {
   totalViews: number;
   totalLikes: number;
   totalComments: number;
-  unreadMessages: number;
 }
 
 export interface ArticleForm {
@@ -20,19 +19,6 @@ export interface ArticleForm {
   difficultyLevel: string;
   isFeatured: boolean;
   isPublished: boolean;
-}
-
-export interface PrivateMessage {
-  id: number;
-  senderId: number;
-  receiverId: number;
-  senderName: string;
-  receiverName: string;
-  contentId?: number;
-  commentId?: number;
-  message: string;
-  isRead: boolean;
-  createdAt: string;
 }
 
 export const CATEGORIES = [

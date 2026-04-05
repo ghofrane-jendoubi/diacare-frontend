@@ -1,7 +1,14 @@
-import { Component, OnInit } from '@angular/core';
-import { ForumService, ForumPost, ForumComment } from '../../services/forum.service';
-import { AuthService, CurrentUser } from '../../../../shared/services/auth.service';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
+import { ForumService } from './forum.service';
+import { AuthService } from '../../../../shared/services/auth.service';
+import {
+  ForumPost,
+  ForumComment,
+  TopPost,
+  TopContributor,
+  CategoryCount
+} from './forum.model';
 
 @Component({
   selector: 'app-forum',
@@ -9,8 +16,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./forum.component.css']
 })
 export class ForumComponent implements OnInit {
-
-  currentUser: CurrentUser | null = null;
+  currentUser: any = null;
   posts: ForumPost[] = [];
   isLoading = true;
   selectedCategory = 'ALL';
@@ -28,6 +34,20 @@ export class ForumComponent implements OnInit {
   newComment = '';
   isCommenting = false;
 
+  topPosts: TopPost[] = [];
+  topContributors: TopContributor[] = [];
+  categoryCounts: CategoryCount[] = [];
+
+  // Design moderne
+  isSidebarCollapsed = false;
+  isMobile = false;
+  searchQuery = '';
+  showFilters = false;
+  selectedCategories: string[] = [];
+  activeFiltersCount = 0;
+  viewMode = 'grid'; // 'grid' ou 'list'
+  userStats = { postCount: 0, likeCount: 0, commentCount: 0 };
+
   categories = [
     { key: 'ALL', label: 'Tout', icon: '🌐' },
     { key: 'EXPERIENCE', label: 'Expériences', icon: '💬' },
@@ -44,14 +64,25 @@ export class ForumComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.authService.currentUser$.subscribe(user => {
+    this.isMobile = window.innerWidth < 768;
+    if (this.isMobile) this.isSidebarCollapsed = true;
+
+    this.authService.currentUser$.subscribe((user: any) => {
       this.currentUser = user;
       if (user) {
         this.loadPosts();
+        this.loadSidebarData();
+        this.loadUserStats();
       } else {
         this.router.navigate(['/login']);
       }
     });
+  }
+
+  loadSidebarData() {
+    this.forumService.getTopLikedPosts(5).subscribe(data => this.topPosts = data);
+    this.forumService.getTopContributors(5).subscribe(data => this.topContributors = data);
+    this.forumService.getCategoryCounts().subscribe(data => this.categoryCounts = data);
   }
 
   loadPosts() {
@@ -99,6 +130,7 @@ export class ForumComponent implements OnInit {
           this.newPost = { title: '', content: '', category: 'EXPERIENCE' };
           this.showNewPost = false;
           this.loadPosts();
+          this.loadSidebarData();
           setTimeout(() => this.postSuccess = '', 3000);
         }
       },
@@ -117,6 +149,18 @@ export class ForumComponent implements OnInit {
     });
   }
 
+  openPostFromId(postId: number) {
+    const existingPost = this.posts.find(p => p.id === postId);
+    if (existingPost) {
+      this.openPost(existingPost);
+    } else {
+      this.forumService.getPostById(postId).subscribe({
+        next: (post) => this.openPost(post),
+        error: () => console.error('Impossible de charger le post')
+      });
+    }
+  }
+
   closePost() {
     this.selectedPost = null;
     this.comments = [];
@@ -129,26 +173,13 @@ export class ForumComponent implements OnInit {
     this.forumService.toggleLike(post.id, this.currentUser.id).subscribe(res => {
       post.isLiked = res.liked;
       post.likeCount += res.liked ? 1 : -1;
+      this.loadSidebarData();
     });
   }
 
   submitComment() {
     if (!this.currentUser || !this.selectedPost) return;
     if (!this.newComment.trim()) return;
-    
-    console.log('💬 Ajout commentaire - Utilisateur:', {
-      id: this.currentUser.id,
-      name: this.currentUser.name,
-      email: this.currentUser.email
-    });
-
-    // Vérifier que l'ID existe
-    if (!this.currentUser.id) {
-      this.isCommenting = false;
-      alert('⚠️ Erreur: ID utilisateur manquant. Veuillez vous reconnecter.');
-      return;
-    }
-
     this.isCommenting = true;
 
     this.forumService.addComment(this.selectedPost.id, {
@@ -158,19 +189,18 @@ export class ForumComponent implements OnInit {
     }).subscribe({
       next: (res) => {
         this.isCommenting = false;
-        console.log('✅ Réponse commentaire:', res);
         if (res.blocked) {
           alert('⚠️ Commentaire bloqué : ' + res.reason);
         } else {
           this.comments.push(res.comment);
           this.selectedPost!.commentCount++;
           this.newComment = '';
-          console.log('💾 Commentaire ajouté avec succès');
+          this.loadSidebarData();
         }
       },
       error: (err) => {
         this.isCommenting = false;
-        console.error('❌ Erreur lors de l\'ajout du commentaire:', err);
+        console.error('Erreur commentaire', err);
         alert('Erreur lors de l\'ajout du commentaire');
       }
     });
@@ -182,6 +212,7 @@ export class ForumComponent implements OnInit {
     if (!confirm('Supprimer cette publication ?')) return;
     this.forumService.deletePost(post.id, this.currentUser.id).subscribe(() => {
       this.posts = this.posts.filter(p => p.id !== post.id);
+      this.loadSidebarData();
     });
   }
 
@@ -203,5 +234,113 @@ export class ForumComponent implements OnInit {
       ASTUCE: '💡', QUESTION: '❓', MOTIVATION: '💪'
     };
     return icons[cat] || '📝';
+  }
+
+  getCategoryLabel(cat: string): string {
+    const labels: Record<string, string> = {
+      EXPERIENCE: 'Expériences', RECETTE: 'Recettes',
+      ASTUCE: 'Astuces', QUESTION: 'Questions', MOTIVATION: 'Motivation'
+    };
+    return labels[cat] || cat;
+  }
+
+  // Méthodes pour le design moderne
+  toggleSidebar() {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
+  }
+
+  performSearch() {
+    if (!this.searchQuery.trim()) {
+      this.loadPosts();
+      return;
+    }
+    this.isLoading = true;
+    this.forumService.searchPosts(this.searchQuery, this.currentPage).subscribe({
+      next: (data) => {
+        this.posts = data.content || data;
+        this.totalPages = data.totalPages || 1;
+        this.isLoading = false;
+      },
+      error: () => this.isLoading = false
+    });
+  }
+
+  toggleCategoryFilter(categoryKey: string) {
+    const index = this.selectedCategories.indexOf(categoryKey);
+    if (index > -1) {
+      this.selectedCategories.splice(index, 1);
+    } else {
+      this.selectedCategories.push(categoryKey);
+    }
+  }
+
+  applyFilters() {
+    this.activeFiltersCount = this.selectedCategories.length;
+    if (this.selectedCategories.length === 0) {
+      this.loadPosts();
+    } else {
+      this.isLoading = true;
+      // Simuler un appel API de filtrage multiple
+      this.forumService.getPosts(this.currentPage).subscribe({
+        next: (data) => {
+          const allPosts = data.content || data;
+          this.posts = allPosts.filter((post: ForumPost) =>
+            this.selectedCategories.includes(post.category)
+          );
+          this.totalPages = 1;
+          this.isLoading = false;
+        },
+        error: () => this.isLoading = false
+      });
+    }
+  }
+
+  resetFilters() {
+    this.selectedCategories = [];
+    this.searchQuery = '';
+    this.showFilters = false;
+    this.activeFiltersCount = 0;
+    this.loadPosts();
+  }
+
+  changePage(page: number) {
+    this.currentPage = page;
+    this.loadPosts();
+  }
+
+  sharePost(post: ForumPost, event: Event) {
+    event.stopPropagation();
+    const link = `${window.location.origin}/patient/forum/post/${post.id}`;
+    if (navigator.share) {
+      navigator.share({
+        title: post.title,
+        text: post.content,
+        url: link
+      }).catch(() => this.copyToClipboard(link));
+    } else {
+      this.copyToClipboard(link);
+    }
+  }
+
+  private copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text);
+    alert('Lien copié dans le presse-papiers !');
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    this.isMobile = window.innerWidth < 768;
+    if (this.isMobile) {
+      this.isSidebarCollapsed = true;
+    }
+  }
+
+  loadUserStats() {
+    // À remplacer par un vrai appel API si disponible
+    this.userStats = {
+      postCount: Math.floor(Math.random() * 20),
+      likeCount: Math.floor(Math.random() * 100),
+      commentCount: Math.floor(Math.random() * 50)
+    };
   }
 }

@@ -14,7 +14,7 @@ export class EducationManagerComponent implements OnInit {
 
   stats: DoctorStats = {
     totalArticles: 0, totalViews: 0,
-    totalLikes: 0, totalComments: 0, unreadMessages: 0
+    totalLikes: 0, totalComments: 0
   };
   articles: ContentSummary[] = [];
   isLoading = true;

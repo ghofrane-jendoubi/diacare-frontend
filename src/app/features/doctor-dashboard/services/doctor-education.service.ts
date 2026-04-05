@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { DoctorStats, ArticleForm, PrivateMessage } from '../models/doctor-education.model';
+import { DoctorStats, ArticleForm } from '../models/doctor-education.model';
 import { ContentSummary } from '../../education/models/content';
 import { EducationComment } from '../../education/models/comment';
 
@@ -61,33 +61,5 @@ export class DoctorEducationService {
 
   deleteComment(commentId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/comments/${commentId}`);
-  }
-
-  // ===== MESSAGES PRIVÉS =====
-  getReceivedMessages(): Observable<PrivateMessage[]> {
-    return this.http.get<PrivateMessage[]>(
-      `${this.apiUrl}/messages/received/${this.doctorId}`);
-  }
-
-  sendPrivateMessage(receiverId: number, receiverName: string,
-                     message: string, contentId?: number,
-                     commentId?: number): Observable<PrivateMessage> {
-    return this.http.post<PrivateMessage>(`${this.apiUrl}/messages/send`, {
-      senderId: this.doctorId,
-      senderName: this.doctorName,
-      receiverId,
-      receiverName,
-      message,
-      contentId,
-      commentId
-    });
-  }
-
-  markMessageAsRead(messageId: number): Observable<void> {
-    return this.http.patch<void>(`${this.apiUrl}/messages/${messageId}/read`, {});
-  }
-
-  deleteMessage(messageId: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/messages/${messageId}`);
   }
 }

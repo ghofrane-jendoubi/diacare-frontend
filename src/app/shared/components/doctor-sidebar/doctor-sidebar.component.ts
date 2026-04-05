@@ -7,10 +7,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DoctorSidebarComponent implements OnInit {
 
-  unreadMessages = 0;
-
   ngOnInit() {
-    // Tu pourras connecter ça au service plus tard
-    this.unreadMessages = 0;
+    // Initialisation du composant sidebar
   }
 }

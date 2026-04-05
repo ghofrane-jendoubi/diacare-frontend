@@ -5,7 +5,6 @@ import { EducationService } from '../../services/education.service';
 import { ContentDetail, CATEGORY_LABELS, CATEGORY_ICONS, DIFFICULTY_LABELS } from '../../models/content';
 import { QuizService, QuizQuestion } from '../../services/quiz.service';
 import { DoctorEducationService } from '../../../doctor-dashboard/services/doctor-education.service';
-import { PatientMessagingService } from '../../../patient-messaging/services/patient-messaging.service';
 import { AuthService, CurrentUser } from '../../../../shared/services/auth.service';
 
 @Component({
@@ -53,7 +52,6 @@ export class ArticleDetailComponent implements OnInit {
     private http: HttpClient,
     private quizService: QuizService,
     private doctorService: DoctorEducationService,
-    private patientMessagingService: PatientMessagingService,
     private authService: AuthService
   ) {}
 
@@ -189,10 +187,11 @@ export class ArticleDetailComponent implements OnInit {
     return this.quizQuestions.length > 0 && Object.keys(this.quizAnswers).length === this.quizQuestions.length;
   }
 
-  // ===== MESSAGING =====
+  // ===== MESSAGING (DÉSACTIVÉ) =====
   openMessageModal() {
-    this.showMessageModal = true;
-    this.messageText = '';
+    // Fonctionnalité de messagerie désactivée
+    alert('Fonctionnalité de messagerie temporairement indisponible');
+    return;
   }
 
   closeMessageModal() {
@@ -201,60 +200,9 @@ export class ArticleDetailComponent implements OnInit {
   }
 
   sendMessage() {
-    if (!this.messageText.trim() || !this.article) return;
-
-    // Check if authorId exists
-    if (!this.article.authorId) {
-      alert('Erreur: ID de l\'auteur non disponible');
-      return;
-    }
-
-    this.isSendingMessage = true;
-
-    // Détecter le rôle de l'utilisateur
-    const currentUser = this.authService.currentUser;
-    const isDoctor = currentUser?.role === 'DOCTOR' || this.userRole === 'DOCTOR';
-    
-    if (isDoctor) {
-      // Médecin envoie un message au patient
-      this.doctorService.sendPrivateMessage(
-        this.article.authorId, 
-        this.article.authorName, 
-        this.messageText.trim(), 
-        this.article.id
-      ).subscribe({
-        next: () => {
-          this.isSendingMessage = false;
-          this.closeMessageModal();
-          alert('Message envoyé avec succès !');
-        },
-        error: (err) => {
-          this.isSendingMessage = false;
-          console.error('Erreur envoi message:', err);
-          alert('Erreur lors de l\'envoi du message');
-        }
-      });
-    } else {
-      // Patient envoie un message au médecin (auteur)
-      const patientName = currentUser?.name || 'Patient DiaCare';
-      this.patientMessagingService.sendMessage(
-        this.article.authorId,
-        this.article.authorName,
-        this.messageText.trim(),
-        this.article.id
-      ).subscribe({
-        next: () => {
-          this.isSendingMessage = false;
-          this.closeMessageModal();
-          alert('Message envoyé au médecin avec succès !');
-        },
-        error: (err) => {
-          this.isSendingMessage = false;
-          console.error('Erreur envoi message:', err);
-          alert('Erreur lors de l\'envoi du message');
-        }
-      });
-    }
+    // Fonctionnalité de messagerie désactivée
+    alert('Fonctionnalité de messagerie temporairement indisponible');
+    return;
   }
 
   // ===== ACTIONS EXISTANTES =====

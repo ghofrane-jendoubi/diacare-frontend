@@ -32,9 +32,6 @@
           <button class="action-btn reply" (click)="startReply(comment.id)">
             ↩ Répondre
           </button>
-          <button class="action-btn private" (click)="startPrivateMessage(comment.id)">
-            🔒 Message privé
-          </button>
           <button class="action-btn delete" (click)="deleteComment(comment.id)">
             🗑️
           </button>
@@ -54,21 +51,6 @@
           <button class="btn-send" (click)="submitReply(comment.id)"
                   [disabled]="!replyText.trim()">
             Publier la réponse
-          </button>
-        </div>
-      </div>
-
-      <!-- Message privé -->
-      <div class="private-form" *ngIf="privateMessageTo === comment.id">
-        <div class="private-header">🔒 Message privé à {{ comment.userName }}</div>
-        <textarea [(ngModel)]="privateMessage"
-                  placeholder="Ce message sera visible uniquement par le patient..."
-                  rows="3"></textarea>
-        <div class="form-actions">
-          <button class="btn-cancel" (click)="privateMessageTo = null">Annuler</button>
-          <button class="btn-private-send" (click)="sendPrivateMessage(comment)"
-                  [disabled]="!privateMessage.trim()">
-            Envoyer en privé
           </button>
         </div>
       </div>

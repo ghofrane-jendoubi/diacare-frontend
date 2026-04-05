@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef,
+         AfterViewChecked } from '@angular/core';
 import { ChatbotService, ChatMessage } from '../../services/chatbot.service';
 
 @Component({
@@ -14,13 +15,14 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
   isTyping = false;
   userMessage = '';
   messages: ChatMessage[] = [];
+  shouldScroll = false;
 
   quickReplies = [
-    'Ma glycémie est élevée',
-    'Que manger avec le diabète ?',
-    'Comment gérer une hypoglycémie ?',
-    'Mes médicaments',
-    'Activité physique'
+    '🩸 Ma glycémie est élevée',
+    '🥗 Que manger avec le diabète ?',
+    '⬇️ Comment gérer une hypoglycémie ?',
+    '💊 Mes médicaments',
+    '🏃 Activité physique et diabète'
   ];
 
   constructor(private chatbotService: ChatbotService) {}
@@ -30,28 +32,35 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
   }
 
   ngAfterViewChecked() {
-    this.scrollToBottom();
+    if (this.shouldScroll) {
+      this.scrollToBottom();
+      this.shouldScroll = false;
+    }
   }
 
   addWelcomeMessage() {
     this.messages.push({
       sender: 'BOT',
-      message: '👋 Bonjour ! Je suis DiaCare Assistant.\n\nJe suis là pour vous aider avec vos questions sur le diabète.\n\nComment puis-je vous aider aujourd\'hui ?',
+      message: '👋 Bonjour ! Je suis **DiaCare Assistant**, votre guide IA pour la gestion du diabète.\n\nPosez-moi n\'importe quelle question sur le diabète !',
       createdAt: new Date().toISOString()
     });
   }
 
   toggleChat() {
     this.isOpen = !this.isOpen;
+    if (this.isOpen) {
+      this.shouldScroll = true;
+    }
   }
 
   sendQuickReply(reply: string) {
-    this.userMessage = reply;
+    // Nettoyer les emojis du texte envoyé
+    this.userMessage = reply.replace(/[🩸🥗⬇️💊🏃]/gu, '').trim();
     this.sendMessage();
   }
 
   sendMessage() {
-    if (!this.userMessage.trim()) return;
+    if (!this.userMessage.trim() || this.isTyping) return;
 
     const msg = this.userMessage.trim();
     this.userMessage = '';
@@ -63,6 +72,7 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
     });
 
     this.isTyping = true;
+    this.shouldScroll = true;
 
     this.chatbotService.sendMessage(msg).subscribe({
       next: (res) => {
@@ -73,15 +83,17 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
             message: res.response,
             createdAt: new Date().toISOString()
           });
-        }, 800);
+          this.shouldScroll = true;
+        }, 600);
       },
       error: () => {
         this.isTyping = false;
         this.messages.push({
           sender: 'BOT',
-          message: '❌ Désolé, je rencontre un problème de connexion. Veuillez réessayer.',
+          message: '❌ Désolé, connexion impossible. Veuillez réessayer.',
           createdAt: new Date().toISOString()
         });
+        this.shouldScroll = true;
       }
     });
   }
@@ -95,27 +107,22 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
 
   scrollToBottom() {
     try {
-      this.messagesContainer.nativeElement.scrollTop =
-        this.messagesContainer.nativeElement.scrollHeight;
+      const el = this.messagesContainer.nativeElement;
+      el.scrollTop = el.scrollHeight;
     } catch {}
   }
 
   clearChat() {
+    this.chatbotService.resetSession();
     this.messages = [];
     this.addWelcomeMessage();
   }
 
   formatMessage(text: string): string {
+    if (!text) return '';
     return text
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/\n/g, '<br>');
-  }
-
-  timeAgo(dateStr?: string): string {
-    if (!dateStr) return '';
-    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-    if (diff < 60) return 'à l\'instant';
-    if (diff < 3600) return `il y a ${Math.floor(diff / 60)} min`;
-    return `il y a ${Math.floor(diff / 3600)}h`;
   }
 }
