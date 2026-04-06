@@ -204,6 +204,20 @@
     </div>
   </section>
 
+  <!-- Recommandations personnalisées -->
+  <section class="recommendations-section" *ngIf="recommendedArticles.length > 0">
+    <div class="section-header">
+      <h2>Recommandés pour vous</h2>
+      <span class="section-badge">Basés sur votre profil et vos lectures</span>
+    </div>
+    <div class="featured-grid recommendations-grid">
+      <app-article-card
+        *ngFor="let article of recommendedArticles.slice(0, 3)"
+        [article]="article">
+      </app-article-card>
+    </div>
+  </section>
+
   <!-- Filtres par catégorie -->
   <section class="categories-section">
     <div class="categories-scroll">

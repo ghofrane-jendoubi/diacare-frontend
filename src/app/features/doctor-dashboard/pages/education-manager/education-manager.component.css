@@ -189,6 +189,115 @@ tr:hover td { background: #f8fafc; }
 .btn-icon:hover { background: #f1f5f9; border-color: #cbd5e1; }
 .btn-icon.danger:hover { background: #fef2f2; border-color: #fca5a5; }
 
+.feedback-row td {
+  padding-top: 0;
+  padding-bottom: 18px;
+}
+
+.feedback-panel {
+  background: linear-gradient(180deg, #f8fafc, #ffffff);
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 16px;
+  margin-top: 6px;
+}
+
+.feedback-panel-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.feedback-panel-header h4 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.feedback-panel-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.feedback-count {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #075985;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.feedback-cards {
+  display: grid;
+  gap: 12px;
+}
+
+.feedback-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px 16px;
+}
+
+.feedback-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.emotion-badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.emotion-badge.happy {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.emotion-badge.sad {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.feedback-comment {
+  margin: 0 0 10px;
+  color: #1e293b;
+  line-height: 1.5;
+}
+
+.feedback-comment.muted {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.feedback-meta {
+  display: flex;
+  justify-content: flex-end;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.feedback-empty {
+  color: #64748b;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 14px;
+}
+
 /* Loading */
 .loading { text-align: center; padding: 60px; }
 .spinner {

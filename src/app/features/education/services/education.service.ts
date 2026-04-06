@@ -45,14 +45,16 @@ export class EducationService {
       `${this.apiUrl}/contents/${id}`);
   }
 
-  toggleLike(id: number, userId: number = 1): Observable<{ liked: boolean }> {
+  toggleLike(id: number, userId?: number): Observable<{ liked: boolean }> {
+    const resolvedUserId = userId ?? this.authService.currentUser?.id ?? 1;
     return this.http.post<{ liked: boolean }>(
-      `${this.apiUrl}/contents/${id}/like?userId=${userId}`, {});
+      `${this.apiUrl}/contents/${id}/like?userId=${resolvedUserId}`, {});
   }
 
-  toggleBookmark(id: number, userId: number = 1): Observable<{ bookmarked: boolean }> {
+  toggleBookmark(id: number, userId?: number): Observable<{ bookmarked: boolean }> {
+    const resolvedUserId = userId ?? this.authService.currentUser?.id ?? 1;
     return this.http.post<{ bookmarked: boolean }>(
-      `${this.apiUrl}/contents/${id}/bookmark?userId=${userId}`, {});
+      `${this.apiUrl}/contents/${id}/bookmark?userId=${resolvedUserId}`, {});
   }
 
   getFeatured(): Observable<ContentSummary[]> {
@@ -65,10 +67,26 @@ export class EducationService {
       `${this.apiUrl}/contents/most-viewed`);
   }
 
-  // ← URL corrigée
-  getMyBookmarks(userId: number = 1): Observable<ContentSummary[]> {
+  getRecommendations(userId?: number, diabetesType?: string): Observable<ContentSummary[]> {
+    let params = new HttpParams();
+
+    if (userId !== undefined && userId !== null) {
+      params = params.set('userId', String(userId));
+    }
+
+    if (diabetesType) {
+      params = params.set('diabetesType', diabetesType);
+    }
+
     return this.http.get<ContentSummary[]>(
-      `${this.apiUrl}/my-bookmarks?userId=${userId}`);
+      `${this.apiUrl}/recommendations`, { params });
+  }
+
+  // ← URL corrigée
+  getMyBookmarks(userId?: number): Observable<ContentSummary[]> {
+    const resolvedUserId = userId ?? this.authService.currentUser?.id ?? 1;
+    return this.http.get<ContentSummary[]>(
+      `${this.apiUrl}/my-bookmarks?userId=${resolvedUserId}`);
   }
 
   getComments(contentId: number): Observable<EducationComment[]> {
@@ -90,6 +108,16 @@ export class EducationService {
 
     return this.http.post<EducationComment>(
       `${this.apiUrl}/contents/${contentId}/comments`, body
+    );
+  }
+
+  submitContentFeedback(contentId: number, payload: {
+    userId?: number;
+    emotion: string;
+    commentaire?: string;
+  }): Observable<{ success: boolean }> {
+    return this.http.post<{ success: boolean }>(
+      `${this.apiUrl}/contents/${contentId}/feedback`, payload
     );
   }
 }

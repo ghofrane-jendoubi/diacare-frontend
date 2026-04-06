@@ -15,6 +15,7 @@ import { CommentSectionComponent } from './components/comment-section/comment-se
 import { CommentSectionDoctorComponent } from './components/comment-section-doctor/comment-section-doctor.component';
 import { CommentItemComponent } from './components/comment-item/comment-item.component';
 import { HeroBannerComponent } from './components/hero-banner/hero-banner.component';
+import { FeedbackModalComponent } from './components/feedback-modal/feedback-modal.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import { HeroBannerComponent } from './components/hero-banner/hero-banner.compon
     CommentSectionComponent,
     CommentSectionDoctorComponent,
     CommentItemComponent,
-    HeroBannerComponent
+    HeroBannerComponent,
+    FeedbackModalComponent
   ],
   imports: [
     CommonModule,

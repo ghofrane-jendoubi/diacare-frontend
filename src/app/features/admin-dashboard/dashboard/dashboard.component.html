@@ -1,5 +1,5 @@
-<div class="admin-dashboard">
-  <!-- En-tête -->
+﻿<div class="admin-dashboard">
+  <!-- En-tÃªte -->
   <div class="dashboard-header">
     <div>
       <h1 class="page-title">
@@ -20,7 +20,7 @@
   </div>
 
   <!-- Stats Cards -->
-  <div class="stats-grid">
+  <div class="stats-grid" *ngIf="true">
     <div class="stat-card" *ngFor="let stat of statistics">
       <div class="stat-icon" [style.background]="stat.bgColor">
         <i [class]="stat.icon"></i>
@@ -37,7 +37,7 @@
   </div>
 
   <!-- Section principale -->
-  <div class="row g-4">
+  <div class="row g-4" *ngIf="true">
     <!-- Demandes de certification -->
     <div class="col-lg-7">
       <div class="card">
@@ -53,10 +53,10 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th>Médecin</th>
-                  <th>Spécialité</th>
-                  <th>N° Certificat</th>
-                  <th>Demandé le</th>
+                  <th>MÃ©decin</th>
+                  <th>SpÃ©cialitÃ©</th>
+                  <th>NÂ° Certificat</th>
+                  <th>DemandÃ© le</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -105,7 +105,7 @@
         <div class="card-header">
           <div class="d-flex align-items-center">
             <i class="bi bi-graph-up-arrow text-primary fs-4 me-2"></i>
-            <h5 class="mb-0">Activité Récente</h5>
+            <h5 class="mb-0">ActivitÃ© RÃ©cente</h5>
           </div>
         </div>
         <div class="card-body">
@@ -142,15 +142,15 @@
                 <i class="bi bi-exclamation-triangle text-warning"></i>
               </div>
               <div>
-                <span class="stat-mini-label">Réclamations</span>
+                <span class="stat-mini-label">RÃ©clamations</span>
                 <h4 class="stat-mini-value">8</h4>
               </div>
             </div>
           </div>
 
-          <!-- Activités récentes -->
+          <!-- ActivitÃ©s rÃ©centes -->
           <div class="recent-activities mt-4">
-            <h6 class="section-subtitle">Dernières activités</h6>
+            <h6 class="section-subtitle">DerniÃ¨res activitÃ©s</h6>
             <div class="activity-list">
               <div class="activity-item" *ngFor="let activity of recentActivities">
                 <div class="activity-icon" [ngClass]="activity.color">
@@ -167,13 +167,13 @@
       </div>
     </div>
 
-    <!-- Commandes récentes -->
+    <!-- Commandes rÃ©centes -->
     <div class="col-12">
       <div class="card">
         <div class="card-header">
           <div class="d-flex align-items-center">
             <i class="bi bi-cart-check-fill text-primary fs-4 me-2"></i>
-            <h5 class="mb-0">Dernières Commandes</h5>
+            <h5 class="mb-0">DerniÃ¨res Commandes</h5>
           </div>
           <a href="#" class="view-all">Voir tout <i class="bi bi-arrow-right"></i></a>
         </div>
@@ -182,7 +182,7 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th>N° Commande</th>
+                  <th>NÂ° Commande</th>
                   <th>Patient</th>
                   <th>Date</th>
                   <th>Montant</th>
@@ -223,4 +223,8 @@
       </div>
     </div>
   </div>
+
+  <!-- Analyse Ã©motionnelle -->
 </div>
+
+

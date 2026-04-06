@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DoctorEducationService } from '../../services/doctor-education.service';
+import { PatientFeedbackService } from '../../services/patient-feedback.service';
 import { DoctorStats } from '../../models/doctor-education.model';
 import { ContentSummary } from '../../../education/models/content';
+import { PatientFeedback } from '../../models/patient-feedback.model';
 import { AuthService } from '../../../../shared/services/auth.service';
 
 @Component({
@@ -17,11 +19,15 @@ export class EducationManagerComponent implements OnInit {
     totalLikes: 0, totalComments: 0
   };
   articles: ContentSummary[] = [];
+  feedbacks: PatientFeedback[] = [];
+  feedbacksByContent: Record<number, PatientFeedback[]> = {};
   isLoading = true;
+  isFeedbackLoading = true;
   activeTab = 'articles';
 
   constructor(
     private doctorService: DoctorEducationService,
+    private feedbackService: PatientFeedbackService,
     private router: Router,
     public auth: AuthService
   ) {}
@@ -29,6 +35,7 @@ export class EducationManagerComponent implements OnInit {
   ngOnInit() {
     this.loadStats();
     this.loadArticles();
+    this.loadFeedbacks();
   }
 
   loadStats() {
@@ -48,6 +55,29 @@ export class EducationManagerComponent implements OnInit {
       error: (err) => {
         console.error('Erreur articles:', err);
         this.isLoading = false;
+      }
+    });
+  }
+
+  loadFeedbacks() {
+    this.isFeedbackLoading = true;
+    this.feedbackService.getPatientFeedbacks().subscribe({
+      next: (data) => {
+        this.feedbacks = data;
+        this.feedbacksByContent = data.reduce((acc, feedback) => {
+          if (!acc[feedback.contentId]) {
+            acc[feedback.contentId] = [];
+          }
+          acc[feedback.contentId].push(feedback);
+          return acc;
+        }, {} as Record<number, PatientFeedback[]>);
+        this.isFeedbackLoading = false;
+      },
+      error: (err) => {
+        console.error('Erreur feedbacks:', err);
+        this.feedbacks = [];
+        this.feedbacksByContent = {};
+        this.isFeedbackLoading = false;
       }
     });
   }
@@ -73,6 +103,26 @@ export class EducationManagerComponent implements OnInit {
     this.doctorService.togglePublish(article.id).subscribe(res => {
       article.isPublished = res.isPublished;
     });
+  }
+
+  getFeedbacksForArticle(articleId: number): PatientFeedback[] {
+    return this.feedbacksByContent[articleId] ?? [];
+  }
+
+  getEmotionLabel(emotion: string): string {
+    switch (emotion) {
+      case 'HAPPY': return 'Content';
+      case 'SAD': return 'Triste / anxieux';
+      default: return 'Neutre';
+    }
+  }
+
+  getEmotionIcon(emotion: string): string {
+    switch (emotion) {
+      case 'HAPPY': return '😀';
+      case 'SAD': return '😟';
+      default: return '😐';
+    }
   }
 
   formatCount(count: number): string {

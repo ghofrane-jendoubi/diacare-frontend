@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { EducationService } from '../../services/education.service';
+import { FeedbackService } from '../../services/feedback.service';
 import { ContentDetail, CATEGORY_LABELS, CATEGORY_ICONS, DIFFICULTY_LABELS } from '../../models/content';
 import { QuizService, QuizQuestion } from '../../services/quiz.service';
 import { DoctorEducationService } from '../../../doctor-dashboard/services/doctor-education.service';
@@ -46,9 +47,16 @@ export class ArticleDetailComponent implements OnInit {
   quizScore = 0;
   showQuiz = false;
 
+  // ===== FEEDBACK EMOTIONNEL =====
+  showFeedbackModal = false;
+  private feedbackStorageKey = '';
+  private feedbackAlreadyExists = false;
+  private exitPromptShownThisSession = false;
+
   constructor(
     private route: ActivatedRoute,
     private educationService: EducationService,
+    private feedbackService: FeedbackService,
     private http: HttpClient,
     private quizService: QuizService,
     private doctorService: DoctorEducationService,
@@ -57,11 +65,13 @@ export class ArticleDetailComponent implements OnInit {
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.feedbackStorageKey = this.getFeedbackStorageKey(id);
     this.educationService.getContentDetail(id).subscribe({
       next: (data) => {
         this.article = data;
         this.isLoading = false;
-        this.generateQuiz(); // Générer le quiz après chargement
+        this.generateQuiz();
+        this.refreshFeedbackStatus(id);
       },
       error: (err) => {
         console.error('Erreur chargement article:', err);
@@ -92,7 +102,7 @@ export class ArticleDetailComponent implements OnInit {
   // ===== TRADUCTION =====
   translateArticle() {
     if (!this.article?.content) {
-      alert('Aucun contenu à traduire');
+      alert('Aucun contenu Ã  traduire');
       return;
     }
     this.isTranslating = true;
@@ -120,7 +130,7 @@ export class ArticleDetailComponent implements OnInit {
           error: (err) => {
             console.error('Erreur traduction:', err);
             this.isTranslating = false;
-            alert('Erreur de traduction. Veuillez réessayer plus tard.');
+            alert('Erreur de traduction. Veuillez rÃ©essayer plus tard.');
           }
         });
       }
@@ -140,14 +150,16 @@ export class ArticleDetailComponent implements OnInit {
       this.utterance.pitch = 1;
 
       this.utterance.onstart = () => { this.isReading = true; };
-      this.utterance.onend = () => { this.isReading = false; };
+      this.utterance.onend = () => {
+        this.isReading = false;
+      };
       this.utterance.onerror = () => {
         this.isReading = false;
-        alert('Erreur de synthèse vocale.');
+        alert('Erreur de synthÃ¨se vocale.');
       };
       window.speechSynthesis.speak(this.utterance);
     } else {
-      alert('La synthèse vocale n\'est pas supportée par votre navigateur.');
+      alert('La synthÃ¨se vocale n\'est pas supportÃ©e par votre navigateur.');
     }
   }
 
@@ -156,6 +168,70 @@ export class ArticleDetailComponent implements OnInit {
       window.speechSynthesis.cancel();
       this.isReading = false;
     }
+  }
+
+  private getFeedbackStorageKey(contentId: number): string {
+    const userId = this.authService.currentUser?.id ?? 'guest';
+    return `diacare_emotion_feedback_v2_seen_${userId}_${contentId}`;
+  }
+
+  private canUseLocalStorage(): boolean {
+    try {
+      return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+    } catch {
+      return false;
+    }
+  }
+
+  closeFeedbackModal() {
+    this.showFeedbackModal = false;
+  }
+
+  handleFeedbackSubmitted() {
+    if (this.canUseLocalStorage()) {
+      localStorage.setItem(this.feedbackStorageKey, '1');
+    }
+    this.feedbackAlreadyExists = true;
+    this.exitPromptShownThisSession = true;
+    this.showFeedbackModal = false;
+    this.showToast('Merci, votre ressenti a ete enregistre.');
+  }
+
+  canDeactivate(): boolean {
+    return this.promptFeedbackOnLeave();
+  }
+
+  private refreshFeedbackStatus(contentId: number): void {
+    if (this.canUseLocalStorage() && localStorage.getItem(this.feedbackStorageKey) === '1') {
+      this.feedbackAlreadyExists = true;
+      return;
+    }
+
+    this.feedbackService.hasFeedback(contentId).subscribe({
+      next: (exists) => {
+        this.feedbackAlreadyExists = exists;
+        if (exists && this.canUseLocalStorage()) {
+          localStorage.setItem(this.feedbackStorageKey, '1');
+        }
+      },
+      error: (err) => {
+        console.warn('Impossible de verifier le feedback existant:', err);
+      }
+    });
+  }
+
+  private promptFeedbackOnLeave(): boolean {
+    if (!this.article || this.feedbackAlreadyExists) {
+      return true;
+    }
+
+    if (!this.exitPromptShownThisSession) {
+      this.exitPromptShownThisSession = true;
+      this.showFeedbackModal = true;
+      return false;
+    }
+
+    return true;
   }
 
   // ===== QUIZ =====
@@ -187,10 +263,10 @@ export class ArticleDetailComponent implements OnInit {
     return this.quizQuestions.length > 0 && Object.keys(this.quizAnswers).length === this.quizQuestions.length;
   }
 
-  // ===== MESSAGING (DÉSACTIVÉ) =====
+  // ===== MESSAGING (DÃ‰SACTIVÃ‰) =====
   openMessageModal() {
-    // Fonctionnalité de messagerie désactivée
-    alert('Fonctionnalité de messagerie temporairement indisponible');
+    // FonctionnalitÃ© de messagerie dÃ©sactivÃ©e
+    alert('FonctionnalitÃ© de messagerie temporairement indisponible');
     return;
   }
 
@@ -200,8 +276,8 @@ export class ArticleDetailComponent implements OnInit {
   }
 
   sendMessage() {
-    // Fonctionnalité de messagerie désactivée
-    alert('Fonctionnalité de messagerie temporairement indisponible');
+    // FonctionnalitÃ© de messagerie dÃ©sactivÃ©e
+    alert('FonctionnalitÃ© de messagerie temporairement indisponible');
     return;
   }
 
@@ -223,8 +299,8 @@ export class ArticleDetailComponent implements OnInit {
       next: (res) => {
         this.article!.isBookmarked = res.bookmarked;
         const msg = res.bookmarked
-          ? '✅ Article sauvegardé !'
-          : '🗑️ Article retiré des favoris';
+          ? 'âœ… Article sauvegardÃ© !'
+          : 'ðŸ—‘ï¸ Article retirÃ© des favoris';
         this.showToast(msg);
       },
       error: (err) => console.error('Erreur bookmark:', err)
@@ -239,7 +315,7 @@ export class ArticleDetailComponent implements OnInit {
       });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      this.showToast('🔗 Lien copié dans le presse-papier !');
+      this.showToast('ðŸ”— Lien copiÃ© dans le presse-papier !');
     }
   }
 
@@ -288,3 +364,4 @@ export class ArticleDetailComponent implements OnInit {
     }, 2500);
   }
 }
+

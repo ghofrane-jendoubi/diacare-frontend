@@ -14,6 +14,7 @@ export class EducationHomeComponent implements OnInit {
   articles: ContentSummary[] = [];
   featuredArticles: ContentSummary[] = [];
   mostViewed: ContentSummary[] = [];
+  recommendedArticles: ContentSummary[] = [];
   isLoading = true;
   searchQuery = '';
   selectedCategory: ContentCategory | '' = '';
@@ -54,6 +55,7 @@ export class EducationHomeComponent implements OnInit {
   ngOnInit() {
     this.loadFeatured();
     this.loadMostViewed();
+    this.loadRecommendations();
     this.loadArticles();
   }
 
@@ -117,14 +119,26 @@ export class EducationHomeComponent implements OnInit {
   }
 
   loadFeatured() {
-    this.educationService.getFeatured().subscribe(data => {
-      this.featuredArticles = data;
+    this.educationService.getFeatured().subscribe({
+      next: data => this.featuredArticles = data,
+      error: () => this.featuredArticles = []
     });
   }
 
   loadMostViewed() {
-    this.educationService.getMostViewed().subscribe(data => {
-      this.mostViewed = data;
+    this.educationService.getMostViewed().subscribe({
+      next: data => this.mostViewed = data,
+      error: () => this.mostViewed = []
+    });
+  }
+
+  loadRecommendations() {
+    const userId = this.auth.currentUser?.id;
+    const diabetesType = this.auth.currentUser?.diabetesType;
+
+    this.educationService.getRecommendations(userId, diabetesType).subscribe({
+      next: data => this.recommendedArticles = data,
+      error: () => this.recommendedArticles = []
     });
   }
 

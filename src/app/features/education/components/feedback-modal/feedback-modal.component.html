@@ -1,0 +1,49 @@
+<div class="feedback-backdrop" *ngIf="visible" (click)="close()">
+  <div class="feedback-modal" (click)="$event.stopPropagation()">
+    <div class="feedback-header">
+      <div>
+        <h3>Comment vous sentez-vous ?</h3>
+        <p>Choisissez une émotion, puis envoyez un commentaire si vous voulez.</p>
+      </div>
+      <button type="button" class="close-btn" (click)="close()">×</button>
+    </div>
+
+    <div class="emotion-grid">
+      <button type="button" class="emotion-card" [class.active]="selectedEmotion === 'HAPPY'" (click)="selectEmotion('HAPPY')">
+        <span class="emoji">😀</span>
+        <strong>Content</strong>
+        <small>Le contenu m'aide</small>
+      </button>
+
+      <button type="button" class="emotion-card" [class.active]="selectedEmotion === 'NEUTRAL'" (click)="selectEmotion('NEUTRAL')">
+        <span class="emoji">😐</span>
+        <strong>Neutre</strong>
+        <small>Correct, sans plus</small>
+      </button>
+
+      <button type="button" class="emotion-card" [class.active]="selectedEmotion === 'SAD'" (click)="selectEmotion('SAD')">
+        <span class="emoji">😟</span>
+        <strong>Inquiet</strong>
+        <small>Je me sens perdu</small>
+      </button>
+    </div>
+
+    <label class="field-label" for="feedback-comment">Commentaire optionnel</label>
+    <textarea
+      id="feedback-comment"
+      class="comment-box"
+      [(ngModel)]="comment"
+      rows="4"
+      placeholder="Dites-nous ce qui vous a marqué...">
+    </textarea>
+
+    <p class="feedback-error" *ngIf="error">{{ error }}</p>
+
+    <div class="actions">
+      <button type="button" class="btn-secondary" (click)="close()">Plus tard</button>
+      <button type="button" class="btn-primary" [disabled]="!selectedEmotion || isSubmitting" (click)="submit()">
+        {{ isSubmitting ? 'Envoi...' : 'Envoyer' }}
+      </button>
+    </div>
+  </div>
+</div>

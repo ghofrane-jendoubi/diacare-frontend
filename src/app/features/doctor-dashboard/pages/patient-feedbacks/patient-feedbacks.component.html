@@ -1,0 +1,40 @@
+<div class="feedback-page">
+  <div class="page-header">
+    <div>
+      <h1>Ressenti de mes patients</h1>
+      <p>Feedback émotionnel laissé après la lecture des contenus éducatifs.</p>
+    </div>
+    <button class="refresh-btn" type="button" (click)="loadFeedbacks()">
+      Actualiser
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="state-box">Chargement des retours...</div>
+  <div *ngIf="!isLoading && errorMessage" class="state-box error">{{ errorMessage }}</div>
+
+  <div *ngIf="!isLoading && !errorMessage && feedbacks.length === 0" class="state-box">
+    Aucun feedback n'a encore été reçu.
+  </div>
+
+  <div class="feedback-list" *ngIf="!isLoading && feedbacks.length > 0">
+    <article class="feedback-card" *ngFor="let feedback of feedbacks">
+      <div class="feedback-top">
+        <div>
+          <h3>{{ feedback.patientName }}</h3>
+          <p>{{ feedback.contentTitle }}</p>
+        </div>
+        <span class="emotion-pill" [class.sad]="feedback.emotion === 'SAD'" [class.happy]="feedback.emotion === 'HAPPY'">
+          {{ getEmotionIcon(feedback.emotion) }} {{ getEmotionLabel(feedback.emotion) }}
+        </span>
+      </div>
+
+      <p class="feedback-comment" *ngIf="feedback.comment">{{ feedback.comment }}</p>
+      <p class="feedback-comment muted" *ngIf="!feedback.comment">Aucun commentaire ajouté.</p>
+
+      <div class="feedback-footer">
+        <span>Contenu #{{ feedback.contentId }}</span>
+        <span>{{ feedback.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+      </div>
+    </article>
+  </div>
+</div>

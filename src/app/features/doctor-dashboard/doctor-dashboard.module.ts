@@ -9,12 +9,14 @@ import { DoctorDashboardRoutingModule } from './doctor-dashboard-routing.module'
 import { EducationManagerComponent } from './pages/education-manager/education-manager.component';
 import { ArticleEditorComponent } from './pages/article-editor/article-editor.component';
 import { CommentsManagerComponent } from './pages/comments-manager/comments-manager.component';
+import { PatientFeedbacksComponent } from './pages/patient-feedbacks/patient-feedbacks.component';
 
 @NgModule({
   declarations: [
     EducationManagerComponent,
     ArticleEditorComponent,
-    CommentsManagerComponent
+    CommentsManagerComponent,
+    PatientFeedbacksComponent
   ],
   imports: [
     CommonModule,

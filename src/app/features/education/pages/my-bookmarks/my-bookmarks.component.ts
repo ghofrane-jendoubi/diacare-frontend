@@ -23,7 +23,7 @@ export class MyBookmarksComponent implements OnInit {
     this.isLoading = true;
     console.log('📚 Chargement des favoris...');
 
-    this.educationService.getMyBookmarks(1).subscribe({
+    this.educationService.getMyBookmarks().subscribe({
       next: (data) => {
         console.log('✅ Favoris reçus:', data);
         this.bookmarks = data;

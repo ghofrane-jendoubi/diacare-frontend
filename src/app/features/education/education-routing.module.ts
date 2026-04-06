@@ -3,10 +3,11 @@ import { RouterModule, Routes } from '@angular/router';
 import { EducationHomeComponent } from './pages/education-home/education-home.component';
 import { ArticleDetailComponent } from './pages/article-detail/article-detail.component';
 import { MyBookmarksComponent } from './pages/my-bookmarks/my-bookmarks.component';
+import { feedbackExitGuard } from './guards/feedback-exit.guard';
 
 const routes: Routes = [
   { path: '', component: EducationHomeComponent },
-  { path: 'article/:id', component: ArticleDetailComponent },
+  { path: 'article/:id', component: ArticleDetailComponent, canDeactivate: [feedbackExitGuard] },
   { path: 'my-bookmarks', component: MyBookmarksComponent }
 ];
 
