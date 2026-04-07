@@ -23,6 +23,12 @@ const routes: Routes = [
   { path: 'nutritionnist', loadChildren: () => import('./features/nutritionnist-dashboard/nutritionnist-dashboard.module').then(m => m.NutritionnistDashboardModule) },
   { path: 'patient', loadChildren: () => import('./features/patient-home/patient-home.module').then(m => m.PatientHomeModule) },
  { path: 'nutritionist-dashboard', component: NutritionnistDashboardComponent },
+ {
+  path: 'patient/profile',
+  loadChildren: () =>
+    import('./features/patient-profile/patient-profile.module')
+      .then(m => m.PatientProfileModule)
+},
   { path: '**', redirectTo: '' }
 ];
 

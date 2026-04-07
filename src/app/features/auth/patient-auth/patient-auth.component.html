@@ -2,128 +2,228 @@
   <div class="container">
 
     <div class="form-container">
-
       <!-- SIGN IN -->
       <div *ngIf="!isSignUp" class="form-panel">
-        <h2>Connexion Patient</h2>
-        <p class="subtitle">Connectez-vous à votre espace santé</p>
+        <div class="logo-section">
+          <div class="logo-icon">🏥</div>
+          <h2>Connexion</h2>
+          <p class="subtitle">Accédez à votre espace santé</p>
+        </div>
+        
         <form (ngSubmit)="signIn()">
           <div class="input-group">
+            <div class="input-icon">📧</div>
             <input type="email" [(ngModel)]="loginData.email" name="email"
-                   placeholder="Email *" required>
+                   placeholder="Email" required>
           </div>
           <div class="input-group">
+            <div class="input-icon">🔒</div>
             <input type="password" [(ngModel)]="loginData.password" name="password"
-                   placeholder="Mot de passe *" required>
+                   placeholder="Mot de passe" required>
           </div>
+          
+          <div class="options-row">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="rememberMe" name="remember">
+              <span>Se souvenir de moi</span>
+            </label>
+            <a href="#" class="forgot-link">Mot de passe oublié ?</a>
+          </div>
+          
           <button type="submit" class="btn-primary" [disabled]="isLoading">
             {{ isLoading ? 'Connexion...' : 'SE CONNECTER' }}
           </button>
         </form>
+        
+        <div class="divider">
+          <span>ou</span>
+        </div>
+        
+        <div class="social-buttons">
+          <button class="btn-social google" type="button">
+            <span>G</span> Google
+          </button>
+          <button class="btn-social facebook" type="button">
+            <span>f</span> Facebook
+          </button>
+        </div>
+        
+        <div class="signup-prompt">
+          <span>Pas encore de compte ?</span>
+          <button type="button" class="link-btn" (click)="toggleMode()">S'inscrire</button>
+        </div>
       </div>
 
-      <!-- SIGN UP -->
-      <div *ngIf="isSignUp" class="form-panel">
-        <h2>Créer un compte Patient</h2>
-        <p class="subtitle">Rejoignez DiaCare pour gérer votre santé</p>
-        <form (ngSubmit)="signUp()">
-
-          <p class="section-label">Informations personnelles</p>
+      <!-- SIGN UP - ÉTAPE 1 : INFOS PERSONNELLES -->
+      <div *ngIf="isSignUp && step === 1" class="form-panel">
+        <div class="step-indicator">
+          <div class="step active">1</div>
+          <div class="step-line"></div>
+          <div class="step">2</div>
+        </div>
+        <h3>Créer un compte</h3>
+        <p class="subtitle">Informations personnelles</p>
+        
+        <form (ngSubmit)="nextStep()">
           <div class="input-row">
             <div class="input-group half">
               <input type="text" [(ngModel)]="newPatient.firstName" name="firstName"
-                     placeholder="Prénom *" required>
+                     placeholder="Prénom" required>
             </div>
             <div class="input-group half">
               <input type="text" [(ngModel)]="newPatient.lastName" name="lastName"
-                     placeholder="Nom *" required>
+                     placeholder="Nom" required>
             </div>
           </div>
+          
           <div class="input-group">
             <input type="email" [(ngModel)]="newPatient.email" name="email"
-                   placeholder="Email *" required>
+                   placeholder="Email" required>
           </div>
+          
           <div class="input-group">
             <input type="tel" [(ngModel)]="newPatient.phone" name="phone"
-                   placeholder="Téléphone *" required>
+                   placeholder="Téléphone" required>
           </div>
+          
           <div class="input-group">
             <input type="password" [(ngModel)]="newPatient.password" name="password"
-                   placeholder="Mot de passe *" required minlength="6">
+                   placeholder="Mot de passe (6+ caractères)" required minlength="6">
           </div>
+          
           <div class="input-row">
             <div class="input-group half">
-              <input type="date" [(ngModel)]="newPatient.dateOfBirth" name="dateOfBirth">
+              <input type="date" [(ngModel)]="newPatient.dateOfBirth" name="dateOfBirth"
+                     placeholder="Date naissance">
             </div>
             <div class="input-group half">
               <select [(ngModel)]="newPatient.gender" name="gender">
-                <option value="">-- Genre --</option>
+                <option value="">Genre</option>
                 <option *ngFor="let g of genders" [value]="g">{{ g }}</option>
               </select>
             </div>
           </div>
+          
           <div class="input-group">
             <input type="text" [(ngModel)]="newPatient.address" name="address"
                    placeholder="Adresse">
           </div>
+          
           <div class="input-group">
             <input type="text" [(ngModel)]="newPatient.city" name="city"
                    placeholder="Ville">
           </div>
+          
+          <div class="button-group">
+            <button type="button" class="btn-secondary" (click)="toggleMode()">
+              Annuler
+            </button>
+            <button type="submit" class="btn-primary">
+              Continuer →
+            </button>
+          </div>
+        </form>
+      </div>
 
-          <p class="section-label">Informations médicales</p>
+      <!-- SIGN UP - ÉTAPE 2 : INFOS MÉDICALES -->
+      <div *ngIf="isSignUp && step === 2" class="form-panel">
+        <div class="step-indicator">
+          <div class="step done">✓</div>
+          <div class="step-line"></div>
+          <div class="step active">2</div>
+        </div>
+        <h3>Informations médicales</h3>
+        <p class="subtitle">Pour mieux vous accompagner</p>
+        
+        <form (ngSubmit)="signUp()">
+          <div class="medical-badge">
+            <span>🩺</span>
+            <span>Données confidentielles et sécurisées</span>
+          </div>
+          
           <div class="input-row">
             <div class="input-group half">
               <select [(ngModel)]="newPatient.diabetesType" name="diabetesType">
-                <option value="">-- Type de diabète --</option>
+                <option value="">Type de diabète</option>
                 <option *ngFor="let d of diabetesTypes" [value]="d">{{ d }}</option>
               </select>
             </div>
             <div class="input-group half">
               <select [(ngModel)]="newPatient.bloodType" name="bloodType">
-                <option value="">-- Groupe sanguin --</option>
+                <option value="">Groupe sanguin</option>
                 <option *ngFor="let b of bloodTypes" [value]="b">{{ b }}</option>
               </select>
             </div>
           </div>
+          
           <div class="input-row">
             <div class="input-group half">
               <input type="number" [(ngModel)]="newPatient.weight" name="weight"
-                     placeholder="Poids (kg)" min="0">
+                     placeholder="Poids (kg)" min="0" step="0.1">
             </div>
             <div class="input-group half">
               <input type="number" [(ngModel)]="newPatient.height" name="height"
                      placeholder="Taille (cm)" min="0">
             </div>
           </div>
+          
           <div class="input-group">
             <input type="text" [(ngModel)]="newPatient.emergencyContact" name="emergencyContact"
-                   placeholder="Contact d'urgence (Nom + Téléphone)">
+                   placeholder="Contact d'urgence">
           </div>
+          
           <div class="input-group">
             <textarea [(ngModel)]="newPatient.familyHistory" name="familyHistory"
-                      placeholder="Antécédents familiaux" rows="3"></textarea>
+                      placeholder="Antécédents familiaux" rows="2"></textarea>
           </div>
-
-          <button type="submit" class="btn-primary" [disabled]="isLoading">
-            {{ isLoading ? 'Inscription...' : 'S\'INSCRIRE' }}
-          </button>
+          
+          <div class="button-group">
+            <button type="button" class="btn-secondary" (click)="prevStep()">
+              ← Retour
+            </button>
+            <button type="submit" class="btn-primary" [disabled]="isLoading">
+              {{ isLoading ? 'Inscription...' : 'VALIDER' }}
+            </button>
+          </div>
         </form>
       </div>
 
-      <div *ngIf="successMessage" class="msg success">✅ {{ successMessage }}</div>
-      <div *ngIf="errorMessage" class="msg error">❌ {{ errorMessage }}</div>
+      <div *ngIf="successMessage" class="msg success">
+        <span>✅</span> {{ successMessage }}
+      </div>
+      <div *ngIf="errorMessage" class="msg error">
+        <span>❌</span> {{ errorMessage }}
+      </div>
     </div>
 
-    <!-- PANNEAU DROIT -->
+    <!-- PANNEAU DROIT DYNAMIQUE -->
     <div class="info-panel">
       <div class="info-content">
-        <h1>{{ isSignUp ? 'Déjà inscrit ?' : 'Nouveau patient ?' }}</h1>
-        <p>{{ isSignUp
-          ? 'Connectez-vous à votre espace santé DiaCare.'
-          : 'Créez votre compte pour suivre votre diabète et accéder à vos professionnels de santé.' }}</p>
-        <button class="btn-outline" (click)="toggleMode()">
-          {{ isSignUp ? 'SE CONNECTER' : 'S\'INSCRIRE' }}
+        <div class="gradient-circle"></div>
+        <div class="info-icon" *ngIf="!isSignUp">🌟</div>
+        <div class="info-icon" *ngIf="isSignUp">👋</div>
+        
+        <h2>{{ isSignUp ? 'Déjà inscrit ?' : 'Bienvenue sur DiaCare' }}</h2>
+        
+        <p>{{ isSignUp 
+          ? 'Connectez-vous pour accéder à votre tableau de bord et suivre votre santé au quotidien.'
+          : 'Rejoignez notre communauté et bénéficiez d\'un suivi personnalisé de votre diabète.' }}</p>
+        
+        <div class="features-list" *ngIf="!isSignUp">
+          <div class="feature">
+            <span>✓</span> Suivi glycémique
+          </div>
+          <div class="feature">
+            <span>✓</span> Rappels médicaments
+          </div>
+          <div class="feature">
+            <span>✓</span> Consultation en ligne
+          </div>
+        </div>
+        
+        <button type="button" class="btn-outline" (click)="toggleMode()">
+          {{ isSignUp ? 'SE CONNECTER' : 'CRÉER UN COMPTE' }}
+          <span class="btn-arrow">→</span>
         </button>
       </div>
     </div>
