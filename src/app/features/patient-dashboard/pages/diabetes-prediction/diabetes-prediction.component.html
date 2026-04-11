@@ -1,0 +1,203 @@
+<!-- diabetes-prediction.component.html -->
+<div class="prediction-wrapper">
+  <!-- Hero Section Animé -->
+  <div class="hero-animated">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="floating-icon">
+        <div class="pulse-ring"></div>
+        <i class="bi bi-heart-pulse"></i>
+      </div>
+      <h1 class="gradient-title">Prenez soin de votre santé<span class="dot">.</span></h1>
+      <p class="hero-description">Découvrez votre risque de diabète grâce à notre IA médicale avancée</p>
+      <div class="hero-features">
+        <div class="feature"><i class="bi bi-shield-check"></i><span>100% confidentiel</span></div>
+        <div class="feature"><i class="bi bi-cpu"></i><span>IA certifiée</span></div>
+        <div class="feature"><i class="bi bi-clock-history"></i><span>Résultat instantané</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Explicative -->
+  <div class="info-cards">
+    <div class="card-info" *ngFor="let info of infos">
+      <div class="card-icon" [style.background]="info.bgColor"><i [class]="info.icon"></i></div>
+      <h3>{{ info.title }}</h3>
+      <p>{{ info.description }}</p>
+    </div>
+  </div>
+
+  <!-- Formulaire Principal -->
+  <div class="form-container">
+    <div class="form-header">
+      <div class="header-badge"><i class="bi bi-clipboard2-heart"></i><span>Questionnaire médical</span></div>
+      <h2>Vos informations</h2>
+      <p>Remplissez ce formulaire basé sur vos dernières analyses</p>
+    </div>
+
+    <form [formGroup]="predictionForm" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <div class="input-group" *ngFor="let field of fields">
+          <div class="input-label">
+            <i [class]="field.icon"></i>
+            <span class="label-text" (click)="openFieldInfo(field)">{{ field.label }}</span>
+            <span class="required">*</span>
+            <div class="info-badge" (click)="openFieldInfo(field)">
+              <i class="bi bi-question-circle"></i>
+            </div>
+          </div>
+          
+          <div class="input-wrapper">
+            <input 
+              [type]="field.type" 
+              [formControlName]="field.name"
+              [min]="field.min"
+              [max]="field.max"
+              step="0.1"
+              [placeholder]="getFieldExample(field.name)"
+              [class.error]="predictionForm.get(field.name)?.invalid && predictionForm.get(field.name)?.touched">
+            <span class="input-unit" *ngIf="field.unit">{{ field.unit }}</span>
+          </div>
+          
+          <!-- Explication du champ en dessous -->
+          <div class="field-explanation">
+            <i class="bi bi-info-circle"></i>
+            <span>{{ getFieldExplanation(field.name) }}</span>
+          </div>
+          
+          <div class="field-hint" *ngIf="getFieldHint(field.name)">
+            <i class="bi bi-lightbulb"></i>
+            <span>💡 {{ getFieldHint(field.name) }}</span>
+          </div>
+          
+          <div class="field-normal" *ngIf="getFieldNormalRange(field.name)">
+            <i class="bi bi-check-circle"></i>
+            <span>📊 Valeur normale : {{ getFieldNormalRange(field.name) }}</span>
+          </div>
+          
+          <div class="input-error" *ngIf="predictionForm.get(field.name)?.invalid && predictionForm.get(field.name)?.touched">
+            <i class="bi bi-exclamation-circle"></i> Valeur entre {{ field.min }} et {{ field.max }}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-reset" (click)="resetForm()">
+          <i class="bi bi-arrow-repeat"></i> Tout effacer
+        </button>
+        <button type="submit" class="btn-analyze" [disabled]="isLoading">
+          <span class="btn-text">{{ isLoading ? 'Analyse en cours...' : 'Analyser mon risque' }}</span>
+          <i class="bi" [ngClass]="isLoading ? 'bi-hourglass-split' : 'bi-arrow-right'"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Section Comprendre -->
+  <div class="understand-section">
+    <div class="section-title">
+      <span class="subtitle">Comment ça marche</span>
+      <h2>Comprendre votre évaluation</h2>
+    </div>
+    <div class="understand-grid">
+      <div class="understand-item" *ngFor="let item of understandItems; let i = index">
+        <div class="item-number">{{ i + 1 }}</div>
+        <div class="item-icon"><i [class]="item.icon"></i></div>
+        <h4>{{ item.title }}</h4>
+        <p>{{ item.description }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Témoignage -->
+  <div class="testimonial">
+    <div class="testimonial-content">
+      <i class="bi bi-quote"></i>
+      <p>Grâce à cet outil, j'ai pu détecter mon diabète à un stade précoce. Aujourd'hui, je suis suivie et ma vie a changé.</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">S</div>
+        <div class="author-info"><strong>Sophie Martin</strong><span>Patiente DiaCare</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Info Champ -->
+<div class="info-modal" *ngIf="showFieldInfo" (click)="closeFieldInfo()">
+  <div class="info-modal-content" (click)="$event.stopPropagation()">
+    <div class="info-modal-header">
+      <div class="info-icon"><i [class]="selectedField?.icon"></i></div>
+      <h3>{{ selectedField?.label }}</h3>
+      <button class="close-btn" (click)="closeFieldInfo()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="info-modal-body">
+      <div class="info-section">
+        <h4><i class="bi bi-question-circle"></i> Qu'est-ce que c'est ?</h4>
+        <p>{{ getFieldDescription(selectedField?.name || '') }}</p>
+      </div>
+      <div class="info-section">
+        <h4><i class="bi bi-graph-up"></i> Impact sur le diabète</h4>
+        <p>{{ getFieldImpact(selectedField?.name || '') }}</p>
+      </div>
+      <div class="info-section">
+        <h4><i class="bi bi-check-circle"></i> Valeurs normales</h4>
+        <p>✅ {{ getFieldNormalRange(selectedField?.name || '') }}</p>
+      </div>
+      <div class="info-section warning">
+        <h4><i class="bi bi-exclamation-triangle"></i> Valeurs à risque</h4>
+        <p>{{ getFieldRiskRange(selectedField?.name || '') }}</p>
+      </div>
+    </div>
+    <div class="info-modal-footer">
+      <button class="btn-ok" (click)="closeFieldInfo()">Compris</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Résultat Moderne -->
+<div class="result-overlay" *ngIf="showResult" (click)="closeModal()">
+  <div class="result-modal-modern" (click)="$event.stopPropagation()">
+    <div class="modal-glow"></div>
+    <button class="modal-close" (click)="closeModal()"><i class="bi bi-x"></i></button>
+
+    <div class="result-status" [class.diabetic]="result?.result?.prediction === 1" [class.non-diabetic]="result?.result?.prediction === 0">
+      <div class="status-icon">
+        <i class="bi" [ngClass]="result?.result?.prediction === 1 ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'"></i>
+      </div>
+      <div class="status-text">
+        <h2>{{ result?.result?.label }}</h2>
+        <p>Risque <strong>{{ result?.result?.risk_level }}</strong></p>
+      </div>
+    </div>
+
+    <div class="modal-body">
+      <div class="probability-circle">
+        <svg viewBox="0 0 120 120" class="progress-ring">
+          <circle cx="60" cy="60" r="54" fill="none" stroke="#f0f0f0" stroke-width="8"/>
+          <circle cx="60" cy="60" r="54" fill="none" stroke="url(#grad)" stroke-width="8"
+                  stroke-dasharray="339.292"
+                  [attr.stroke-dashoffset]="339.292 - (339.292 * (result?.result?.probability_pct || 0) / 100)"
+                  stroke-linecap="round" transform="rotate(-90 60 60)"/>
+          <defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff6b9d"/><stop offset="100%" stop-color="#ff1493"/>
+          </linearGradient></defs>
+        </svg>
+        <div class="percentage"><span class="percent-value">{{ result?.result?.probability_pct || 0 }}%</span><span class="percent-label">probabilité</span></div>
+      </div>
+
+      <div class="message-card"><i class="bi bi-chat-heart-fill"></i><p>{{ result?.result?.message }}</p></div>
+
+      <div class="recommendations">
+        <h4><i class="bi bi-stars"></i> Nos recommandations</h4>
+        <div class="rec-list"><div class="rec-item" *ngFor="let rec of getRecommendations(result)"><i class="bi bi-check2-circle"></i><span>{{ rec }}</span></div></div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="action-btn primary" (click)="openAppointment()"><i class="bi bi-calendar-plus"></i><span>Prendre rendez-vous</span></button>
+      <button class="action-btn secondary" (click)="openConsultation()"><i class="bi bi-chat-dots"></i><span>Consulter un médecin</span></button>
+    </div>
+
+    <div class="modal-disclaimer"><i class="bi bi-shield-shaded"></i><span>Résultat indicatif — Consultation médicale recommandée</span></div>
+  </div>
+</div>

@@ -8,7 +8,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class PatientLayoutComponent implements OnInit {
   patientMenuItems = [
-    { id: 'doctors',      label: 'Médecins',        link: '/patient/doctors' },
+    { id: 'analyse',      label: 'Analyse',        link: '/patient/choices' },
     { id: 'nutrition',    label: 'Nutrition',        link: '/patient/nutrition' },
     { id: 'education',    label: 'Éducation',        link: '/patient/education' },
     { id: 'messagerie',  label: 'Messagerie',  link: '/patient/chat' },

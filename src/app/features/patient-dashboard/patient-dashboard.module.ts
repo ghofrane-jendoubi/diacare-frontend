@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 import { PatientDashboardRoutingModule } from './patient-dashboard-routing.module';
@@ -10,7 +10,10 @@ import { SharedModule } from '../../shared/shared.module';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
 import { NotificationDetailModalComponent } from './modals/notification-detail-modal/notification-detail-modal.component';
 import { PaymentModalComponent } from './modals/payment-modal/payment-modal.component';
-
+import { DiabetesPredictionComponent } from './pages/diabetes-prediction/diabetes-prediction.component';
+import { RiskLevelPipe } from './pipes/risk-level.pipe';
+import { PredictionComponent } from './pages/prediction/prediction.component';
+import { PatientChoicesComponent } from './pages/patient-choices/patient-choices.component'; 
 
 
 @NgModule({
@@ -19,12 +22,17 @@ import { PaymentModalComponent } from './modals/payment-modal/payment-modal.comp
     ChatComponent,
     NotificationsComponent,
     NotificationDetailModalComponent,
-    PaymentModalComponent
+    PaymentModalComponent,
+    DiabetesPredictionComponent,
+    RiskLevelPipe,
+    PredictionComponent,
+    PatientChoicesComponent
   ],
   imports: [
     CommonModule,
     FormsModule,
     RouterModule,
+    ReactiveFormsModule,
     PatientDashboardRoutingModule,
     SharedModule 
   ]
