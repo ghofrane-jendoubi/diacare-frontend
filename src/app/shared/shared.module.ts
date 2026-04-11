@@ -22,7 +22,8 @@ import { DoctorTopbarComponent } from './components/doctor-topbar/doctor-topbar.
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { PatientLayoutComponent } from './components/patient-layout/patient-layout.component';
-
+import { PatientSidebarComponent } from './patient-sidebar/patient-sidebar.component';
+import { UserDetailComponent } from './components/user-detail/user-detail.component';
 @NgModule({
   declarations: [
     // Admin
@@ -40,7 +41,9 @@ import { PatientLayoutComponent } from './components/patient-layout/patient-layo
     // Public
     NavbarComponent,
     FooterComponent,
-    PatientLayoutComponent
+    PatientLayoutComponent,
+    PatientSidebarComponent, 
+    UserDetailComponent,
   ],
   imports: [
     CommonModule,
@@ -60,7 +63,7 @@ import { PatientLayoutComponent } from './components/patient-layout/patient-layo
     DoctorLayoutComponent,
     DoctorSidebarComponent,
     DoctorTopbarComponent,
-    // Public (exportés pour être utilisés partout)
+    PatientSidebarComponent, 
     NavbarComponent,
     FooterComponent
   ]

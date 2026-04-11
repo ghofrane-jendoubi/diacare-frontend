@@ -1,0 +1,40 @@
+<aside class="sidebar">
+
+  <!-- Avatar + nom -->
+  <div class="sidebar-user">
+    <div class="sidebar-avatar">
+      <img
+        *ngIf="profilePicUrl"
+        [src]="profilePicUrl"
+        [alt]="currentUser?.firstName"
+        class="avatar-img"
+      />
+      <span *ngIf="!profilePicUrl">{{ initials }}</span>
+    </div>
+    <div class="sidebar-user-info" *ngIf="currentUser">
+      <strong>{{ currentUser.firstName }} {{ currentUser.lastName }}</strong>
+      <span>{{ currentUser.email }}</span>
+    </div>
+  </div>
+
+  <!-- ✅ Navigation FIX -->
+  <nav class="sidebar-nav">
+    <a
+      *ngFor="let item of menuItems"
+      [routerLink]="item.route"
+      class="sidebar-link"
+      [class.active]="isActive(item.route)"
+    >
+      <i class="bi {{ item.icon }}"></i>
+      <span>{{ item.label }}</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-divider"></div>
+
+  <button class="sidebar-logout" (click)="logout()">
+    <i class="bi bi-box-arrow-right"></i>
+    <span>Déconnexion</span>
+  </button>
+
+</aside>

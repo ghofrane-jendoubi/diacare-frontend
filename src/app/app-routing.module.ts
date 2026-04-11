@@ -24,7 +24,11 @@ const routes: Routes = [
   path: 'patient',
   component: PatientLayoutComponent,
   children: [
-    { path: '', loadChildren: () => import('./features/patient-dashboard/patient-dashboard.module').then(m => m.PatientDashboardModule) }
+    { path: '', loadChildren: () => import('./features/patient-dashboard/patient-dashboard.module').then(m => m.PatientDashboardModule) },
+     { 
+        path: 'profile', 
+        loadChildren: () => import('./features/patient-profile/patient-profile.module').then(m => m.PatientProfileModule) 
+      },
   ]
 },
   // Espace admin
@@ -76,13 +80,12 @@ const routes: Routes = [
   { path: 'nutritionnist', loadChildren: () => import('./features/nutritionnist-dashboard/nutritionnist-dashboard.module').then(m => m.NutritionnistDashboardModule) },
   { path: 'patient', loadChildren: () => import('./features/patient-dashboard/patient-home/patient-home.module').then(m => m.PatientHomeModule) },
  { path: 'nutritionist-dashboard', component: NutritionnistDashboardComponent },
-
   { path: '**', redirectTo: '' }
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes, {
-    initialNavigation: 'enabledBlocking', // Garde cette ligne
+    initialNavigation: 'enabledBlocking', 
     errorHandler: (error) => {
       console.error('Navigation error:', error);
       // Ignorer l'erreur de rendu serveur

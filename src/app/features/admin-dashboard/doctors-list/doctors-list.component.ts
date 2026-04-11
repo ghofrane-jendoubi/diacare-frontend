@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { AdminDataService } from '../services/admin-data.service';
+
+import { AdminDataService } from '../../../core/services/admin-data.service';
+
 
 @Component({
   selector: 'app-doctors-list',
