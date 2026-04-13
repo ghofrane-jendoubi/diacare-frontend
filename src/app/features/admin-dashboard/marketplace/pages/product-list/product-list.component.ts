@@ -207,41 +207,54 @@ isBrowser = false;
     if (fileInput) fileInput.value = '';
   }
 
-  updateProduct(): void {
-  if (!this.selectedProduct.name || !this.selectedProduct.type || this.selectedProduct.price <= 0) {
-    alert('Veuillez remplir correctement tous les champs obligatoires.');
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('id', this.selectedProduct.id!.toString());
-  formData.append('name', this.selectedProduct.name);
-  formData.append('price', this.selectedProduct.price.toString());
-  formData.append('type', this.selectedProduct.type);
-  if (this.selectedProduct.barcode) formData.append('barcode', this.selectedProduct.barcode);
-  if (this.selectedProduct.stock != null) formData.append('stock', this.selectedProduct.stock.toString());
-  if (this.selectedProduct.sugarLevel != null) formData.append('sugarLevel', this.selectedProduct.sugarLevel.toString());
-  if (this.selectedProduct.description) formData.append('description', this.selectedProduct.description);
-  if (this.selectedFile) formData.append('image', this.selectedFile);
-
-  this.productService.updateWithImage(this.selectedProduct.id!, formData).subscribe({
-    next: (updatedProduct) => {
-      // Replace the old product in the list with the updated one
-      const index = this.products.findIndex(p => p.id === updatedProduct.id);
-      if (index > -1) this.products[index] = updatedProduct;
-
-      this.showEditModal = false;
-      this.selectedFile = null;
-      this.imagePreview = null;
-      this.showNotification('Produit mis à jour avec succès ✔', 'success');
-    },
-    error: (err) => {
-      console.error('Erreur mise à jour produit:', err);
-      this.showNotification('Erreur lors de la mise à jour du produit', 'error');
+ updateProduct(): void {
+    if (!this.selectedProduct.name || !this.selectedProduct.type || this.selectedProduct.price <= 0) {
+        alert('Veuillez remplir correctement tous les champs obligatoires.');
+        return;
     }
-  });
-}
 
+    if (this.selectedFile) {
+        // With image - use upload endpoint
+        const formData = new FormData();
+        formData.append('name', this.selectedProduct.name);
+        formData.append('price', this.selectedProduct.price.toString());
+        formData.append('type', this.selectedProduct.type);
+        if (this.selectedProduct.barcode) formData.append('barcode', this.selectedProduct.barcode);
+        if (this.selectedProduct.stock != null) formData.append('stock', this.selectedProduct.stock.toString());
+        if (this.selectedProduct.sugarLevel != null) formData.append('sugarLevel', this.selectedProduct.sugarLevel.toString());
+        if (this.selectedProduct.description) formData.append('description', this.selectedProduct.description);
+        formData.append('image', this.selectedFile);
+
+        this.productService.updateWithImage(this.selectedProduct.id!, formData).subscribe({
+            next: (updatedProduct) => {
+                const index = this.products.findIndex(p => p.id === updatedProduct.id);
+                if (index > -1) this.products[index] = updatedProduct;
+                this.closeEditModal();
+                this.calculateStats();
+                this.showNotification('Produit mis à jour avec succès ✔', 'success');
+            },
+            error: (err) => {
+                console.error('Erreur mise à jour produit:', err);
+                this.showNotification('Erreur lors de la mise à jour', 'error');
+            }
+        });
+    } else {
+        // Without image - use simple PUT
+        this.productService.update(this.selectedProduct.id!, this.selectedProduct).subscribe({
+            next: (updatedProduct) => {
+                const index = this.products.findIndex(p => p.id === updatedProduct.id);
+                if (index > -1) this.products[index] = updatedProduct;
+                this.closeEditModal();
+                this.calculateStats();
+                this.showNotification('Produit mis à jour avec succès ✔', 'success');
+            },
+            error: (err) => {
+                console.error('Erreur mise à jour produit:', err);
+                this.showNotification('Erreur lors de la mise à jour', 'error');
+            }
+        });
+    }
+}
   // -------------------- Helpers --------------------
   getImageUrl(filename: string): string {
     return this.productService.getImageUrl(filename);

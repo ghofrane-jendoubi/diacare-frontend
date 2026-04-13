@@ -97,4 +97,7 @@ checkout(): void {
     }
   });
 }
+viewProductDetails(productId: number): void {
+  this.router.navigate(['/patient/product', productId]);
+}
 }

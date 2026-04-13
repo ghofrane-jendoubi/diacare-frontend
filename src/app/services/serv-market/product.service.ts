@@ -29,14 +29,14 @@ export class ProductService {
   }
   
 
-  // ✅ UPDATE
-  update(id: number, product: Product): Observable<Product> {
-    return this.http.put<Product>(`${this.apiUrl}/${id}`, product);
-  }
+ 
 
-  // ✅ UPDATE WITH IMAGE
-  updateWithImage(id: number, formData: FormData) {
-  return this.http.put<Product>(`/api/products/${id}`, formData);
+ update(id: number, product: Product): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/${id}`, product);
+}
+
+updateWithImage(id: number, formData: FormData): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/upload/${id}`, formData);
 }
 
   // ✅ DELETE
