@@ -11,7 +11,7 @@
 
   <!-- Loading -->
   <div class="loading-state" *ngIf="isLoading">
-    <div class="spinner-border text-success"></div>
+    <div class="spinner-border text-primary"></div>
     <p>Analyse de vos données...</p>
   </div>
 
@@ -65,7 +65,7 @@
         </div>
         <div class="legend">
           <span class="leg-item">
-            <span class="leg-dot" style="background:#10b981"></span>
+            <span class="leg-dot" style="background:#3b82f6"></span>
             Glucides réels
           </span>
           <span class="leg-item">
@@ -97,11 +97,11 @@
           <svg [attr.viewBox]="'0 0 ' + W + ' ' + H"
                class="the-svg" preserveAspectRatio="none">
 
-            <!-- Dégradé vert -->
+            <!-- Dégradé bleu -->
             <defs>
               <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%"   stop-color="#10b981" stop-opacity="0.3"/>
-                <stop offset="100%" stop-color="#10b981" stop-opacity="0.02"/>
+                <stop offset="0%"   stop-color="#3b82f6" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.02"/>
               </linearGradient>
             </defs>
 
@@ -132,9 +132,9 @@
               Objectif {{ targetCarbs }}g
             </text>
 
-            <!-- Courbe lissée -->
+            <!-- Courbe lissée BLEUE -->
             <path [attr.d]="getCurvePath()"
-                  fill="none" stroke="#10b981"
+                  fill="none" stroke="#3b82f6"
                   stroke-width="3"
                   stroke-linecap="round"
                   stroke-linejoin="round"/>
@@ -142,7 +142,6 @@
             <!-- Points + valeurs -->
             <ng-container *ngFor="let pt of getPoints(); let i = index">
 
-              <!-- Valeur au-dessus si données -->
               <text *ngIf="weekData[i].entries > 0"
                     [attr.x]="pt.x"
                     [attr.y]="getPtLabelY(pt.y)"
@@ -153,12 +152,10 @@
                 {{ pt.carbs }}g
               </text>
 
-              <!-- Point coloré -->
               <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="6"
                       [attr.fill]="pointColor(weekData[i])"
                       stroke="white" stroke-width="2.5"/>
 
-              <!-- Tiret si pas de données -->
               <text *ngIf="weekData[i].entries === 0"
                     [attr.x]="pt.x" [attr.y]="emptyDotY"
                     text-anchor="middle" font-size="10" fill="#d1d5db">
@@ -169,7 +166,7 @@
 
           </svg>
 
-          <!-- Labels X (jours) -->
+          <!-- Labels X -->
           <div class="x-labels">
             <div class="x-item" *ngFor="let d of weekData"
                  [class.today]="d.isToday">
@@ -187,7 +184,7 @@
 
       <!-- Légende couleurs -->
       <div class="color-legend">
-        <span><span class="cl-dot" style="background:#10b981"></span> Respecté</span>
+        <span><span class="cl-dot" style="background:#3b82f6"></span> Respecté</span>
         <span><span class="cl-dot" style="background:#f59e0b"></span> Limite (85–100%)</span>
         <span><span class="cl-dot" style="background:#ef4444"></span> Dépassement</span>
         <span><span class="cl-dot" style="background:#e5e7eb"></span> Pas de données</span>

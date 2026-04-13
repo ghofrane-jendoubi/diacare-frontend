@@ -24,6 +24,12 @@ export class FoodChatComponent implements OnInit {
   showHistory = false;
   patientId: number = 1;
 
+  // Pour l'image
+  isAnalyzingImage = false;
+  imagePreview: string | null = null;
+  pendingImageAnalysis: boolean = false;
+  pendingImageBase64: string | null = null;
+
   exampleTexts = [
     'I ate pizza and soda',
     'I had oatmeal with banana for breakfast',
@@ -48,8 +54,10 @@ export class FoodChatComponent implements OnInit {
     }
   }
 
+  // ==================== LOAD HISTORY ====================
+  
   loadHistory(): void {
-    this.nutritionService.getFoodHistory().subscribe({
+    this.nutritionService.getFoodHistoryByPatient(this.patientId).subscribe({
       next: (entries) => {
         this.history = entries.map(e => ({
           ...e,
@@ -60,10 +68,23 @@ export class FoodChatComponent implements OnInit {
     });
   }
 
+  // ==================== TEXT ANALYSIS ====================
+  
   sendMessage(): void {
     const text = this.userInput.trim();
     if (!text || this.isLoading) return;
 
+    // Cas spécial: on attend une description après une image
+    if (this.pendingImageAnalysis && this.pendingImageBase64) {
+      this.handleImageDescription(text);
+      return;
+    }
+
+    // Comportement normal (texte seul)
+    this.processTextAnalysis(text);
+  }
+
+  private processTextAnalysis(text: string): void {
     this.messages.push({ type: 'patient', text, timestamp: new Date() });
     this.userInput = '';
     this.isLoading = true;
@@ -85,10 +106,8 @@ export class FoodChatComponent implements OnInit {
         }
 
         this.isLoading = false;
-        if (isPlatformBrowser(this.platformId)) {
-          this.loadHistory();
-          this.scrollToBottom();
-        }
+        this.loadHistory();
+        this.scrollToBottom();
       },
       error: (err) => {
         this.messages = this.messages.filter(m => m.type !== 'loading');
@@ -99,10 +118,201 @@ export class FoodChatComponent implements OnInit {
         });
         this.isLoading = false;
         console.error('Food analysis error', err);
+        this.scrollToBottom();
       }
     });
   }
 
+  private handleImageDescription(text: string): void {
+    this.pendingImageAnalysis = false;
+    
+    this.messages.push({ type: 'patient', text, timestamp: new Date() });
+    this.userInput = '';
+    this.isLoading = true;
+    this.messages.push({ type: 'loading', timestamp: new Date() });
+
+    this.nutritionService.analyzeFood(text, this.patientId).subscribe({
+      next: (entry) => {
+        this.messages = this.messages.filter(m => m.type !== 'loading');
+        const result = this.nutritionService.parseAnalysisResult(entry);
+
+        if (result && result.foods && result.foods.length > 0) {
+          this.messages.push({ type: 'ai', result, timestamp: new Date() });
+        } else {
+          this.messages.push({
+            type: 'ai',
+            text: "❌ Je n'ai pas pu analyser votre description. Essayez d'être plus précis.",
+            timestamp: new Date()
+          });
+        }
+
+        this.isLoading = false;
+        this.imagePreview = null;
+        this.pendingImageBase64 = null;
+        this.loadHistory();
+        this.scrollToBottom();
+      },
+      error: (err) => {
+        this.messages = this.messages.filter(m => m.type !== 'loading');
+        this.messages.push({
+          type: 'ai',
+          text: '⚠️ Erreur lors de l\'analyse. Veuillez réessayer.',
+          timestamp: new Date()
+        });
+        this.isLoading = false;
+        this.pendingImageBase64 = null;
+        console.error('Error:', err);
+        this.scrollToBottom();
+      }
+    });
+  }
+
+  // ==================== IMAGE ANALYSIS ====================
+  
+  onImageUpload(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.messages.push({
+        type: 'ai',
+        text: '❌ Veuillez sélectionner une image valide.',
+        timestamp: new Date()
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      this.imagePreview = base64;
+      this.analyzeImage(base64);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  analyzeImage(base64Image: string): void {
+    this.isAnalyzingImage = true;
+    this.pendingImageAnalysis = true;
+    this.pendingImageBase64 = base64Image;
+
+    // Afficher message patient avec image
+    this.messages.push({
+      type: 'patient',
+      text: '📸 Photo de repas envoyée',
+      timestamp: new Date()
+    });
+
+    // Loading bubble
+    this.messages.push({ type: 'loading', timestamp: new Date() });
+
+    this.nutritionService.analyzeFoodImage(base64Image, this.patientId).subscribe({
+      next: (response: any) => {
+        this.messages = this.messages.filter(m => m.type !== 'loading');
+
+        if (response.need_manual_input) {
+          // Message demandant la description
+          this.messages.push({
+            type: 'ai',
+            text: response.message || '📷 Photo reçue ! Pouvez-vous me décrire ce que vous avez mangé ? (ex: "pizza and salad")',
+            timestamp: new Date()
+          });
+          this.isAnalyzingImage = false;
+          this.scrollToBottom();
+        } else if (response.detected_foods && response.detected_foods.length > 0) {
+          // Aliments détectés automatiquement
+          this.handleDetectedFoods(response.detected_foods);
+        } else {
+          this.messages.push({
+            type: 'ai',
+            text: "❌ Je n'ai pas pu identifier les aliments sur cette photo. Pouvez-vous me décrire ce que vous avez mangé ?",
+            timestamp: new Date()
+          });
+          this.isAnalyzingImage = false;
+          this.imagePreview = null;
+          this.pendingImageAnalysis = false;
+          this.scrollToBottom();
+        }
+      },
+      error: (error) => {
+        this.messages = this.messages.filter(m => m.type !== 'loading');
+        console.error('Image analysis error:', error);
+        
+        this.messages.push({
+          type: 'ai',
+          text: '⚠️ Erreur lors de l\'analyse de l\'image. Pouvez-vous me décrire ce que vous avez mangé ?',
+          timestamp: new Date()
+        });
+        this.isAnalyzingImage = false;
+        this.imagePreview = null;
+        this.pendingImageAnalysis = false;
+        this.scrollToBottom();
+      }
+    });
+  }
+
+  private handleDetectedFoods(foods: string[]): void {
+    this.messages.push({
+      type: 'ai',
+      text: `🔍 Aliments détectés : ${foods.map(f => `**${f}**`).join(', ')}. Analyse nutritionnelle en cours...`,
+      timestamp: new Date()
+    });
+
+    this.messages.push({ type: 'loading', timestamp: new Date() });
+    
+    const foodText = `I ate ${foods.join(' and ')}`;
+    
+    this.nutritionService.analyzeFood(foodText, this.patientId).subscribe({
+      next: (entry) => {
+        this.messages = this.messages.filter(m => m.type !== 'loading');
+        const result = this.nutritionService.parseAnalysisResult(entry);
+
+        if (result && result.foods && result.foods.length > 0) {
+          this.messages.push({ type: 'ai', result, timestamp: new Date() });
+        } else {
+          this.messages.push({
+            type: 'ai',
+            text: `✅ Repas enregistré : ${foods.join(', ')}.`,
+            timestamp: new Date()
+          });
+        }
+
+        this.isAnalyzingImage = false;
+        this.imagePreview = null;
+        this.pendingImageAnalysis = false;
+        this.loadHistory();
+        this.scrollToBottom();
+      },
+      error: () => {
+        this.messages = this.messages.filter(m => m.type !== 'loading');
+        this.messages.push({
+          type: 'ai',
+          text: `✅ Aliments détectés : ${foods.join(', ')}. Données nutritionnelles en cours de calcul.`,
+          timestamp: new Date()
+        });
+        this.isAnalyzingImage = false;
+        this.imagePreview = null;
+        this.pendingImageAnalysis = false;
+        this.scrollToBottom();
+      }
+    });
+  }
+
+  cancelImageAnalysis(): void {
+    this.pendingImageAnalysis = false;
+    this.pendingImageBase64 = null;
+    this.imagePreview = null;
+    this.isAnalyzingImage = false;
+    this.messages.push({
+      type: 'ai',
+      text: '❌ Analyse d\'image annulée.',
+      timestamp: new Date()
+    });
+    this.scrollToBottom();
+  }
+
+  // ==================== HELPERS ====================
+  
   useExample(text: string): void {
     this.userInput = text;
   }
@@ -133,6 +343,19 @@ export class FoodChatComponent implements OnInit {
     this.showHistory = !this.showHistory;
   }
 
+  deleteEntry(id: number): void {
+    if (!confirm('Supprimer cet élément ?')) return;
+
+    this.nutritionService.deleteFoodEntry(id).subscribe({
+      next: () => {
+        this.history = this.history.filter(e => e.id !== id);
+      },
+      error: (err) => {
+        console.error('Erreur suppression', err);
+      }
+    });
+  }
+
   private scrollToBottom(): void {
     if (isPlatformBrowser(this.platformId)) {
       setTimeout(() => {
@@ -145,122 +368,10 @@ export class FoodChatComponent implements OnInit {
   trackByIndex(index: number): number {
     return index;
   }
-  isAnalyzingImage = false;
-imagePreview: string | null = null;
 
-onImageUpload(event: Event): void {
-  const file = (event.target as HTMLInputElement).files?.[0];
-  if (!file) return;
-
-  // Vérifier que c'est bien une image
-  if (!file.type.startsWith('image/')) return;
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    const base64 = (reader.result as string).split(',')[1];
-    this.imagePreview = reader.result as string;
-    this.analyzeImageWithClarifai(base64);
-  };
-  reader.readAsDataURL(file);
-}
-
-analyzeImageWithClarifai(base64: string): void {
-  this.isAnalyzingImage = true;
-
-  // Afficher message patient avec image
-  this.messages.push({
-    type: 'patient',
-    text: '📸 Photo de repas envoyée',
-    timestamp: new Date()
-  });
-
-  // Loading bubble
-  this.messages.push({ type: 'loading', timestamp: new Date() });
-
- this.nutritionService.analyzeFoodImage(base64, this.patientId).subscribe({
-    next: (clarifaiResponse) => {
-      const foods = this.nutritionService.extractFoodsFromClarifai(clarifaiResponse);
-
-      if (foods.length === 0) {
-        this.messages = this.messages.filter(m => m.type !== 'loading');
-        this.messages.push({
-          type: 'ai',
-          text: "❌ Impossible de détecter des aliments dans cette photo. Essayez une photo plus claire.",
-          timestamp: new Date()
-        });
-        this.isAnalyzingImage = false;
-        return;
-      }
-
-      // Construire le texte pour Flask ML
-      const foodText = `I ate ${foods.join(' and ')}`;
-
-      // Message IA avec les aliments détectés
-      this.messages = this.messages.filter(m => m.type !== 'loading');
-      this.messages.push({
-        type: 'ai',
-        text: `🔍 Clarifai a détecté : ${foods.map(f => `**${f}**`).join(', ')}. Analyse nutritionnelle en cours...`,
-        timestamp: new Date()
-      });
-
-      // Loading pour ML
-      this.messages.push({ type: 'loading', timestamp: new Date() });
-
-      // Envoyer au ML Flask via Spring
-      this.nutritionService.analyzeFood(foodText, this.patientId).subscribe({
-        next: (entry) => {
-          this.messages = this.messages.filter(m => m.type !== 'loading');
-          const result = this.nutritionService.parseAnalysisResult(entry);
-
-          if (result && result.foods && result.foods.length > 0) {
-            this.messages.push({ type: 'ai', result, timestamp: new Date() });
-          } else {
-            this.messages.push({
-              type: 'ai',
-              text: `✅ Aliments détectés : ${foods.join(', ')}. Données nutritionnelles non disponibles pour ces aliments.`,
-              timestamp: new Date()
-            });
-          }
-
-          this.isAnalyzingImage = false;
-          this.imagePreview = null;
-          if (isPlatformBrowser(this.platformId)) {
-            this.loadHistory();
-            this.scrollToBottom();
-          }
-        },
-        error: () => {
-          this.messages = this.messages.filter(m => m.type !== 'loading');
-          this.messages.push({
-            type: 'ai',
-            text: '⚠️ Erreur lors de l\'analyse nutritionnelle.',
-            timestamp: new Date()
-          });
-          this.isAnalyzingImage = false;
-        }
-      });
-    },
-    error: () => {
-      this.messages = this.messages.filter(m => m.type !== 'loading');
-      this.messages.push({
-        type: 'ai',
-        text: '⚠️ Erreur Clarifai. Vérifiez votre clé API ou utilisez le texte.',
-        timestamp: new Date()
-      });
-      this.isAnalyzingImage = false;
-    }
-  });
-}
-deleteEntry(id: number): void {
-  if (!confirm('Supprimer cet élément ?')) return;
-
-  this.nutritionService.deleteFoodEntry(id).subscribe({
-    next: () => {
-      this.history = this.history.filter(e => e.id !== id);
-    },
-    error: (err) => {
-      console.error('Erreur suppression', err);
-    }
-  });
-}
+  clearImagePreview(): void {
+    this.imagePreview = null;
+    this.pendingImageAnalysis = false;
+    this.pendingImageBase64 = null;
+  }
 }

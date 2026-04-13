@@ -22,15 +22,12 @@ export class ProgressComponent implements OnInit {
   weekData:   DayData[] = [];
   isLoading   = true;
 
-  // ── Booléens pour *ngIf (pas d'arrow fn dans template) ───
   hasNoData = false;
   hasData   = false;
 
-  // ── SVG dimensions ────────────────────────────────────────
   readonly W = 600;
   readonly H = 180;
 
-  // ── Getters SVG (calculs interdits dans les templates) ────
   get grid1(): number      { return this.H * 0.25; }
   get grid2(): number      { return this.H * 0.5;  }
   get grid3(): number      { return this.H * 0.75; }
@@ -66,14 +63,24 @@ export class ProgressComponent implements OnInit {
     this.isLoading = true;
     this.nutritionService.getFoodHistoryByPatient(this.patientId).subscribe({
       next: (entries) => {
+        console.log('Entries reçues:', entries.length, entries[0]); // ← debug
+
         const parsed = entries
-          .map(e => ({ ...e, res: this.nutritionService.parseAnalysisResult(e) }))
+          .map(e => ({
+            ...e,
+            res: this.nutritionService.parseAnalysisResult(e)
+          }))
           .filter(e => (e.res?.foods?.length ?? 0) > 0);
+
+        console.log('Entries parsées:', parsed.length); // ← debug
 
         this.buildWeek(parsed);
         this.isLoading = false;
       },
-      error: () => { this.isLoading = false; }
+      error: (err) => {
+        console.error('Erreur loadHistory:', err);
+        this.isLoading = false;
+      }
     });
   }
 
@@ -86,8 +93,19 @@ export class ProgressComponent implements OnInit {
       d.setDate(d.getDate() - i);
       const dStr = d.toDateString();
 
-      const dayE = entries.filter(e => new Date(e.createdAt).toDateString() === dStr);
-      let carbs  = 0;
+      // ← Parsing robuste de la date (supporte plusieurs formats)
+      const dayE = entries.filter(e => {
+        if (!e.createdAt) return false;
+        try {
+          // Spring Boot peut retourner : "2024-03-22T20:48:00" ou "2024-03-22T20:48:00.000Z"
+          const entryDate = new Date(e.createdAt);
+          return entryDate.toDateString() === dStr;
+        } catch {
+          return false;
+        }
+      });
+
+      let carbs = 0;
       dayE.forEach(e => {
         const t = this.nutritionService.getTotals(e.res.foods);
         carbs += t.carbs;
@@ -101,12 +119,13 @@ export class ProgressComponent implements OnInit {
       });
     }
 
-    // ← Calculés une seule fois ici, utilisés dans le template
+    console.log('WeekData:', this.weekData); // ← debug
+
     this.hasNoData = this.weekData.every(d => d.entries === 0);
     this.hasData   = this.weekData.some(d => d.entries > 0);
   }
 
-  // ── SVG courbe ────────────────────────────────────────────
+  // ── SVG ───────────────────────────────────────────────────
   getMaxY(): number {
     return Math.max(this.targetCarbs * 1.4, ...this.weekData.map(d => d.carbs), 10);
   }
@@ -144,12 +163,12 @@ export class ProgressComponent implements OnInit {
     return `${curve} L ${last.x} ${this.H} L 0 ${this.H} Z`;
   }
 
-  // ── Couleurs & statuts ────────────────────────────────────
+  // ── Helpers ───────────────────────────────────────────────
   pointColor(d: DayData): string {
-    if (d.entries === 0)             return '#e5e7eb';
-    if (d.carbs > this.targetCarbs)  return '#ef4444';
-    if (d.carbs > this.targetCarbs * 0.85) return '#f59e0b';
-    return '#10b981';
+    if (d.entries === 0)                        return '#e5e7eb';
+    if (d.carbs > this.targetCarbs)             return '#ef4444';
+    if (d.carbs > this.targetCarbs * 0.85)      return '#f59e0b';
+    return '#3b82f6';
   }
 
   getDayStatus(d: DayData): string {
@@ -166,10 +185,9 @@ export class ProgressComponent implements OnInit {
   }
 
   getDiffColor(d: DayData): string {
-    return d.carbs > this.targetCarbs ? '#ef4444' : '#10b981';
+    return d.carbs > this.targetCarbs ? '#ef4444' : '#3b82f6';
   }
 
-  // ── Stats résumé ──────────────────────────────────────────
   countOk():     number { return this.weekData.filter(d => d.entries > 0 && d.carbs <= this.targetCarbs).length; }
   countWarn():   number { return this.weekData.filter(d => d.entries > 0 && d.carbs > this.targetCarbs * 0.85 && d.carbs <= this.targetCarbs).length; }
   countDanger(): number { return this.weekData.filter(d => d.carbs > this.targetCarbs).length; }
@@ -187,7 +205,7 @@ export class ProgressComponent implements OnInit {
 
   getComplianceColor(): string {
     const s = this.getComplianceScore();
-    if (s >= 70) return '#10b981';
+    if (s >= 70) return '#3b82f6';
     if (s >= 40) return '#f59e0b';
     return '#ef4444';
   }

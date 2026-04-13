@@ -65,7 +65,7 @@
             <span class="msg-time">{{ msg.timestamp | date:'HH:mm' }}</span>
           </div>
 
-                  <!-- AI Result Card -->
+          <!-- AI Result Card -->
           <div class="result-card" *ngIf="msg.type === 'ai' && msg.result">
             <div class="result-header">
               <i class="bi bi-check-circle-fill text-success"></i>
@@ -196,11 +196,11 @@
         </div>
       </div>
 
-      <!-- ── Input area UNIQUE (texte + photo) ────────────────── -->
+      <!-- ── Input area (texte + photo) ────────────────── -->
       <div class="input-area">
         <div class="input-row">
 
-          <!-- Bouton photo Clarifai -->
+          <!-- Bouton photo (sans Clarifai) -->
           <label class="photo-btn" [class.loading]="isAnalyzingImage"
                  title="Analyser une photo de repas">
             <input type="file"
@@ -238,12 +238,22 @@
 
         </div>
 
-        <!-- Preview image -->
+        <!-- Image preview avec état d'attente -->
         <div class="image-preview" *ngIf="imagePreview">
           <img [src]="imagePreview" alt="Aperçu repas">
           <div class="preview-info">
-            <span><i class="bi bi-cpu-fill"></i> Clarifai analyse votre repas...</span>
-            <small>Détection automatique des aliments par IA</small>
+            <span *ngIf="!pendingImageAnalysis">
+              <i class="bi bi-check-circle-fill text-success"></i> Image envoyée
+            </span>
+            <span *ngIf="pendingImageAnalysis">
+              <i class="bi bi-hourglass-split"></i> En attente de description...
+            </span>
+            <small *ngIf="pendingImageAnalysis">
+              Décrivez ce que vous avez mangé (ex: "pizza and salad")
+            </small>
+            <button class="btn-cancel" (click)="cancelImageAnalysis()" *ngIf="pendingImageAnalysis">
+              <i class="bi bi-x-circle"></i> Annuler
+            </button>
           </div>
         </div>
 
@@ -253,6 +263,7 @@
       </div>
 
     </div>
+
     <!-- History Sidebar -->
     <div class="history-sidebar" *ngIf="showHistory">
 

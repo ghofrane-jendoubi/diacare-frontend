@@ -3,6 +3,16 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { DietPlan, DietMeal, FoodItem, FoodEntry, FoodAnalysisResult, Patient } from '../models/diet-plan.model';
 
+// Interface pour la réponse d'analyse d'image
+export interface ImageAnalysisResponse {
+  entry?: FoodEntry;
+  detected_foods?: string[];
+  provider?: string;
+  need_manual_input?: boolean;
+  message?: string;
+  error?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -19,8 +29,11 @@ export class NutritionService {
     });
   }
 
-  // ── PATIENT: Food Tracking ────────────────────────────────────────
+  // ==================== FOOD TRACKING ====================
 
+  /**
+   * Analyse un texte via le ML Flask
+   */
   analyzeFood(text: string, patientId: number): Observable<FoodEntry> {
     return this.http.post<FoodEntry>(
       `${this.apiUrl}/foods`,
@@ -29,23 +42,53 @@ export class NutritionService {
     );
   }
 
-  analyzeFoodImage(base64: string, patientId: number): Observable<FoodEntry> {
-    return this.http.post<FoodEntry>(
+  /**
+   * Analyse une image via le backend Spring
+   * Retourne soit:
+   * - need_manual_input: true si besoin de description manuelle
+   * - detected_foods: liste des aliments détectés
+   * - entry: l'entrée sauvegardée (si déjà analysée)
+   */
+  analyzeFoodImage(base64: string, patientId: number): Observable<ImageAnalysisResponse> {
+    return this.http.post<ImageAnalysisResponse>(
       `${this.apiUrl}/foods/analyze-image`,
       { image: base64, patientId },
       { headers: this.getHeaders() }
     );
   }
 
+  /**
+   * Récupère tout l'historique (admin/nutritionniste)
+   */
   getFoodHistory(): Observable<FoodEntry[]> {
     return this.http.get<FoodEntry[]>(`${this.apiUrl}/foods`, { headers: this.getHeaders() });
   }
 
+  /**
+   * Récupère l'historique d'un patient spécifique
+   */
   getFoodHistoryByPatient(patientId: number): Observable<FoodEntry[]> {
     return this.http.get<FoodEntry[]>(`${this.apiUrl}/foods/patient/${patientId}`, { headers: this.getHeaders() });
   }
 
-  // ── NUTRITION PROFILE ───────────────────────────────────────────
+  /**
+   * Récupère les entrées d'aujourd'hui pour un patient
+   */
+  getTodayFoodEntries(patientId: number): Observable<FoodEntry[]> {
+    return this.http.get<FoodEntry[]>(`${this.apiUrl}/foods/patient/${patientId}/today`, { headers: this.getHeaders() });
+  }
+
+  /**
+   * Supprime une entrée
+   */
+  deleteFoodEntry(id: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiUrl}/foods/${id}`,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  // ==================== NUTRITION PROFILE ====================
 
   getNutritionProfile(patientId: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/nutrition-profile/patient/${patientId}`, { headers: this.getHeaders() });
@@ -59,7 +102,7 @@ export class NutritionService {
     return this.http.delete(`${this.apiUrl}/nutrition-profile/${id}`, { headers: this.getHeaders() });
   }
 
-  // ── DIET PLANS ────────────────────────────────────────────────
+  // ==================== DIET PLANS ====================
 
   getPatientDietPlans(patientId: number): Observable<DietPlan[]> {
     return this.http.get<DietPlan[]>(`${this.apiUrl}/diet/patient/${patientId}`, { headers: this.getHeaders() });
@@ -77,7 +120,7 @@ export class NutritionService {
     return this.http.get<DietPlan[]>(`${this.apiUrl}/diet/my-plans`, { headers: this.getHeaders() });
   }
 
-  // ── PATIENT MANAGEMENT (NUTRITIONIST) ──────────────────────────
+  // ==================== PATIENT MANAGEMENT ====================
 
   getAllPatients(): Observable<Patient[]> {
     return this.http.get<Patient[]>(`${this.apiUrl}/nutritionist/patients`, { headers: this.getHeaders() });
@@ -87,39 +130,57 @@ export class NutritionService {
     return this.http.get<Patient>(`${this.apiUrl}/nutritionist/patients/${id}`, { headers: this.getHeaders() });
   }
 
-  // ── HELPERS ────────────────────────────────────────────────────
+  // ==================== HELPERS ====================
 
-parseAnalysisResult(entry: FoodEntry): FoodAnalysisResult | null {
-  try {
-    if (!entry.analysisResult) return null;
+  /**
+   * Parse le résultat JSON retourné par Flask
+   */
+  parseAnalysisResult(entry: FoodEntry): FoodAnalysisResult | null {
+    try {
+      if (!entry.analysisResult) return null;
 
-    // ← Trim pour enlever le \n à la fin
-    const raw = JSON.parse(entry.analysisResult.trim());
+      const raw = JSON.parse(entry.analysisResult.trim());
 
-    const foods: FoodItem[] = (raw.foods_detected || []).map((f: any) => ({
-      name:     f.food,
-      calories: f.calories,
-      carbs:    f.carbs,
-      protein:  f.protein,
-      fat:      f.fat,
-      fiber:    f.fibre,    // ← ton Flask retourne 'fibre' pas 'fiber'
-    }));
+      const foods: FoodItem[] = (raw.foods_detected || []).map((f: any) => ({
+        name:     f.food,
+        calories: f.calories,
+        carbs:    f.carbs,
+        protein:  f.protein,
+        fat:      f.fat,
+        fiber:    f.fibre || 0,
+      }));
 
-    return { foods, rawText: raw.text || entry.text };
-  } catch (e) {
-    console.error('parseAnalysisResult error:', e);
-    return null;
-  }
-}
-
-  extractFoodsFromClarifai(response: any): string[] {
-    const concepts = response?.outputs?.[0]?.data?.concepts || [];
-    return concepts
-      .filter((c: any) => c.value > 0.85)
-      .map((c: any) => c.name)
-      .slice(0, 5);
+      return { 
+        foods, 
+        rawText: raw.text || entry.text,
+        analysisDate: entry.createdAt
+      };
+    } catch (e) {
+      console.error('parseAnalysisResult error:', e);
+      return null;
+    }
   }
 
+  /**
+   * Calcule le total des macros à partir d'une liste d'aliments
+   */
+  getTotals(foods: FoodItem[] = []): FoodItem {
+    return foods.reduce(
+      (acc, f) => ({
+        name: 'Total',
+        calories: acc.calories + (f.calories || 0),
+        carbs: acc.carbs + (f.carbs || 0),
+        protein: acc.protein + (f.protein || 0),
+        fat: acc.fat + (f.fat || 0),
+        fiber: acc.fiber + (f.fiber || 0),
+      }),
+      { name: 'Total', calories: 0, carbs: 0, protein: 0, fat: 0, fiber: 0 }
+    );
+  }
+
+  /**
+   * Retourne le label du type de repas
+   */
   getMealTypeLabel(type: string): string {
     const labels: Record<string, string> = {
       breakfast: '🌅 Petit-déjeuner',
@@ -130,20 +191,9 @@ parseAnalysisResult(entry: FoodEntry): FoodAnalysisResult | null {
     return labels[type] || type;
   }
 
-  getTotals(foods: FoodItem[] = []): FoodItem {
-  return foods.reduce(
-    (acc, f) => ({
-      name: 'Total',
-      calories: acc.calories + (f.calories || 0),
-      carbs: acc.carbs + (f.carbs || 0),
-      protein: acc.protein + (f.protein || 0),
-      fat: acc.fat + (f.fat || 0),
-      fiber: acc.fiber + (f.fiber || 0),
-    }),
-    { name: 'Total', calories: 0, carbs: 0, protein: 0, fat: 0, fiber: 0 }
-  );
-}
-
+  /**
+   * Retourne la classe CSS pour l'IMC
+   */
   getBMIClass(bmi: number): string {
     if (bmi < 18.5) return 'underweight';
     if (bmi < 25) return 'normal';
@@ -151,16 +201,13 @@ parseAnalysisResult(entry: FoodEntry): FoodAnalysisResult | null {
     return 'obese';
   }
 
+  /**
+   * Retourne le label pour l'IMC
+   */
   getBMILabel(bmi: number): string {
     if (bmi < 18.5) return 'Insuffisance pondérale';
     if (bmi < 25) return 'Poids normal';
     if (bmi < 30) return 'Surpoids';
     return 'Obésité';
   }
-  deleteFoodEntry(id: number): Observable<void> {
-  return this.http.delete<void>(
-    `${this.apiUrl}/foods/${id}`,
-    { headers: this.getHeaders() }
-  );
-}
 }

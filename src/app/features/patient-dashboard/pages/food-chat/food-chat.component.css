@@ -568,6 +568,26 @@
   font-size: 11px;
   text-transform: capitalize;
 }
+/* Bouton annuler */
+.btn-cancel {
+  background: #fee2e2;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  color: #dc2626;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #fecaca;
+  transform: scale(1.02);
+}
 
 .entry-cals {
   font-size: 12px;
