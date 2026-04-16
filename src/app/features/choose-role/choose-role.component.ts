@@ -10,38 +10,32 @@ export class ChooseRoleComponent {
 
   roles = [
     {
-      name: 'Admin',
-      icon: 'bi bi-shield-lock-fill',
-      description: 'Contrôle total',
-      indicatorIcon: 'bi bi-crown',
-      indicatorText: 'Super powers',
-      new: false,
-      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-    },
-    {
       name: 'Doctor',
+      route: 'doctor',
       icon: 'bi bi-heart-pulse-fill',
-      description: 'Soins experts',
+      description: 'Soins experts pour vos patients',
       indicatorIcon: 'bi bi-hospital',
-      indicatorText: 'Medical care',
+      indicatorText: 'Espace médical',
       new: false,
       gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)'
     },
     {
       name: 'Nutritionist',
+      route: 'nutritionist',
       icon: 'bi bi-apple',
-      description: 'Bien-être nutritif',
+      description: 'Bien-être et conseils nutritifs',
       indicatorIcon: 'bi bi-flower1',
-      indicatorText: 'Healthy life',
+      indicatorText: 'Espace nutrition',
       new: true,
       gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
     },
     {
       name: 'Patient',
+      route: 'patient',
       icon: 'bi bi-person-fill',
-      description: 'Suivi personnel',
+      description: 'Suivi personnalisé de votre santé',
       indicatorIcon: 'bi bi-graph-up',
-      indicatorText: 'My health',
+      indicatorText: 'Mon espace santé',
       new: false,
       gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
     }
@@ -50,11 +44,16 @@ export class ChooseRoleComponent {
   constructor(private router: Router) {}
 
   selectRole(role: string): void {
+    // Animation de clic
     const cards = document.querySelectorAll('.role-card');
     cards.forEach(card => {
       card.classList.add('click-animation');
+      setTimeout(() => {
+        card.classList.remove('click-animation');
+      }, 300);
     });
     
+    // Redirection avec délai pour l'animation
     setTimeout(() => {
       this.router.navigate(['/auth', role]);
     }, 200);

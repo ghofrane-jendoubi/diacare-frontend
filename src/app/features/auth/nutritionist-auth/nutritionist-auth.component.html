@@ -1,111 +1,326 @@
 <div class="auth-wrapper">
+  <!-- Background Nature & Nutrition -->
+  <div class="background-nutritionist">
+    <div class="decor-fruits">
+      <div class="fruit fruit-1">🍎</div>
+      <div class="fruit fruit-2">🥑</div>
+      <div class="fruit fruit-3">🍊</div>
+      <div class="fruit fruit-4">🍓</div>
+      <div class="fruit fruit-5">🥝</div>
+      <div class="fruit fruit-6">🍋</div>
+      <div class="fruit fruit-7">🍇</div>
+      <div class="fruit fruit-8">🍒</div>
+      <div class="fruit fruit-9">🥭</div>
+      <div class="fruit fruit-10">🍉</div>
+    </div>
+    <div class="decor-vegetables">
+      <div class="veg veg-1">🥕</div>
+      <div class="veg veg-2">🥦</div>
+      <div class="veg veg-3">🍅</div>
+      <div class="veg veg-4">🥬</div>
+      <div class="veg veg-5">🌽</div>
+      <div class="veg veg-6">🫑</div>
+    </div>
+    <div class="decor-leaves">
+      <div class="leaf leaf-1">🌿</div>
+      <div class="leaf leaf-2">🍃</div>
+      <div class="leaf leaf-3">🌱</div>
+      <div class="leaf leaf-4">🍀</div>
+      <div class="leaf leaf-5">🌾</div>
+      <div class="leaf leaf-6">🎋</div>
+      <div class="leaf leaf-7">🌻</div>
+      <div class="leaf leaf-8">🌸</div>
+    </div>
+    <div class="soft-blob-1"></div>
+    <div class="soft-blob-2"></div>
+    <div class="soft-blob-3"></div>
+    <div class="soft-blob-4"></div>
+    <div class="soft-blob-5"></div>
+    <div class="nutrition-grid"></div>
+    <div class="soft-dots"></div>
+    <div class="concentric-circles">
+      <div class="circle-ring"></div>
+      <div class="circle-ring"></div>
+      <div class="circle-ring"></div>
+      <div class="circle-ring"></div>
+    </div>
+    <div class="wave-decoration">
+      <svg viewBox="0 0 1200 200" preserveAspectRatio="none">
+        <path d="M0,100 C150,150 250,50 400,100 C550,150 650,50 800,100 C950,150 1050,50 1200,100 L1200,200 L0,200 Z" 
+              fill="rgba(76,175,80,0.08)"/>
+      </svg>
+    </div>
+    <div class="wave-decoration wave-2">
+      <svg viewBox="0 0 1200 200" preserveAspectRatio="none">
+        <path d="M0,150 C200,100 400,200 600,150 C800,100 1000,200 1200,150 L1200,200 L0,200 Z" 
+              fill="rgba(56,142,60,0.06)"/>
+      </svg>
+    </div>
+    <div class="soft-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+    <div class="light-rays"></div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-overlay" *ngIf="isLoading">
+    <div class="loader-soft">
+      <div class="loader-spinner"></div>
+      <p>Chargement...</p>
+    </div>
+  </div>
+
   <div class="container">
-
-    <div class="form-container">
-
-      <!-- SIGN IN -->
-      <div *ngIf="!isSignUp" class="form-panel">
-        <h2>Connexion Nutritionniste</h2>
-        <p class="subtitle">Connectez-vous avec votre email et mot de passe</p>
-        <form (ngSubmit)="signIn()">
-          <div class="input-group">
-            <input type="email" [(ngModel)]="loginData.email" name="email"
-                   placeholder="Email *" required>
-          </div>
-          <div class="input-group">
-            <input type="password" [(ngModel)]="loginData.password" name="password"
-                   placeholder="Mot de passe *" required>
-          </div>
-          <button type="submit" class="btn-primary" [disabled]="isLoading">
-            {{ isLoading ? 'Connexion...' : 'SE CONNECTER' }}
-          </button>
-        </form>
-      </div>
-
-      <!-- SIGN UP -->
-      <div *ngIf="isSignUp" class="form-panel">
-        <h2>Inscription Nutritionniste</h2>
-        <p class="subtitle">Créez votre compte professionnel</p>
-        <form (ngSubmit)="signUp()">
-
-          <p class="section-label">Informations personnelles</p>
-          <div class="input-row">
-            <div class="input-group half">
-              <input type="text" [(ngModel)]="newNutritionist.firstName" name="firstName"
-                     placeholder="Prénom *" required>
+    <div class="auth-card" [class.signup-mode]="isSignUp">
+      
+      <!-- Panneau Image - Nutritionniste -->
+      <div class="auth-image">
+        <div class="image-wrapper">
+          <img src="https://images.pexels.com/photos/8454344/pexels-photo-8454344.jpeg?w=500&h=600&fit=crop" 
+               alt="Nutritionniste" 
+               class="nutritionist-image">
+          <div class="image-overlay-soft">
+            <div class="stats-badge-soft">
+              <div class="stat-item">
+                <span class="stat-value">1 200+</span>
+                <span class="stat-label">Patients suivis</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <span class="stat-value">96%</span>
+                <span class="stat-label">Satisfaction</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <span class="stat-value">24/7</span>
+                <span class="stat-label">Support</span>
+              </div>
             </div>
-            <div class="input-group half">
-              <input type="text" [(ngModel)]="newNutritionist.lastName" name="lastName"
-                     placeholder="Nom *" required>
+            <div class="quote-text">
+              <p>🥗 "Manger sainement, c'est prendre soin de soi" 🍎</p>
             </div>
           </div>
-          <div class="input-group">
-            <input type="email" [(ngModel)]="newNutritionist.email" name="email"
-                   placeholder="Email *" required>
-          </div>
-          <div class="input-group">
-            <input type="tel" [(ngModel)]="newNutritionist.phone" name="phone"
-                   placeholder="Téléphone *" required>
-          </div>
-          <div class="input-group">
-            <input type="password" [(ngModel)]="newNutritionist.password" name="password"
-                   placeholder="Mot de passe *" required minlength="6">
-          </div>
-
-          <p class="section-label">Informations professionnelles</p>
-          <div class="input-group">
-            <input type="text" [(ngModel)]="newNutritionist.licenseNumber" name="licenseNumber"
-                   placeholder="Numéro de licence">
-          </div>
-          <div class="input-group">
-            <select [(ngModel)]="newNutritionist.workplace" name="workplace" required>
-              <option value="">-- Type de cabinet * --</option>
-              <option *ngFor="let w of workplaceOptions" [value]="w">{{ w }}</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <input type="text" [(ngModel)]="newNutritionist.workplaceAddress" name="workplaceAddress"
-                   placeholder="Adresse du cabinet">
-          </div>
-          <div class="input-group">
-            <input type="number" [(ngModel)]="newNutritionist.yearsOfExperience"
-                   name="yearsOfExperience" placeholder="Années d'expérience" min="0">
-          </div>
-
-          <p class="section-label">Certificat / Diplôme <span class="req">*</span></p>
-          <label for="cert" class="upload-zone">
-            <img *ngIf="certificatePreview" [src]="certificatePreview"
-                 class="cert-preview" alt="aperçu">
-            <span *ngIf="!certificatePreview">
-              📄 Cliquez pour uploader votre certificat (JPG/PNG, max 5MB)
-            </span>
-            <span *ngIf="certificateFile" class="file-ok">✅ {{ certificateFile.name }}</span>
-          </label>
-          <input id="cert" type="file" accept="image/jpeg,image/png,image/jpg"
-                 (change)="onCertificateSelected($event)" style="display:none">
-
-          <button type="submit" class="btn-primary" [disabled]="isLoading">
-            {{ isLoading ? 'Inscription...' : 'S\'INSCRIRE' }}
-          </button>
-        </form>
+        </div>
       </div>
 
-      <div *ngIf="successMessage" class="msg success">✅ {{ successMessage }}</div>
-      <div *ngIf="errorMessage" class="msg error">❌ {{ errorMessage }}</div>
+      <!-- Panneau Formulaire -->
+      <div class="auth-form">
+        <div class="form-header">
+          <div class="logo">
+            <div class="logo-icon">🥗</div>
+            <h1>DiaCare</h1>
+          </div>
+          <p class="tagline">Portail Nutritionniste | Bien manger pour mieux vivre</p>
+        </div>
+
+        <!-- SIGN IN -->
+        <div class="form-panel" *ngIf="!isSignUp">
+          <h2>Bonjour Nutritionniste</h2>
+          <p class="subtitle">Connectez-vous à votre espace</p>
+
+          <form (ngSubmit)="signIn()">
+            <div class="input-group">
+              <div class="input-icon">📧</div>
+              <input type="email" [(ngModel)]="loginData.email" name="email" 
+                     placeholder="Email professionnel" required>
+            </div>
+
+            <div class="input-group">
+              <div class="input-icon">🔒</div>
+              <input [type]="showPassword ? 'text' : 'password'"
+                     [(ngModel)]="loginData.password" name="password" 
+                     placeholder="Mot de passe" required>
+              <button type="button" class="toggle-pwd" (click)="showPassword = !showPassword">
+                {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+              </button>
+            </div>
+
+            <div class="form-options">
+              <label class="checkbox">
+                <input type="checkbox" [(ngModel)]="rememberMe" name="remember">
+                <span class="checkmark"></span>
+                <span>Se souvenir de moi</span>
+              </label>
+              <button type="button" class="link-btn" (click)="showForgot = !showForgot">
+                Mot de passe oublié ?
+              </button>
+            </div>
+
+            <div class="forgot-panel" *ngIf="showForgot">
+              <app-forgot-password [actor]="'nutritionists'"></app-forgot-password>
+            </div>
+
+            <button type="submit" class="btn-primary" [disabled]="isLoading">
+              <span>Se connecter</span>
+              <span class="btn-arrow">→</span>
+            </button>
+          </form>
+
+          <div class="auth-footer">
+            <p>Nouveau sur DiaCare ?</p>
+            <button type="button" class="link-btn primary" (click)="toggleMode()">
+              Créer un compte
+            </button>
+          </div>
+        </div>
+
+        <!-- SIGN UP - Étape 1 -->
+        <div class="form-panel" *ngIf="isSignUp && signupStep === 1">
+          <h2>Créer mon compte</h2>
+          <p class="subtitle">Étape 1/2 - Informations personnelles</p>
+
+          <div class="step-indicator">
+            <div class="step active">1</div>
+            <div class="step-line"></div>
+            <div class="step">2</div>
+          </div>
+
+          <form>
+            <div class="input-row">
+              <div class="input-group">
+                <input type="text" [(ngModel)]="signupData.firstName" name="firstName" 
+                       placeholder="Prénom *" required>
+              </div>
+              <div class="input-group">
+                <input type="text" [(ngModel)]="signupData.lastName" name="lastName" 
+                       placeholder="Nom *" required>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <input type="email" [(ngModel)]="signupData.email" name="email" 
+                     placeholder="Email *" required>
+            </div>
+
+            <div class="input-group">
+              <input type="tel" [(ngModel)]="signupData.phone" name="phone" 
+                     placeholder="Téléphone *" required>
+            </div>
+
+            <div class="input-group">
+              <input [type]="showSignupPassword ? 'text' : 'password'"
+                     [(ngModel)]="signupData.password" name="password" 
+                     placeholder="Mot de passe (6+ caractères) *" required minlength="6">
+              <button type="button" class="toggle-pwd" (click)="showSignupPassword = !showSignupPassword">
+                {{ showSignupPassword ? '👁️' : '👁️‍🗨️' }}
+              </button>
+            </div>
+
+            <div class="password-strength" *ngIf="signupData.password">
+              <div class="strength-meter">
+                <div class="strength-segment" [class.active]="getPasswordStrength() >= 1"></div>
+                <div class="strength-segment" [class.active]="getPasswordStrength() >= 2"></div>
+                <div class="strength-segment" [class.active]="getPasswordStrength() >= 3"></div>
+                <div class="strength-segment" [class.active]="getPasswordStrength() >= 4"></div>
+              </div>
+              <span class="strength-text">{{ getPasswordStrengthText() }}</span>
+            </div>
+
+            <div class="button-group">
+              <button type="button" class="btn-secondary" (click)="toggleMode()">Annuler</button>
+              <button type="button" class="btn-primary" (click)="nextStep()">
+                Continuer →
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- SIGN UP - Étape 2 (COMPLÈTE) -->
+       <!-- SIGN UP - Étape 2 (COMPLÈTE) -->
+<div class="form-panel" *ngIf="isSignUp && signupStep === 2">
+  <h2>Créer mon compte</h2>
+  <p class="subtitle">Étape 2/2 - Informations professionnelles</p>
+
+  <div class="step-indicator">
+    <div class="step done">✓</div>
+    <div class="step-line completed"></div>
+    <div class="step active">2</div>
+  </div>
+
+  <form>
+    <!-- Numéro de licence -->
+    <div class="input-group">
+      <input type="text" [(ngModel)]="signupData.licenseNumber" name="licenseNumber" 
+             placeholder="Numéro de licence / Diplôme">
     </div>
 
-    <!-- PANNEAU DROIT -->
-    <div class="info-panel">
-      <div class="info-content">
-        <h1>{{ isSignUp ? 'Déjà inscrit ?' : 'Nouveau nutritionniste ?' }}</h1>
-        <p>{{ isSignUp
-          ? 'Connectez-vous à votre espace.'
-          : 'Créez votre compte et soumettez votre diplôme pour rejoindre DiaCare.' }}</p>
-        <button class="btn-outline" (click)="toggleMode()">
-          {{ isSignUp ? 'SE CONNECTER' : 'S\'INSCRIRE' }}
-        </button>
+    <!-- Type de cabinet (OBLIGATOIRE) -->
+    <div class="input-group">
+      <select [(ngModel)]="signupData.workplace" name="workplace" required>
+        <option value="" disabled selected>Sélectionnez le type de cabinet *</option>
+        <option *ngFor="let w of workplaceOptions" [value]="w">{{ w }}</option>
+      </select>
+    </div>
+
+    <!-- Adresse du cabinet -->
+    <div class="input-group">
+      <input type="text" [(ngModel)]="signupData.workplaceAddress" name="workplaceAddress" 
+             placeholder="Adresse du cabinet">
+    </div>
+
+    <!-- Années d'expérience -->
+    <div class="input-group">
+      <input type="number" [(ngModel)]="signupData.yearsOfExperience" name="yearsOfExperience" 
+             placeholder="Années d'expérience" min="0">
+    </div>
+
+    <!-- Zone d'upload -->
+    <div class="upload-area" (click)="fileInput.click()" [class.has-file]="certificateFile">
+      <div class="upload-icon">📄</div>
+      <p *ngIf="!certificateFile">Téléchargez votre certificat / diplôme</p>
+      <p *ngIf="certificateFile" class="file-name">{{ certificateFile.name }}</p>
+      <p class="upload-hint">JPG, PNG (Max 5Mo)</p>
+      <div class="preview" *ngIf="certificatePreview">
+        <img [src]="certificatePreview" alt="Aperçu">
+      </div>
+    </div>
+    <input #fileInput type="file" accept="image/jpeg,image/png,image/jpg" 
+           (change)="onCertificateSelected($event)" style="display:none">
+
+    <!-- CAPTCHA SECTION -->
+    <div class="captcha-section">
+      <label class="captcha-label">🔒 Vérification anti-robot</label>
+      <app-hcaptcha 
+        (resolved)="onHCaptchaResolved($event)"
+        (expired)="onHCaptchaExpired()">
+      </app-hcaptcha>
+      <div class="captcha-error" *ngIf="captchaError">
+        ⚠️ Veuillez compléter la vérification anti-robot
+      </div>
+      <div class="captcha-success" *ngIf="hcaptchaToken && !captchaError">
+        ✓ Vérification réussie
       </div>
     </div>
 
+    <!-- Message d'information si captcha non résolu -->
+    <div *ngIf="!hcaptchaToken" class="captcha-warning">
+      ⚠️ Veuillez cocher "Je ne suis pas un robot" pour continuer
+    </div>
+
+    <div class="button-group">
+      <button type="button" class="btn-secondary" (click)="prevStep()">← Retour</button>
+      <button type="button" class="btn-primary" (click)="signUp()" 
+              [disabled]="isLoading || !certificateFile || !hcaptchaToken || !signupData.workplace">
+        {{ isLoading ? 'Inscription...' : 'Valider mon inscription' }}
+      </button>
+    </div>
+  </form>
+
+  <div class="auth-footer">
+    <p>Déjà inscrit ?</p>
+    <button type="button" class="link-btn primary" (click)="toggleMode()">
+      Se connecter
+    </button>
+  </div>
+</div>
+
+        <!-- Messages -->
+        <div *ngIf="successMessage" class="msg success">✅ {{ successMessage }}</div>
+        <div *ngIf="errorMessage" class="msg error">❌ {{ errorMessage }}</div>
+      </div>
+
+    </div>
   </div>
 </div>
