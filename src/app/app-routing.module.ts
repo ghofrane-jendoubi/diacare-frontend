@@ -15,6 +15,9 @@ import { AdminLayoutComponent } from './shared/components/admin-layout/admin-lay
 import { DoctorLayoutComponent } from './shared/components/doctor-layout/doctor-layout.component';
 import { NutritionnistLayoutComponent } from './shared/components/nutritionnist-layout/nutritionnist-layout.component';
 
+import { HomeComponent } from './features/home/home.component';
+
+
 const routes: Routes = [
     { path: '', loadChildren: () => import('./features/home/home.module').then(m => m.HomeModule) },
 
@@ -24,6 +27,7 @@ const routes: Routes = [
   path: 'patient',
   component: PatientLayoutComponent,
   children: [
+
     { path: '', loadChildren: () => import('./features/patient-dashboard/patient-dashboard.module').then(m => m.PatientDashboardModule) },
      { 
         path: 'profile', 

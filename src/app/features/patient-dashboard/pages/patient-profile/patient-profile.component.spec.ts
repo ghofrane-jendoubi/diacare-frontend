@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RecaptchaComponent } from './recaptcha.component';
+import { PatientProfileComponent } from './patient-profile.component';
 
-describe('RecaptchaComponent', () => {
-  let component: RecaptchaComponent;
-  let fixture: ComponentFixture<RecaptchaComponent>;
+describe('PatientProfileComponent', () => {
+  let component: PatientProfileComponent;
+  let fixture: ComponentFixture<PatientProfileComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [RecaptchaComponent]
+      declarations: [PatientProfileComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(RecaptchaComponent);
+    fixture = TestBed.createComponent(PatientProfileComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

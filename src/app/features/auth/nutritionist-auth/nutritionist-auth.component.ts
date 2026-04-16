@@ -259,7 +259,7 @@ export class NutritionistAuthComponent {
         this.successMessage = 'Connexion réussie ! Redirection...';
         this.cdr.detectChanges();
         setTimeout(() => {
-          this.router.navigate(['/nutritionist-dashboard']);
+          this.router.navigate(['/nutritionnist']);
         }, 1000);
       },
       error: (err) => {

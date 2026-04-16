@@ -24,6 +24,7 @@ import { FooterComponent } from './components/footer/footer.component';
 import { PatientLayoutComponent } from './components/patient-layout/patient-layout.component';
 import { PatientSidebarComponent } from './patient-sidebar/patient-sidebar.component';
 import { UserDetailComponent } from './components/user-detail/user-detail.component';
+import { NutritionTabsComponent } from './components/nutrition-tabs/nutrition-tabs.component';
 @NgModule({
   declarations: [
     // Admin
@@ -34,6 +35,7 @@ import { UserDetailComponent } from './components/user-detail/user-detail.compon
     NutritionnistLayoutComponent,
     NutritionnistSidebarComponent,
     NutritionnistTopbarComponent,
+    NutritionTabsComponent,
     // Médecin
     DoctorLayoutComponent,
     DoctorSidebarComponent,
@@ -59,6 +61,7 @@ import { UserDetailComponent } from './components/user-detail/user-detail.compon
     NutritionnistLayoutComponent,
     NutritionnistSidebarComponent,
     NutritionnistTopbarComponent,
+    NutritionTabsComponent,
     // Médecin
     DoctorLayoutComponent,
     DoctorSidebarComponent,

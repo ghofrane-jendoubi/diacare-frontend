@@ -1,0 +1,410 @@
+/* patient-detail.component.css */
+
+.detail-wrapper {
+  padding: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* ── Header ─────────────────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.btn-back {
+  padding: 8px 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #374151;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s;
+}
+.btn-back:hover { background: #f3f4f6; }
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.patient-avatar {
+  width: 48px;
+  height: 48px;
+  background: #ecfdf5;
+  border: 2px solid #10b981;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #10b981;
+}
+
+.page-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #065f46;
+  margin: 0;
+}
+
+.badge-diabetes {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.btn-create-plan {
+  padding: 10px 20px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  transition: background 0.2s;
+  margin-left: auto;
+}
+.btn-create-plan:hover { background: #059669; }
+
+/* ── Tabs ────────────────────────────────────────── */
+.tabs-bar {
+  display: flex;
+  gap: 4px;
+  background: #f3f4f6;
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  background: white;
+  color: #065f46;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.badge-count {
+  background: #10b981;
+  color: white;
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 11px;
+}
+
+/* ── Animations ──────────────────────────────────── */
+.tab-content { animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ── Profile layout ──────────────────────────────── */
+.profile-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* ── Form card ───────────────────────────────────── */
+.form-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #d1fae5;
+  overflow: hidden;
+}
+
+.form-card-header {
+  padding: 16px 20px;
+  background: #ecfdf5;
+  border-bottom: 1px solid #d1fae5;
+}
+
+.form-card-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #065f46;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 20px 20px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+.info-item:last-child { border-bottom: none; }
+
+.info-label {
+  font-size: 13px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.info-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+/* ── Results panel ───────────────────────────────── */
+.results-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.result-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #d1fae5;
+  padding: 20px;
+}
+
+.result-card h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* IMC */
+.imc-display     { text-align: center; margin-bottom: 16px; }
+.imc-value       { font-size: 52px; font-weight: 800; line-height: 1; }
+.imc-category    { font-size: 16px; font-weight: 500; margin-top: 6px; }
+
+.imc-scale       { margin-top: 12px; }
+
+.scale-bar {
+  height: 10px;
+  background: #f3f4f6;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.scale-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.8s ease;
+}
+.scale-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.imc-alert {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #92400e;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* Besoins journaliers — grille 4 colonnes */
+.needs-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.need-item {
+  text-align: center;
+  padding: 12px 6px;
+  border-radius: 12px;
+  transition: transform 0.2s;
+}
+.need-item:hover      { transform: translateY(-2px); }
+.need-item.calories   { background: #fef3c7; }
+.need-item.carbs      { background: #ecfdf5; }
+.need-item.protein    { background: #eff6ff; }
+.need-item.fat        { background: #fdf4ff; }
+
+.need-emoji { font-size: 20px; margin-bottom: 4px; }
+.need-value { font-size: 20px; font-weight: 700; color: #1f2937; }
+.need-label { font-size: 10px; color: #6b7280; margin-top: 2px; }
+
+.nutrition-note {
+  padding: 10px 12px;
+  background: #ecfdf5;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #065f46;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* HbA1c */
+.hba1c-status {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px;
+  border-radius: 10px;
+}
+.hba1c-status.normal      { background: #f0fdf4; border: 1px solid #a7f3d0; }
+.hba1c-status.prediabetes { background: #fff7ed; border: 1px solid #fed7aa; }
+.hba1c-status.diabetes    { background: #fef2f2; border: 1px solid #fca5a5; }
+
+.hba1c-value { font-size: 36px; font-weight: 800; flex-shrink: 0; }
+.hba1c-status.normal      .hba1c-value { color: #10b981; }
+.hba1c-status.prediabetes .hba1c-value { color: #f97316; }
+.hba1c-status.diabetes    .hba1c-value { color: #ef4444; }
+
+.hba1c-info strong { font-size: 14px; display: block; margin-bottom: 4px; }
+.hba1c-info p      { font-size: 13px; color: #6b7280; margin: 0; }
+
+/* ── Empty / Loading ─────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  background: white;
+  border-radius: 16px;
+  border: 1px dashed #d1fae5;
+  color: #9ca3af;
+}
+.empty-state i { font-size: 40px; display: block; margin-bottom: 12px; color: #d1fae5; }
+.empty-state p { margin: 0; font-size: 14px; }
+
+.empty-results {
+  text-align: center;
+  padding: 24px;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px dashed #d1fae5;
+  color: #9ca3af;
+}
+.empty-results i { font-size: 28px; display: block; margin-bottom: 8px; }
+.empty-results p { font-size: 13px; margin: 0; }
+
+.loading-state { text-align: center; padding: 40px; color: #6b7280; }
+
+/* ── History ─────────────────────────────────────── */
+.history-list { display: flex; flex-direction: column; gap: 12px; }
+
+.history-entry {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.entry-meta  { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #374151; }
+.entry-meta i { color: #10b981; }
+.entry-text  { font-weight: 500; }
+.entry-date  { font-size: 12px; color: #9ca3af; }
+
+.entry-results { padding: 14px 16px; }
+
+.foods-detected { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+
+.food-chip {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.macros-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.macro-item {
+  text-align: center;
+  padding: 8px;
+  background: #f9fafb;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.macro-label { font-size: 11px; color: #6b7280; }
+.macro-value { font-size: 14px; font-weight: 600; color: #1f2937; }
+
+.carbs-alert {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.carbs-alert.danger  { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
+.carbs-alert.warning { background: #fff7ed; color: #92400e; border: 1px solid #fed7aa; }
+.carbs-alert.success { background: #f0fdf4; color: #065f46; border: 1px solid #a7f3d0; }
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 768px) {
+  .profile-layout { grid-template-columns: 1fr; }
+  .needs-grid     { grid-template-columns: repeat(2, 1fr); }
+  .macros-summary { grid-template-columns: repeat(2, 1fr); }
+}

@@ -1,0 +1,64 @@
+<!-- nutrition-tabs.component.html -->
+<div class="sidebar">
+
+  <!-- Logo / titre -->
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <i class="bi bi-heart-pulse-fill"></i>
+    </div>
+    <span class="sidebar-title">DiaCare</span>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sidebar-nav">
+
+    <a routerLink="/patient/nutrition"
+       routerLinkActive="active"
+       [routerLinkActiveOptions]="{exact: true}"
+       class="nav-item">
+      <div class="nav-icon"><i class="bi bi-cpu-fill"></i></div>
+      <span class="nav-label">Analyse IA</span>
+    </a>
+
+    <a routerLink="/patient/my-plans"
+       routerLinkActive="active"
+       class="nav-item">
+      <div class="nav-icon"><i class="bi bi-journal-text"></i></div>
+      <span class="nav-label">Mes Plans</span>
+    </a>
+
+    <a routerLink="/patient/profile"
+       routerLinkActive="active"
+       class="nav-item">
+      <div class="nav-icon"><i class="bi bi-person-heart"></i></div>
+      <span class="nav-label">Mon Profil</span>
+    </a>
+
+    <a routerLink="/patient/progress" routerLinkActive="active" class="nav-item">
+  <div class="nav-icon"><i class="bi bi-graph-up-arrow"></i></div>
+  <span class="nav-label">Ma Progression</span>
+</a>
+    <a routerLink="/patient/nutrition-chat"
+       routerLinkActive="active"
+       class="nav-item">
+      <div class="nav-icon">
+        <i class="bi bi-chat-dots-fill"></i>
+        <!-- Badge non lus -->
+        <span class="unread-badge" *ngIf="unreadCount > 0">
+          {{ unreadCount > 9 ? '9+' : unreadCount }}
+        </span>
+      </div>
+      <span class="nav-label">
+        Mon Nutritionniste
+        <span class="unread-text" *ngIf="unreadCount > 0">
+          {{ unreadCount }} nouveau{{ unreadCount > 1 ? 'x' : '' }}
+        </span>
+      </span>
+    </a>
+
+  </nav>
+
+  <!-- Footer sidebar -->
+
+
+</div>

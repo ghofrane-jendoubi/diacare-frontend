@@ -1,0 +1,170 @@
+<!-- diet-plan-view.component.html -->
+<div class="plans-wrapper">
+
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h1><i class="bi bi-journal-text"></i> Mes plans alimentaires</h1>
+      <p>Plans personnalisés créés pour {{ patientName || 'vous' }} par votre nutritionniste</p>
+    </div>
+    <a routerLink="/patient/nutrition" class="btn-analyze">
+      <i class="bi bi-cpu-fill"></i> Analyser un repas
+    </a>
+  </div>
+
+  <!-- ── Loading ────────────────────────────────────────── -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner-border text-primary"></div>
+    <p>Chargement de vos plans...</p>
+  </div>
+
+  <!-- ── Error ──────────────────────────────────────────── -->
+  <div class="alert-error" *ngIf="error && !isLoading">
+    <i class="bi bi-exclamation-circle-fill"></i> {{ error }}
+  </div>
+
+  <!-- ── Empty state ────────────────────────────────────── -->
+  <div class="empty-state" *ngIf="!isLoading && plans.length === 0">
+    <div class="empty-icon">
+      <i class="bi bi-journal-x"></i>
+    </div>
+    <h3>Aucun plan alimentaire</h3>
+    <p>Votre nutritionniste n'a pas encore créé de plan pour vous.</p>
+    <p class="empty-sub">Utilisez l'analyse IA pour journaliser vos repas en attendant.</p>
+    <a routerLink="/patient/nutrition" class="btn-primary-blue">
+      <i class="bi bi-cpu-fill"></i> Analyser un repas
+    </a>
+  </div>
+
+  <!-- ── Plans layout ───────────────────────────────────── -->
+  <div class="plans-layout" *ngIf="!isLoading && plans.length > 0">
+
+    <!-- ── Sidebar plans ────────────────────────────────── -->
+    <div class="plans-sidebar">
+
+      <div class="sidebar-header">
+        <span class="sidebar-title">Mes plans</span>
+        <span class="plans-count">{{ plans.length }}</span>
+      </div>
+
+      <div class="plan-card-mini"
+           *ngFor="let plan of plans"
+           [class.active]="selectedPlan?.id === plan.id"
+           (click)="selectPlan(plan)">
+        <div class="plan-mini-icon">
+          <i class="bi bi-clipboard2-heart-fill"></i>
+        </div>
+        <div class="plan-mini-info">
+          <div class="plan-mini-title">{{ plan.title }}</div>
+          <div class="plan-mini-meta">
+            <span><i class="bi bi-egg-fried"></i> {{ plan.meals?.length || 0 }} repas</span>
+          </div>
+        </div>
+        <i class="bi bi-chevron-right plan-mini-arrow"></i>
+      </div>
+
+    </div>
+
+    <!-- ── Plan detail ───────────────────────────────────── -->
+    <div class="plan-detail" *ngIf="selectedPlan">
+
+      <!-- Detail header -->
+      <div class="detail-header">
+        <div class="detail-title-row">
+          <div class="detail-plan-icon">
+            <i class="bi bi-clipboard2-heart-fill"></i>
+          </div>
+          <div>
+            <h2>{{ selectedPlan.title }}</h2>
+            <p class="detail-desc" *ngIf="selectedPlan.description">
+              {{ selectedPlan.description }}
+            </p>
+          </div>
+          <div class="detail-meta">
+            <span *ngIf="selectedPlan.createdAt">
+              <i class="bi bi-calendar3"></i>
+              {{ selectedPlan.createdAt | date:'dd MMM yyyy' }}
+            </span>
+            <span>
+              <i class="bi bi-egg-fried"></i>
+              {{ selectedPlan.meals?.length || 0 }} repas
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Objectifs macros -->
+      <div class="plan-macros" *ngIf="selectedPlan.targetCalories">
+        <div class="macro-chip cal">
+          <span class="mc-emoji">🔥</span>
+          <div>
+            <div class="mc-val">{{ selectedPlan.targetCalories }}</div>
+            <div class="mc-label">kcal/jour</div>
+          </div>
+        </div>
+        <div class="macro-chip carb">
+          <span class="mc-emoji">🌾</span>
+          <div>
+            <div class="mc-val">{{ selectedPlan.targetCarbs }}g</div>
+            <div class="mc-label">glucides</div>
+          </div>
+        </div>
+        <div class="macro-chip prot">
+          <span class="mc-emoji">🥩</span>
+          <div>
+            <div class="mc-val">{{ selectedPlan.targetProtein }}g</div>
+            <div class="mc-label">protéines</div>
+          </div>
+        </div>
+        <div class="macro-chip fat">
+          <span class="mc-emoji">🥑</span>
+          <div>
+            <div class="mc-val">{{ selectedPlan.targetFat }}g</div>
+            <div class="mc-label">lipides</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Repas par type -->
+      <div class="meals-container">
+
+        <ng-container *ngFor="let type of mealOrder">
+          <div class="meal-section" *ngIf="hasMealsOfType(selectedPlan, type)">
+
+            <div class="meal-type-header">
+              <span class="meal-type-badge">{{ getMealTypeLabel(type) }}</span>
+            </div>
+
+            <div class="meal-item"
+                 *ngFor="let meal of getMealsByType(selectedPlan, type)">
+              <div class="meal-item-left">
+                <div class="meal-food">{{ meal.food }}</div>
+                <div class="meal-notes" *ngIf="meal.notes">
+                  <i class="bi bi-info-circle"></i> {{ meal.notes }}
+                </div>
+              </div>
+              <div class="meal-item-right">
+                <div class="meal-carbs" *ngIf="meal.targetCarbs">
+                  🌾 {{ meal.targetCarbs }}g
+                </div>
+                <div class="meal-cals" *ngIf="meal.calories">
+                  🔥 {{ meal.calories }} kcal
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </ng-container>
+
+        <!-- No meals -->
+        <div class="no-meals" *ngIf="!selectedPlan.meals || selectedPlan.meals.length === 0">
+          <i class="bi bi-egg-fried"></i>
+          <p>Ce plan ne contient pas encore de repas.</p>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>

@@ -14,7 +14,11 @@ import { DiabetesPredictionComponent } from './pages/diabetes-prediction/diabete
 import { RiskLevelPipe } from './pipes/risk-level.pipe';
 import { PredictionComponent } from './pages/prediction/prediction.component';
 import { PatientChoicesComponent } from './pages/patient-choices/patient-choices.component'; 
-
+import { FoodChatComponent } from './pages/food-chat/food-chat.component';
+import { DietPlanViewComponent } from './pages/diet-plan-view/diet-plan-view.component';
+import { PatientChatComponent } from './pages/patient-chat/patient-chat.component';
+import { ProgressComponent } from './pages/progress/progress.component';
+import { PatientProfileComponent } from './pages/patient-profile/patient-profile.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +30,13 @@ import { PatientChoicesComponent } from './pages/patient-choices/patient-choices
     DiabetesPredictionComponent,
     RiskLevelPipe,
     PredictionComponent,
-    PatientChoicesComponent
+    PatientChoicesComponent,
+    FoodChatComponent,
+    DietPlanViewComponent,
+    PatientProfileComponent,
+    PatientChatComponent,
+    ProgressComponent
+    
   ],
   imports: [
     CommonModule,

@@ -1,0 +1,384 @@
+<!-- plan-create.component.html -->
+<div class="create-wrapper">
+
+  <!-- ── HEADER ─────────────────────────────────────────────── -->
+<div class="page-header">
+  <button class="btn-back" (click)="goBack()">
+    <i class="bi bi-arrow-left"></i>
+  </button>
+  <div class="plan-icon">
+    <i class="bi bi-journal-plus"></i>
+  </div>
+  <div>
+    <h1>Créer un plan alimentaire</h1>
+    <p class="subtitle">{{ patientName || ('Patient #' + patientId) }}</p>
+  </div>
+</div>
+
+  <!-- ── ALERTS ─────────────────────────────────────────────── -->
+  <div class="alert success" *ngIf="savedSuccess">
+    <i class="bi bi-check-circle-fill"></i>
+    Plan créé avec succès ! Redirection en cours...
+  </div>
+  <div class="alert error" *ngIf="errorMsg">
+    <i class="bi bi-x-circle-fill"></i>
+    {{ errorMsg }}
+  </div>
+
+  <!-- ── STEPPER ────────────────────────────────────────────── -->
+  <div class="stepper">
+    <div class="step-item" [class.active]="activeStep >= 1" [class.done]="activeStep > 1">
+      <div class="step-circle">
+        <i class="bi bi-check2" *ngIf="activeStep > 1"></i>
+        <span *ngIf="activeStep <= 1">1</span>
+      </div>
+      <span class="step-label">Informations</span>
+    </div>
+    <div class="step-line" [class.active]="activeStep >= 2"></div>
+    <div class="step-item" [class.active]="activeStep >= 2" [class.done]="activeStep > 2">
+      <div class="step-circle">
+        <i class="bi bi-check2" *ngIf="activeStep > 2"></i>
+        <span *ngIf="activeStep <= 2">2</span>
+      </div>
+      <span class="step-label">Repas</span>
+    </div>
+    <div class="step-line" [class.active]="activeStep >= 3"></div>
+    <div class="step-item" [class.active]="activeStep >= 3">
+      <div class="step-circle">3</div>
+      <span class="step-label">Confirmation</span>
+    </div>
+  </div>
+
+  <!-- ══════════════ STEP 1 : Informations ══════════════ -->
+  <div *ngIf="activeStep === 1" class="card">
+
+    <div class="card-section-header">
+      <h2><i class="bi bi-card-text"></i> Informations générales</h2>
+      <p>Définissez le titre et les objectifs nutritionnels du plan</p>
+    </div>
+
+    <!-- Titre -->
+    <div class="form-group">
+      <label class="form-label">
+        Titre du plan <span class="required">*</span>
+      </label>
+      <input class="form-input"
+             [(ngModel)]="plan.title"
+             placeholder="ex: Plan Équilibre Diabète Type 2"
+             [class.invalid]="plan.title !== undefined && plan.title.trim() === ''">
+      <span class="field-hint">Choisissez un nom clair et descriptif</span>
+      <span class="error-msg" *ngIf="plan.title !== undefined && plan.title.trim() === ''">
+        Le titre est obligatoire
+      </span>
+    </div>
+
+    <!-- Description -->
+    <div class="form-group">
+      <label class="form-label">Description / Objectif</label>
+      <textarea class="form-input form-textarea"
+                [(ngModel)]="plan.description"
+                placeholder="ex: Contrôle glycémique avec réduction des glucides rapides..."
+                rows="3">
+      </textarea>
+      <span class="field-hint">Décrivez les objectifs thérapeutiques du plan</span>
+    </div>
+
+    <!-- Rappel besoins patient -->
+    <div class="patient-reminder" *ngIf="patientProfile">
+      <div class="reminder-header">
+        <i class="bi bi-person-check-fill"></i>
+        Besoins calculés depuis le profil du patient (Harris-Benedict)
+      </div>
+      <div class="reminder-chips">
+        <span class="r-chip cal">🔥 {{ patientProfile.targetCalories | number:'1.0-0' }} kcal</span>
+        <span class="r-chip carb">🌾 {{ patientProfile.targetCarbs | number:'1.0-0' }}g glucides</span>
+        <span class="r-chip prot">🥩 {{ patientProfile.targetProtein | number:'1.0-0' }}g protéines</span>
+        <span class="r-chip fat">🥑 {{ patientProfile.targetFat | number:'1.0-0' }}g lipides</span>
+      </div>
+    </div>
+
+    <!-- Objectifs nutritionnels -->
+    <div class="section-divider">
+      <span><i class="bi bi-bullseye"></i> Objectifs journaliers</span>
+    </div>
+
+    <div class="macros-grid">
+
+      <div class="macro-input-card cal-card">
+        <div class="mic-top">
+          <span class="mic-emoji">🔥</span>
+          <label>Calories <span class="required">*</span></label>
+        </div>
+        <div class="mic-input">
+          <input type="number"
+                 class="form-input"
+                 [(ngModel)]="plan.targetCalories"
+                 placeholder="1800"
+                 min="800" max="4000"
+                 [class.invalid]="plan.targetCalories !== null && plan.targetCalories! < 800">
+          <span class="mic-unit">kcal</span>
+        </div>
+        <span class="mic-hint">Recommandé : 1400–2500 kcal</span>
+        <span class="error-msg"
+              *ngIf="plan.targetCalories !== null && plan.targetCalories! < 800">
+          ⚠️ Minimum 800 kcal/jour
+        </span>
+      </div>
+
+      <div class="macro-input-card carb-card">
+        <div class="mic-top">
+          <span class="mic-emoji">🌾</span>
+          <label>Glucides <span class="required">*</span></label>
+        </div>
+        <div class="mic-input">
+          <input type="number"
+                 class="form-input"
+                 [(ngModel)]="plan.targetCarbs"
+                 placeholder="180"
+                 min="50" max="400"
+                 [class.invalid]="plan.targetCarbs !== null && plan.targetCarbs! < 50">
+          <span class="mic-unit">g/jour</span>
+        </div>
+        <span class="mic-hint">Diabète T2 : 130–180g/jour</span>
+        <span class="error-msg"
+              *ngIf="plan.targetCarbs !== null && plan.targetCarbs! < 50">
+          ⚠️ Minimum 50g/jour
+        </span>
+      </div>
+
+      <div class="macro-input-card prot-card">
+        <div class="mic-top">
+          <span class="mic-emoji">🥩</span>
+          <label>Protéines</label>
+        </div>
+        <div class="mic-input">
+          <input type="number"
+                 class="form-input"
+                 [(ngModel)]="plan.targetProtein"
+                 placeholder="90"
+                 min="30" max="250">
+          <span class="mic-unit">g/jour</span>
+        </div>
+        <span class="mic-hint">Recommandé : 60–120g/jour</span>
+      </div>
+
+      <div class="macro-input-card fat-card">
+        <div class="mic-top">
+          <span class="mic-emoji">🥑</span>
+          <label>Lipides</label>
+        </div>
+        <div class="mic-input">
+          <input type="number"
+                 class="form-input"
+                 [(ngModel)]="plan.targetFat"
+                 placeholder="60"
+                 min="20" max="200">
+          <span class="mic-unit">g/jour</span>
+        </div>
+        <span class="mic-hint">Recommandé : 44–78g/jour</span>
+      </div>
+
+    </div>
+
+    <div class="step-actions">
+      <div></div>
+      <button class="btn-next" (click)="nextStep()" [disabled]="!isStep1Valid()">
+        Suivant : Définir les repas <i class="bi bi-arrow-right ms-1"></i>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ══════════════ STEP 2 : Repas ══════════════ -->
+  <div *ngIf="activeStep === 2" class="card">
+
+    <div class="card-section-header">
+      <h2><i class="bi bi-egg-fried"></i> Repas du plan</h2>
+      <p>Définissez les aliments recommandés pour chaque repas</p>
+    </div>
+
+    <!-- Barre progression glucides -->
+    <div class="carbs-tracker" *ngIf="plan.targetCarbs">
+      <div class="ct-row">
+        <span class="ct-label">
+          <i class="bi bi-activity"></i> Glucides planifiés
+        </span>
+        <strong class="ct-val"
+                [class.ct-over]="getCarbsStatus() === 'over'"
+                [class.ct-ok]="getCarbsStatus() === 'ok'"
+                [class.ct-under]="getCarbsStatus() === 'under'">
+          {{ getTotalCarbs() }}g / {{ plan.targetCarbs }}g
+        </strong>
+      </div>
+      <div class="ct-bar">
+        <div class="ct-fill"
+             [style.width.%]="getCarbsPercentage()"
+             [class.ct-fill-over]="getCarbsStatus() === 'over'"
+             [class.ct-fill-ok]="getCarbsStatus() === 'ok'"
+             [class.ct-fill-under]="getCarbsStatus() === 'under'">
+        </div>
+      </div>
+      <small class="ct-warn" *ngIf="getCarbsStatus() === 'over'">
+        ⚠️ Dépassement — réduisez les glucides par repas
+      </small>
+      <small class="ct-ok-msg" *ngIf="getCarbsStatus() === 'ok'">
+        ✅ Répartition équilibrée des glucides
+      </small>
+    </div>
+
+    <!-- Meal cards -->
+    <div class="meal-card" *ngFor="let meal of meals; let i = index">
+
+      <div class="meal-card-header">
+        <select [(ngModel)]="meal.mealType" class="meal-type-select">
+          <option *ngFor="let t of mealTypes" [value]="t.value">{{ t.label }}</option>
+        </select>
+        <button class="btn-remove" (click)="removeMeal(i)" *ngIf="meals.length > 1">
+          <i class="bi bi-trash3"></i>
+        </button>
+      </div>
+
+      <div class="meal-body">
+
+        <div class="form-group full">
+          <label class="form-label">
+            Aliments recommandés <span class="required">*</span>
+          </label>
+          <textarea class="form-input form-textarea"
+                    [(ngModel)]="meal.food"
+                    rows="2"
+                    [placeholder]="meal.mealType === 'breakfast'
+                      ? 'ex: Flocons d\'avoine 60g, lait écrémé 200ml, pomme'
+                      : meal.mealType === 'lunch'
+                      ? 'ex: Poulet grillé 150g, riz basmati 80g, légumes vapeur'
+                      : meal.mealType === 'dinner'
+                      ? 'ex: Poisson vapeur 150g, quinoa 70g, salade verte'
+                      : 'ex: Yaourt nature, amandes 20g'"
+                    [class.invalid]="!meal.food">
+          </textarea>
+          <span class="error-msg" *ngIf="!meal.food">Ce champ est requis</span>
+        </div>
+
+        <div class="meal-row">
+          <div class="form-group">
+            <label class="form-label">🌾 Glucides cibles</label>
+            <div class="mic-input">
+              <input type="number"
+                     class="form-input"
+                     [(ngModel)]="meal.targetCarbs"
+                     placeholder="45"
+                     min="0" max="150">
+              <span class="mic-unit">g</span>
+            </div>
+            <span class="field-hint">Max recommandé : 60g / repas</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">📝 Conseils nutritionniste</label>
+            <input type="text"
+                   class="form-input"
+                   [(ngModel)]="meal.notes"
+                   placeholder="ex: Éviter les sucres rapides">
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <button class="btn-add-meal" (click)="addMeal()">
+      <i class="bi bi-plus-circle"></i> Ajouter une collation
+    </button>
+
+    <div class="step-actions">
+      <button class="btn-back-step" (click)="prevStep()">
+        <i class="bi bi-arrow-left me-1"></i> Retour
+      </button>
+      <button class="btn-next" (click)="nextStep()" [disabled]="!isStep2Valid()">
+        Vérifier le plan <i class="bi bi-arrow-right ms-1"></i>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ══════════════ STEP 3 : Confirmation ══════════════ -->
+  <div *ngIf="activeStep === 3" class="card">
+
+    <div class="card-section-header">
+      <h2><i class="bi bi-journal-check"></i> Confirmation du plan</h2>
+      <p>Vérifiez les informations avant d'enregistrer</p>
+    </div>
+
+    <!-- Résumé plan -->
+    <div class="summary-block">
+      <div class="summary-plan-title">
+        <i class="bi bi-clipboard2-heart-fill"></i>
+        {{ plan.title }}
+      </div>
+      <p class="summary-desc" *ngIf="plan.description">{{ plan.description }}</p>
+
+      <div class="summary-macros">
+        <div class="sm-chip cal-chip">
+          <span class="smc-emoji">🔥</span>
+          <div class="smc-info">
+            <span class="smc-val">{{ plan.targetCalories }}</span>
+            <span class="smc-label">kcal/jour</span>
+          </div>
+        </div>
+        <div class="sm-chip carb-chip">
+          <span class="smc-emoji">🌾</span>
+          <div class="smc-info">
+            <span class="smc-val">{{ plan.targetCarbs }}g</span>
+            <span class="smc-label">glucides</span>
+          </div>
+        </div>
+        <div class="sm-chip prot-chip">
+          <span class="smc-emoji">🥩</span>
+          <div class="smc-info">
+            <span class="smc-val">{{ plan.targetProtein }}g</span>
+            <span class="smc-label">protéines</span>
+          </div>
+        </div>
+        <div class="sm-chip fat-chip">
+          <span class="smc-emoji">🥑</span>
+          <div class="smc-info">
+            <span class="smc-val">{{ plan.targetFat }}g</span>
+            <span class="smc-label">lipides</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Repas résumé -->
+    <div class="summary-meals">
+      <div class="summary-meal-item" *ngFor="let meal of meals">
+        <div class="smi-header">
+          <span class="smi-type">{{ getMealLabel(meal.mealType) }}</span>
+          <span class="smi-carbs" *ngIf="meal.targetCarbs">
+            🌾 {{ meal.targetCarbs }}g glucides
+          </span>
+        </div>
+        <p class="smi-food">{{ meal.food }}</p>
+        <small class="smi-notes" *ngIf="meal.notes">
+          <i class="bi bi-info-circle"></i> {{ meal.notes }}
+        </small>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn-back-step" (click)="prevStep()">
+        <i class="bi bi-pencil me-1"></i> Modifier
+      </button>
+      <button class="btn-save" (click)="savePlan()" [disabled]="isSaving">
+        <span *ngIf="!isSaving">
+          <i class="bi bi-check2-circle me-1"></i> Enregistrer le plan
+        </span>
+        <span *ngIf="isSaving">
+          <span class="spinner-border spinner-border-sm me-2"></span>
+          Enregistrement...
+        </span>
+      </button>
+    </div>
+
+  </div>
+
+</div>

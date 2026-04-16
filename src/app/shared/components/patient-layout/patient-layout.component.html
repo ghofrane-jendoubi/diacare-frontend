@@ -1,13 +1,25 @@
-<app-navbar
-  [menuItems]="patientMenuItems"
-  [isLoggedIn]="true"
-  [userId]="patientId"
-  [userName]="userName"
-  [userEmail]="userEmail">
-</app-navbar>
+<!-- patient-layout.component.html -->
+<div class="patient-layout">
+  <!-- Navbar principale -->
+  <app-navbar
+    [menuItems]="patientMenuItems"
+    [isLoggedIn]="true"
+    [userId]="patientId"
+    [userName]="userName"
+    [userEmail]="userEmail">
+  </app-navbar>
 
-<div class="patient-content">
-  <router-outlet></router-outlet>
+  <!-- Contenu principal avec sidebar conditionnelle -->
+  <div class="main-container" [class.with-nutrition-sidebar]="showNutritionTabs">
+    <!-- Sidebar nutrition (affichée conditionnellement) -->
+    <app-nutrition-tabs *ngIf="showNutritionTabs"></app-nutrition-tabs>
+
+    <!-- Contenu principal -->
+    <div class="content-area">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <app-footer></app-footer>
 </div>
-
-<app-footer></app-footer>
