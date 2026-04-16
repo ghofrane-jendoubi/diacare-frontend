@@ -13,6 +13,15 @@
           <div class="input-group">
             <input type="password" [(ngModel)]="loginData.password" name="password" placeholder="Password" required>
           </div>
+
+          <div class="forgot-link-wrap">
+  <button type="button" class="forgot-link" (click)="showForgot = !showForgot">
+    Mot de passe oublié ?
+  </button>
+</div>
+<div *ngIf="showForgot" class="forgot-panel">
+  <app-forgot-password [actor]="'admins'"></app-forgot-password>
+</div>
           <button type="submit" class="btn-signin">SIGN IN</button>
         </form>
       </div>

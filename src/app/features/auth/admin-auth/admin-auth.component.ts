@@ -16,8 +16,9 @@ export class AdminAuthComponent {
     email: '',
     phone: '',
     password: ''
+    
   };
-
+showForgot = false;   // ← AJOUTER
   profilePicture: File | null = null;
 
   loginData = {

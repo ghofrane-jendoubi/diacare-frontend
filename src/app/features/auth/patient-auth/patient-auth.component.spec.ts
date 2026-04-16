@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PatientAuthComponent } from './patient-auth.component';
+import { beforeEach, describe, it } from 'node:test';
 
 describe('PatientAuthComponent', () => {
   let component: PatientAuthComponent;
@@ -21,3 +22,7 @@ describe('PatientAuthComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+function expect(component: PatientAuthComponent) {
+  throw new Error('Function not implemented.');
+}
+

@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
@@ -16,6 +17,13 @@ export class PatientAuthComponent {
   errorMessage = '';
   successMessage = '';
   rememberMe = false;
+  showForgot = false;
+  showPassword = false;
+  showSignupPassword = false;
+
+  // hCaptcha properties
+  hcaptchaToken: string | null = null;
+  captchaError = false;
 
   newPatient = {
     firstName: '',
@@ -45,16 +53,57 @@ export class PatientAuthComponent {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit() {
-    // Récupérer l'email sauvegardé si "Se souvenir de moi" était coché
-    const rememberedEmail = localStorage.getItem('rememberedEmail');
-    if (rememberedEmail) {
-      this.loginData.email = rememberedEmail;
-      this.rememberMe = true;
+    if (isPlatformBrowser(this.platformId)) {
+      const rememberedEmail = localStorage.getItem('rememberedEmail');
+      if (rememberedEmail) {
+        this.loginData.email = rememberedEmail;
+        this.rememberMe = true;
+      }
     }
+  }
+
+  // =================== hCaptcha METHODS ===================
+  
+  onHCaptchaResolved(token: string): void {
+    this.hcaptchaToken = token;
+    this.captchaError = false;
+    console.log('✅ hCaptcha résolu avec succès pour le patient');
+    this.cdr.detectChanges();
+  }
+
+  onHCaptchaExpired(): void {
+    this.hcaptchaToken = null;
+    this.captchaError = false;
+    console.log('⚠️ hCaptcha expiré pour le patient');
+    this.cdr.detectChanges();
+  }
+
+  getPasswordStrength(): number {
+    const password = this.newPatient.password;
+    if (!password) return 0;
+    
+    let strength = 0;
+    if (password.length >= 6) strength++;
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+    
+    return Math.min(strength, 4);
+  }
+
+  getPasswordStrengthText(): string {
+    const strength = this.getPasswordStrength();
+    if (strength <= 1) return 'Faible';
+    if (strength <= 2) return 'Moyen';
+    if (strength <= 3) return 'Bon';
+    return 'Fort';
   }
 
   toggleMode() {
@@ -62,29 +111,45 @@ export class PatientAuthComponent {
     this.step = 1;
     this.errorMessage = '';
     this.successMessage = '';
+    this.hcaptchaToken = null;
+    this.captchaError = false;
+    this.cdr.detectChanges();
   }
 
   nextStep() {
     const p = this.newPatient;
+    
     if (!p.firstName || !p.lastName || !p.email || !p.phone || !p.password) {
       this.errorMessage = 'Veuillez remplir tous les champs obligatoires';
       return;
     }
+    
     if (p.password.length < 6) {
       this.errorMessage = 'Le mot de passe doit contenir au moins 6 caractères';
       return;
     }
+    
     if (!this.isValidEmail(p.email)) {
       this.errorMessage = 'Veuillez entrer une adresse email valide';
       return;
     }
+    
+    if (!this.hcaptchaToken) {
+      this.captchaError = true;
+      this.errorMessage = 'Veuillez compléter la vérification anti-robot';
+      return;
+    }
+    
     this.errorMessage = '';
+    this.captchaError = false;
     this.step = 2;
+    this.cdr.detectChanges();
   }
 
   prevStep() {
     this.step = 1;
     this.errorMessage = '';
+    this.cdr.detectChanges();
   }
 
   isValidEmail(email: string): boolean {
@@ -95,8 +160,15 @@ export class PatientAuthComponent {
   signUp() {
     this.errorMessage = '';
     const p = this.newPatient;
-
+    
+    if (!this.hcaptchaToken) {
+      this.captchaError = true;
+      this.errorMessage = 'Veuillez compléter la vérification anti-robot';
+      return;
+    }
+    
     this.isLoading = true;
+    this.cdr.detectChanges();
 
     const payload = {
       firstName: p.firstName,
@@ -113,25 +185,31 @@ export class PatientAuthComponent {
       emergencyContact: p.emergencyContact || null,
       familyHistory: p.familyHistory || null,
       weight: p.weight,
-      height: p.height
+      height: p.height,
+      hcaptchaToken: this.hcaptchaToken
     };
 
     this.http.post('http://localhost:8081/api/patients/signup', payload).subscribe({
       next: () => {
         this.isLoading = false;
         this.successMessage = 'Inscription réussie ! Vérifiez votre email pour activer votre compte.';
+        this.cdr.detectChanges();
         setTimeout(() => {
           this.isSignUp = false;
           this.step = 1;
           this.successMessage = '';
+          this.hcaptchaToken = null;
+          this.cdr.detectChanges();
         }, 3000);
         this.resetForm();
       },
       error: (err) => {
         this.isLoading = false;
         this.errorMessage = err.error?.message || 'Erreur lors de l\'inscription.';
+        this.cdr.detectChanges();
         setTimeout(() => {
           this.errorMessage = '';
+          this.cdr.detectChanges();
         }, 5000);
       }
     });
@@ -144,6 +222,9 @@ export class PatientAuthComponent {
       emergencyContact: '', familyHistory: '', dateOfBirth: '', gender: '',
       address: '', city: ''
     };
+    this.hcaptchaToken = null;
+    this.captchaError = false;
+    this.cdr.detectChanges();
   }
 
   signIn() {
@@ -154,16 +235,18 @@ export class PatientAuthComponent {
     }
     
     this.isLoading = true;
+    this.cdr.detectChanges();
     
     this.http.post('http://localhost:8081/api/patients/login', this.loginData).subscribe({
       next: (res: any) => {
         this.isLoading = false;
         
-        // Gérer "Se souvenir de moi"
-        if (this.rememberMe) {
-          localStorage.setItem('rememberedEmail', this.loginData.email);
-        } else {
-          localStorage.removeItem('rememberedEmail');
+        if (isPlatformBrowser(this.platformId)) {
+          if (this.rememberMe) {
+            localStorage.setItem('rememberedEmail', this.loginData.email);
+          } else {
+            localStorage.removeItem('rememberedEmail');
+          }
         }
         
         this.authService.setCurrentUser({
@@ -181,8 +264,10 @@ export class PatientAuthComponent {
       error: (err) => {
         this.isLoading = false;
         this.errorMessage = err.error?.message || 'Email ou mot de passe incorrect.';
+        this.cdr.detectChanges();
         setTimeout(() => {
           this.errorMessage = '';
+          this.cdr.detectChanges();
         }, 5000);
       }
     });

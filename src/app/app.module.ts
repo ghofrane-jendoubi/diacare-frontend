@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-
+import { NgxSliderRecaptchaModule } from 'ngx-slider-recaptcha';
 
 import { HomeComponent } from './features/home/home.component';
 
@@ -17,19 +17,21 @@ import { DoctorAuthComponent } from './features/auth/doctor-auth/doctor-auth.com
 import { NutritionistAuthComponent } from './features/auth/nutritionist-auth/nutritionist-auth.component';
 import { PatientAuthComponent } from './features/auth/patient-auth/patient-auth.component';
 import { UserListComponent } from './features/user-list/user-list.component';
+import { ForgotPasswordComponent } from './features/auth/forgotpassword/forgotpassword.component';
+import { HcaptchaComponent, } from './features/auth/recaptcha/hcaptcha.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
-     
     ChooseRoleComponent,
     AdminAuthComponent,
     DoctorAuthComponent,
     NutritionistAuthComponent,
     PatientAuthComponent,
     UserListComponent,
-  
+    ForgotPasswordComponent,
+    HcaptchaComponent,  // ✅ OK - composant non-standalone
   ],
   imports: [
     BrowserModule,
@@ -37,6 +39,7 @@ import { UserListComponent } from './features/user-list/user-list.component';
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
+    NgxSliderRecaptchaModule,
     HttpClientModule
   ],
   providers: [],
