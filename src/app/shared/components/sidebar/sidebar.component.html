@@ -1,0 +1,130 @@
+<div class="sidebar" [class.collapsed]="isCollapsed">
+
+  <!-- Brand Section -->
+  <div class="brand-section">
+    <div class="logo-container">
+      <div class="hexagon">
+        <i class="bi bi-hexagon-fill"></i>
+        <div class="hexagon-text">DC</div>
+      </div>
+      <div class="brand-name" *ngIf="!isCollapsed">DiaCare</div>
+    </div>
+    <button class="collapse-btn" (click)="onToggleSidebar()">
+      <i [class.bi-chevron-left]="!isCollapsed" [class.bi-chevron-right]="isCollapsed"></i>
+    </button>
+  </div>
+
+  <!-- Profil Admin -->
+  <div class="profile-section">
+    <div class="profile-avatar">
+      <i class="bi bi-shield-lock-fill"></i>
+    </div>
+    <div class="profile-info" *ngIf="!isCollapsed">
+      <h6>Admin Système</h6>
+      <span class="badge bg-success">Super Admin</span>
+    </div>
+  </div>
+
+  <!-- Menu Principal -->
+  <div class="menu-section">
+    <div class="menu-label" *ngIf="!isCollapsed">PRINCIPAL</div>
+
+    <!-- Dashboard -->
+    <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="menu-item">
+      <i class="bi bi-grid-1x2-fill"></i>
+      <span class="menu-text" *ngIf="!isCollapsed">Dashboard</span>
+      <span class="badge bg-danger" *ngIf="!isCollapsed">3</span>
+    </a>
+
+    <!-- Gestion Utilisateurs -->
+    <div class="menu-label" *ngIf="!isCollapsed">UTILISATEURS</div>
+
+    <!-- Médecins -->
+    <a routerLink="/admin/users/doctors" routerLinkActive="active" class="menu-item">
+      <i class="bi bi-person-badge-fill"></i>
+      <span class="menu-text" *ngIf="!isCollapsed">Médecins</span>
+      <span class="badge bg-warning" *ngIf="!isCollapsed && doctorsCount > 0">{{ doctorsCount }}</span>
+    </a>
+
+    <!-- Nutritionnistes -->
+    <a routerLink="/admin/users/nutritionists" routerLinkActive="active" class="menu-item">
+      <i class="bi bi-egg-fried"></i>
+      <span class="menu-text" *ngIf="!isCollapsed">Nutritionnistes</span>
+      <span class="badge bg-info" *ngIf="!isCollapsed && nutritionistsCount > 0">{{ nutritionistsCount }}</span>
+    </a>
+
+    <!-- Patients -->
+    <a routerLink="/admin/users/patients" routerLinkActive="active" class="menu-item">
+      <i class="bi bi-people-fill"></i>
+      <span class="menu-text" *ngIf="!isCollapsed">Patients</span>
+      <span class="badge bg-info" *ngIf="!isCollapsed && patientsCount > 0">{{ patientsCount }}</span>
+    </a>
+
+    <!-- Gestion Médicale -->
+    <div class="menu-label" *ngIf="!isCollapsed">MÉDICAL</div>
+
+    <a class="menu-item" style="cursor: not-allowed;">
+      <i class="bi bi-calendar-check-fill"></i>
+      <span class="menu-text" *ngIf="!isCollapsed">Rendez-vous</span>
+    </a>
+
+    <a class="menu-item" style="cursor: not-allowed;">
+      <i class="bi bi-chat-dots-fill"></i>
+      <span class="menu-text" *ngIf="!isCollapsed">Consultations</span>
+      <span class="badge bg-success" *ngIf="!isCollapsed">12</span>
+    </a>
+
+    <!-- Espace Éducatif -->
+    <div class="menu-label" *ngIf="!isCollapsed">FORMATION</div>
+
+    <a class="menu-item" style="cursor: not-allowed;">
+      <i class="bi bi-play-btn-fill"></i>
+      <span class="menu-text" *ngIf="!isCollapsed">Vidéos & Documents</span>
+    </a>
+
+    <a class="menu-item" style="cursor: not-allowed;">
+      <i class="bi bi-basket-fill"></i>
+      <span class="menu-text" *ngIf="!isCollapsed">Plans Alimentaires</span>
+    </a>
+
+    <!-- Commerce -->
+    <div class="menu-label" *ngIf="!isCollapsed">COMMERCE</div>
+
+    <a class="menu-item" style="cursor: not-allowed;">
+      <i class="bi bi-capsule-pill"></i>
+      <span class="menu-text" *ngIf="!isCollapsed">Parapharmacie</span>
+    </a>
+
+    <a class="menu-item" style="cursor: not-allowed;">
+      <i class="bi bi-truck"></i>
+      <span class="menu-text" *ngIf="!isCollapsed">Commandes</span>
+    </a>
+
+    <!-- Support -->
+    <div class="menu-label" *ngIf="!isCollapsed">SUPPORT</div>
+
+    <a routerLink="/admin/reclamations" routerLinkActive="active" class="menu-item">
+      <i class="bi bi-people-fill"></i>
+      <span class="menu-text" *ngIf="!isCollapsed">Reclamation</span>
+      <span class="badge bg-info" *ngIf="!isCollapsed && patientsCount > 0">{{ patientsCount }}</span>
+    </a>
+
+    <a routerLink="/admin/geolocalisation" routerLinkActive="active" class="menu-item">
+      <i class="bi bi-geo-alt"></i>
+      <span class="menu-text" *ngIf="!isCollapsed">Carte géolocalisation</span>
+    </a>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="sidebar-footer" *ngIf="!isCollapsed">
+    <div class="footer-item">
+      <i class="bi bi-gear"></i>
+      <span>Paramètres</span>
+    </div>
+    <div class="footer-item text-danger">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Déconnexion</span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,195 @@
+<div class="appointments-container">
+  <div class="page-header">
+    <h1>
+      <i class="bi bi-calendar-check"></i>
+      Gestion des consultations
+    </h1>
+    <p>Planifiez et gérez vos rendez-vous avec vos patients</p>
+  </div>
+
+  <div class="content-grid">
+    <!-- Calendrier -->
+    <div class="calendar-section" [class.with-form]="showForm">
+      <div class="calendar-header">
+        <h2>Calendrier des consultations</h2>
+        <div class="legend">
+          <div class="legend-item">
+            <span class="dot past"></span>
+            <span>Passé</span>
+          </div>
+          <div class="legend-item">
+            <span class="dot today"></span>
+            <span>Aujourd'hui</span>
+          </div>
+          <div class="legend-item">
+            <span class="dot future"></span>
+            <span>Futur</span>
+          </div>
+          <div class="legend-item">
+            <span class="dot cancelled"></span>
+            <span>Annulé</span>
+          </div>
+        </div>
+      </div>
+
+      <full-calendar #calendar [options]="calendarOptions" [events]="events"></full-calendar>
+    </div>
+
+    <!-- Formulaire de planification -->
+    <div class="form-section" *ngIf="showForm">
+      <div class="form-header">
+        <h2>
+          <i class="bi" [ngClass]="editingAppointment ? 'bi-pencil-square' : 'bi-plus-circle'"></i>
+          {{ editingAppointment ? 'Modifier le rendez-vous' : 'Nouveau rendez-vous' }}
+        </h2>
+        <button class="close-btn" (click)="cancelForm()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <form (ngSubmit)="saveAppointment()" #formRef="ngForm">
+        <!-- Patient -->
+        <div class="form-group">
+          <label>
+            <i class="bi bi-person"></i>
+            Patient <span class="required">*</span>
+          </label>
+          <select [(ngModel)]="appointmentForm.patientId" name="patientId" required>
+            <option [ngValue]="null">Sélectionner un patient</option>
+            <option *ngFor="let patient of patients" [ngValue]="patient.id">
+              {{ patient.firstName }} {{ patient.lastName }}
+            </option>
+          </select>
+          <small class="help-text">Patients avec qui vous avez déjà conversé</small>
+        </div>
+
+        <!-- Titre -->
+        <div class="form-group">
+          <label>
+            <i class="bi bi-tag"></i>
+            Titre de la consultation <span class="required">*</span>
+          </label>
+          <input type="text" [(ngModel)]="appointmentForm.title" name="title" 
+                 placeholder="Ex: Consultation de suivi" required>
+        </div>
+
+        <!-- Date et Heure -->
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <label>
+                <i class="bi bi-calendar"></i>
+                Date <span class="required">*</span>
+              </label>
+              <input type="date" [(ngModel)]="appointmentForm.date" name="date" required>
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group">
+              <label>
+                <i class="bi bi-clock"></i>
+                Heure <span class="required">*</span>
+              </label>
+              <input type="time" [(ngModel)]="appointmentForm.time" name="time" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Durée et Type -->
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <label>
+                <i class="bi bi-hourglass"></i>
+                Durée (minutes)
+              </label>
+              <select [(ngModel)]="appointmentForm.duration" name="duration">
+                <option value="15">15 min</option>
+                <option value="30">30 min</option>
+                <option value="45">45 min</option>
+                <option value="60">60 min</option>
+              </select>
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group">
+              <label>
+                <i class="bi bi-camera-video"></i>
+                Type
+              </label>
+              <select [(ngModel)]="appointmentForm.type" name="type">
+                <option value="online">En ligne (visio)</option>
+                <option value="presentiel">Présentiel</option>
+                <option value="telephone">Téléphone</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+<div class="form-group">
+  <label>
+    <i class="bi bi-currency-dollar"></i>
+    Tarif de la consultation (TND) <span class="required">*</span>
+  </label>
+  <input type="number" [(ngModel)]="appointmentForm.fee" name="fee" 
+         class="form-control" min="0" step="10" required>
+  <small class="help-text">Le patient devra payer ce montant pour accéder à la consultation</small>
+</div>
+
+        <!-- Lien Meet (si en ligne) -->
+        <div class="form-group" *ngIf="appointmentForm.type === 'online'">
+          <label>
+            <i class="bi bi-google"></i>
+            Lien Google Meet
+          </label>
+          <div class="meet-link-group">
+            <input type="text" [(ngModel)]="appointmentForm.meetLink" name="meetLink" 
+                   placeholder="https://meet.google.com/xxx-xxxx-xxx" readonly>
+            <button type="button" class="btn-generate" (click)="appointmentForm.meetLink = generateMeetLink()">
+              <i class="bi bi-arrow-repeat"></i> Générer
+            </button>
+          </div>
+          <small class="help-text">Le lien sera envoyé au patient</small>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label>
+            <i class="bi bi-chat-text"></i>
+            Description / Instructions
+          </label>
+          <textarea [(ngModel)]="appointmentForm.description" name="description" 
+                    rows="3" placeholder="Préparatifs, documents à apporter..."></textarea>
+        </div>
+
+        <!-- Statut (si édition) -->
+        <div class="form-group" *ngIf="editingAppointment">
+          <label>
+            <i class="bi bi-flag"></i>
+            Statut
+          </label>
+          <select [(ngModel)]="appointmentForm.status" name="status">
+            <option value="planifié">Planifié</option>
+            <option value="confirmé">Confirmé</option>
+            <option value="annulé">Annulé</option>
+            <option value="terminé">Terminé</option>
+          </select>
+        </div>
+
+        <!-- Boutons -->
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="cancelForm()">
+            Annuler
+          </button>
+          <button *ngIf="editingAppointment" type="button" class="btn-delete" (click)="deleteAppointment()">
+            <i class="bi bi-trash"></i> Supprimer
+          </button>
+          <button type="submit" class="btn-save" [disabled]="!formRef.valid">
+            <i class="bi" [ngClass]="editingAppointment ? 'bi-check-lg' : 'bi-calendar-plus'"></i>
+            {{ editingAppointment ? 'Modifier' : 'Planifier' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

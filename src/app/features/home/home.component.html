@@ -1,0 +1,418 @@
+<!-- NAVBAR PROFESSIONNELLE -->
+<nav class="navbar" [class.scrolled]="isScrolled">
+  <div class="nav-container">
+    <!-- Logo -->
+    <div class="logo">
+      <div class="logo-icon">
+        <i class="bi bi-hexagon-fill"></i>
+        <span class="logo-text">DC</span>
+      </div>
+      <span class="brand-name">DiaCare</span>
+    </div>
+
+    <!-- Menu Desktop -->
+    <ul class="nav-links">
+      <li><a href="#accueil" class="active">Accueil</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#comment-ca-marche">Comment ça marche</a></li>
+      <li><a href="#temoignages">Témoignages</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+
+    <!-- Boutons d'authentification - Version sombre -->
+ <div class="nav-actions">
+  <a routerLink="/choose-role" class="btn btn-outline-dark">
+    <i class="bi bi-box-arrow-in-right"></i>
+    Se connecter
+  </a>
+</div>
+
+    <!-- Menu mobile toggle -->
+    <button class="mobile-toggle" (click)="toggleMobileMenu()">
+      <i class="bi" [ngClass]="isMobileMenuOpen ? 'bi-x' : 'bi-list'"></i>
+    </button>
+  </div>
+
+  <!-- Menu Mobile -->
+  <div class="mobile-menu" [class.open]="isMobileMenuOpen">
+    <a href="#accueil" class="mobile-link">Accueil</a>
+    <a href="#services" class="mobile-link">Services</a>
+    <a href="#comment-ca-marche" class="mobile-link">Comment ça marche</a>
+    <a href="#temoignages" class="mobile-link">Témoignages</a>
+    <a href="#contact" class="mobile-link">Contact</a>
+    <div class="mobile-buttons">
+      <a routerLink="/login" class="btn btn-outline-dark w-100 mb-2">
+        <i class="bi bi-box-arrow-in-right"></i> Se connecter
+      </a>
+      <a routerLink="/register" class="btn btn-primary w-100">
+        <i class="bi bi-person-plus"></i> S'inscrire
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO SECTION PRINCIPALE -->
+<section id="accueil" class="hero" [style.backgroundImage]="'url(' + heroImage + ')'">
+  <div class="hero-overlay"></div>
+  <div class="hero-container">
+    <div class="hero-content">
+      
+
+      <h1 class="hero-title">
+        Votre santé, <span class="gradient-text">notre priorité</span>
+      </h1>
+
+      <p class="hero-description">
+        Connectez-vous avec des médecins spécialistes, consultez en ligne, 
+        suivez votre régime avec des nutritionnistes experts, 
+        le tout assisté par une intelligence artificielle de pointe.
+      </p>
+
+      <div class="hero-cta">
+        <a routerLink="/register" class="btn btn-primary btn-large">
+          Commencer maintenant
+          <i class="bi bi-arrow-right"></i>
+        </a>
+        <a href="#services" class="btn btn-outline-light btn-large">
+          Découvrir nos services
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-number">500+</span>
+          <span class="stat-label">Médecins</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">50+</span>
+          <span class="stat-label">Nutritionnistes</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">10k+</span>
+          <span class="stat-label">Patients</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">98%</span>
+          <span class="stat-label">Satisfaits</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="visual-card main-card">
+
+      
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION SERVICES PRINCIPAUX -->
+<section id="services" class="services">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">✨ Nos services</span>
+      <h2>Une plateforme complète pour votre santé</h2>
+      <p>Découvrez comment DiaCare révolutionne la gestion du diabète</p>
+    </div>
+
+    <div class="services-grid">
+      <!-- Télémédecine -->
+      <div class="service-card">
+        <div class="service-icon" style="background: #e8f0fe">
+          <i class="bi bi-camera-video-fill" style="color: #2563eb"></i>
+        </div>
+        <h3>Télémédecine</h3>
+        <p>Consultez des médecins spécialistes en visioconférence, où que vous soyez, sans vous déplacer.</p>
+        <ul class="service-features">
+          <li><i class="bi bi-check-circle-fill"></i> Rendez-vous en 24h</li>
+          <li><i class="bi bi-check-circle-fill"></i> Ordonnances en ligne</li>
+          <li><i class="bi bi-check-circle-fill"></i> Suivi personnalisé</li>
+        </ul>
+        <a href="#" class="service-link">En savoir plus <i class="bi bi-arrow-right"></i></a>
+      </div>
+
+      <!-- Nutritionnistes -->
+      <div class="service-card">
+        <div class="service-icon" style="background: #e6f7e6">
+          <i class="bi bi-egg-fried" style="color: #10b981"></i>
+        </div>
+        <h3>Suivi nutritionnel</h3>
+        <p>Des nutritionnistes experts créent des plans alimentaires adaptés à votre diabète et vos objectifs.</p>
+        <ul class="service-features">
+          <li><i class="bi bi-check-circle-fill"></i> Plans personnalisés</li>
+          <li><i class="bi bi-check-circle-fill"></i> Analyse des repas</li>
+          <li><i class="bi bi-check-circle-fill"></i> Conseils quotidiens</li>
+        </ul>
+        <a href="#" class="service-link">En savoir plus <i class="bi bi-arrow-right"></i></a>
+      </div>
+
+      <!-- Intelligence Artificielle -->
+      <div class="service-card">
+        <div class="service-icon" style="background: #f3e8ff">
+          <i class="bi bi-cpu" style="color: #8b5cf6"></i>
+        </div>
+        <h3>IA prédictive</h3>
+        <p>Notre intelligence artificielle analyse vos données pour anticiper les complications.</p>
+        <ul class="service-features">
+          <li><i class="bi bi-check-circle-fill"></i> Analyse d'images</li>
+          <li><i class="bi bi-check-circle-fill"></i> Prédictions glycémiques</li>
+          <li><i class="bi bi-check-circle-fill"></i> Alertes personnalisées</li>
+        </ul>
+        <a href="#" class="service-link">En savoir plus <i class="bi bi-arrow-right"></i></a>
+      </div>
+
+      <!-- Chat médical -->
+      <div class="service-card">
+        <div class="service-icon" style="background: #fff2e5">
+          <i class="bi bi-chat-dots-fill" style="color: #f97316"></i>
+        </div>
+        <h3>Chat médical</h3>
+        <p>Communiquez directement avec votre équipe soignante via notre messagerie sécurisée.</p>
+        <ul class="service-features">
+          <li><i class="bi bi-check-circle-fill"></i> Messages illimités</li>
+          <li><i class="bi bi-check-circle-fill"></i> Partage de documents</li>
+          <li><i class="bi bi-check-circle-fill"></i> Réponse rapide</li>
+        </ul>
+        <a href="#" class="service-link">En savoir plus <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION COMMENT ÇA MARCHE -->
+<section id="comment-ca-marche" class="how-it-works">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">⚡ Comment ça marche</span>
+      <h2>Votre santé en 3 étapes simples</h2>
+      <p>Une plateforme intuitive conçue pour simplifier votre parcours de soins</p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-icon">
+          <i class="bi bi-person-plus-fill"></i>
+        </div>
+        <h3>Créez votre compte</h3>
+        <p>Inscrivez-vous gratuitement et complétez votre profil médical en quelques minutes.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-icon">
+          <i class="bi bi-calendar-check-fill"></i>
+        </div>
+        <h3>Choisissez votre spécialiste</h3>
+        <p>Sélectionnez un médecin ou nutritionniste selon vos besoins et prenez rendez-vous.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-icon">
+          <i class="bi bi-chat-dots-fill"></i>
+        </div>
+        <h3>Suivez votre santé</h3>
+        <p>Consultez en ligne, échangez avec votre équipe et suivez vos progrès au quotidien.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION AVANTAGES -->
+<section class="benefits">
+  <div class="container">
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <i class="bi bi-clock-history"></i>
+        <h4>Disponibilité 24/7</h4>
+        <p>Accédez à vos services à tout moment, où que vous soyez</p>
+      </div>
+      <div class="benefit-card">
+        <i class="bi bi-shield-lock"></i>
+        <h4>Données sécurisées</h4>
+        <p>Chiffrement de bout en bout, conformité RGPD</p>
+      </div>
+      <div class="benefit-card">
+        <i class="bi bi-people"></i>
+        <h4>Équipe pluridisciplinaire</h4>
+        <p>Médecins, nutritionnistes et IA à votre service</p>
+      </div>
+      <div class="benefit-card">
+        <i class="bi bi-graph-up"></i>
+        <h4>Suivi personnalisé</h4>
+        <p>Recommandations adaptées à votre profil</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION TÉMOIGNAGES -->
+<section id="temoignages" class="testimonials">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">💬 Témoignages</span>
+      <h2>Ce que disent nos utilisateurs</h2>
+      <p>Découvrez les retours de notre communauté</p>
+    </div>
+
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-rating">
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+        </div>
+        <p class="testimonial-text">"Grâce à DiaCare, je peux consulter mon endocrinologue sans me déplacer. Les nutritionnistes m'ont aidé à rééquilibrer mon alimentation."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">F</div>
+          <div class="author-info">
+            <h4>Fatima B.</h4>
+            <p>Patiente diabétique type 2</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="testimonial-rating">
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+        </div>
+        <p class="testimonial-text">"L'IA m'alerte quand ma glycémie risque de monter. J'ai pu éviter plusieurs crises grâce aux prédictions."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">A</div>
+          <div class="author-info">
+            <h4>Ahmed M.</h4>
+            <p>Patient diabétique type 1</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="testimonial-rating">
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+        </div>
+        <p class="testimonial-text">"En tant que nutritionniste, je peux suivre l'évolution de mes patients en temps réel. Un outil indispensable !"</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">S</div>
+          <div class="author-info">
+            <h4>Sophie L.</h4>
+            <p>Nutritionniste</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION APPEL À L'ACTION -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-card">
+      <h2>Rejoignez la communauté DiaCare</h2>
+      <p>Des milliers de patients et professionnels de santé vous attendent</p>
+      <div class="cta-buttons">
+        <a routerLink="/register" class="btn btn-primary btn-large">
+          Créer un compte gratuit
+          <i class="bi bi-arrow-right"></i>
+        </a>
+        <a routerLink="/login" class="btn btn-outline-light btn-large">
+          J'ai déjà un compte
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER COMPLET -->
+<footer id="contact" class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- À propos -->
+      <div class="footer-about">
+        <div class="footer-logo">
+          <div class="logo-icon">
+            <i class="bi bi-hexagon-fill"></i>
+            <span class="logo-text">DC</span>
+          </div>
+          <span class="brand-name">DiaCare</span>
+        </div>
+        <p>La première plateforme intelligente dédiée à la gestion du diabète, combinant télémedecine, suivi nutritionnel et intelligence artificielle.</p>
+        <div class="social-links">
+          <a href="#" class="social-link" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+          <a href="#" class="social-link" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+          <a href="#" class="social-link" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+          <a href="#" class="social-link" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+        </div>
+      </div>
+
+      <!-- Liens rapides -->
+      <div class="footer-links">
+        <h4>Liens rapides</h4>
+        <ul>
+          <li><a href="#accueil">Accueil</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#comment-ca-marche">Comment ça marche</a></li>
+          <li><a href="#temoignages">Témoignages</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+
+      <!-- Nos services -->
+      <div class="footer-links">
+        <h4>Nos services</h4>
+        <ul>
+          <li><a href="#">Télémédecine</a></li>
+          <li><a href="#">Consultations nutritionnistes</a></li>
+          <li><a href="#">Chat médical</a></li>
+          <li><a href="#">IA prédictive</a></li>
+          <li><a href="#">Analyse d'images</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div class="footer-contact">
+        <h4>Contactez-nous</h4>
+        <ul>
+          <li>
+            <i class="bi bi-geo-alt-fill"></i>
+            <span>123 Rue de la Santé, Casablanca</span>
+          </li>
+          <li>
+            <i class="bi bi-telephone-fill"></i>
+            <span>+212 5XX-XXXXXX</span>
+          </li>
+          <li>
+            <i class="bi bi-envelope-fill"></i>
+            <span>contact&#64;diacare.ma</span>
+          </li>
+          <li>
+            <i class="bi bi-clock-fill"></i>
+            <span>Lun-Ven: 9h00 - 19h00</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2024 DiaCare. Tous droits réservés.</p>
+      <div class="footer-bottom-links">
+        <a href="#">Mentions légales</a>
+        <span>•</span>
+        <a href="#">Politique de confidentialité</a>
+        <span>•</span>
+        <a href="#">CGU</a>
+      </div>
+    </div>
+  </div>
+</footer>

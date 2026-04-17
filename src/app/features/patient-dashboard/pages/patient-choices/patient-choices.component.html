@@ -1,0 +1,220 @@
+<div class="choices-page">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <i class="bi bi-heart-pulse-fill"></i>
+        <span>Plateforme Santé Intelligente</span>
+      </div>
+      <h1>Prenez le contrôle de votre santé</h1>
+      <p class="hero-subtitle">Des outils innovants pour mieux comprendre et gérer votre diabète</p>
+    </div>
+    <div class="hero-wave">
+      <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 32L48 42.7C96 53.3 192 74.7 288 74.7C384 74.7 480 53.3 576 48C672 42.7 768 53.3 864 64C960 74.7 1056 85.3 1152 80C1248 74.7 1344 53.3 1392 42.7L1440 32V120H1392C1344 120 1248 120 1152 120C1056 120 960 120 864 120C768 120 672 120 576 120C480 120 384 120 288 120C192 120 96 120 48 120H0V32Z" fill="white"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Section Cartes -->
+  <div class="cards-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Que souhaitez-vous faire ?</h2>
+        <p>Choisissez l'outil qui vous accompagne dans votre parcours de soins</p>
+      </div>
+
+      <div class="cards-grid">
+        <!-- Carte 1 : Prédiction IA -->
+        <div class="choice-card" (click)="navigateTo('diabete-prediction')">
+          <div class="card-glow"></div>
+          <div class="card-icon prediction">
+            <i class="bi bi-cpu"></i>
+          </div>
+          <div class="card-badge ai-badge">IA Avancée</div>
+          <h3>Évaluation IA</h3>
+          <p class="card-description">Analysez votre risque de diabète grâce à notre intelligence artificielle formée sur des milliers de cas.</p>
+          <div class="card-features">
+            <span><i class="bi bi-check-circle-fill"></i> 98% de précision</span>
+            <span><i class="bi bi-lightning-charge-fill"></i> Résultat instantané</span>
+            <span><i class="bi bi-lock-fill"></i> Confidentiel</span>
+          </div>
+          <div class="card-footer">
+            <span class="btn-text">Commencer l'évaluation</span>
+            <i class="bi bi-arrow-right"></i>
+          </div>
+        </div>
+
+        <!-- Carte 2 : Prédiction Femmes -->
+        <div class="choice-card" (click)="navigateTo('prediction')">
+          <div class="card-glow"></div>
+          <div class="card-icon women">
+            <i class="bi bi-gender-female"></i>
+          </div>
+          <div class="card-badge women-badge">Spécifique femme</div>
+          <h3>Prédiction Femmes</h3>
+          <p class="card-description">Un modèle spécialement développé pour les femmes, basé sur le dataset Pima Indians Diabetes.</p>
+          <div class="card-features">
+            <span><i class="bi bi-check-circle-fill"></i> 8 indicateurs clés</span>
+            <span><i class="bi bi-lightning-charge-fill"></i> Analyse approfondie</span>
+            <span><i class="bi bi-heart-fill"></i> Adaptation féminine</span>
+          </div>
+          <div class="card-footer">
+            <span class="btn-text">Évaluer mon risque</span>
+            <i class="bi bi-arrow-right"></i>
+          </div>
+        </div>
+
+        <!-- Carte 3 : Médecins -->
+        <div class="choice-card" (click)="navigateTo('doctors')">
+          <div class="card-glow"></div>
+          <div class="card-icon doctors">
+            <i class="bi bi-people"></i>
+          </div>
+          <div class="card-badge doctors-badge">Consultation</div>
+          <h3>Nos Médecins</h3>
+          <p class="card-description">Consultez notre annuaire de médecins spécialistes en diabétologie et endocrinologie.</p>
+          <div class="card-features">
+            <span><i class="bi bi-check-circle-fill"></i> 500+ médecins</span>
+            <span><i class="bi bi-chat-dots-fill"></i> Consultation en ligne</span>
+            <span><i class="bi bi-calendar-check-fill"></i> Rendez-vous rapide</span>
+          </div>
+          <div class="card-footer">
+            <span class="btn-text">Trouver un médecin</span>
+            <i class="bi bi-arrow-right"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Comparaison -->
+  <div class="comparison-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Quel outil choisir ?</h2>
+        <p>Comparez les deux modèles de prédiction pour faire le meilleur choix</p>
+      </div>
+
+      <div class="comparison-table">
+        <div class="comparison-header">
+          <div class="comparison-cell">Critères</div>
+          <div class="comparison-cell">IA Standard</div>
+          <div class="comparison-cell">Femmes (Pima)</div>
+        </div>
+        <div class="comparison-row">
+          <div class="comparison-cell">Public cible</div>
+          <div class="comparison-cell">Tous les patients</div>
+          <div class="comparison-cell">Femmes uniquement</div>
+        </div>
+        <div class="comparison-row">
+          <div class="comparison-cell">Paramètres analysés</div>
+          <div class="comparison-cell">16 symptômes</div>
+          <div class="comparison-cell">8 indicateurs médicaux</div>
+        </div>
+        <div class="comparison-row">
+          <div class="comparison-cell">Précision</div>
+          <div class="comparison-cell">98%</div>
+          <div class="comparison-cell">96%</div>
+        </div>
+        <div class="comparison-row">
+          <div class="comparison-cell">Temps de réponse</div>
+          <div class="comparison-cell">Instantané</div>
+          <div class="comparison-cell">Instantané</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Témoignages -->
+  <div class="testimonials-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Ils nous font confiance</h2>
+        <p>Découvrez les retours de nos utilisateurs</p>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-icon">
+            <i class="bi bi-quote"></i>
+          </div>
+          <p class="testimonial-text">"L'évaluation IA m'a permis de détecter mon diabète à un stade précoce. Aujourd'hui, je suis suivie et ma vie a changé."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">S</div>
+            <div class="author-info">
+              <strong>Sophie Martin</strong>
+              <span>Patiente DiaCare</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-icon">
+            <i class="bi bi-quote"></i>
+          </div>
+          <p class="testimonial-text">"La plateforme est intuitive et complète. J'adore pouvoir consulter la liste des médecins directement."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">A</div>
+            <div class="author-info">
+              <strong>Ahmed Benali</strong>
+              <span>Patient</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-icon">
+            <i class="bi bi-quote"></i>
+          </div>
+          <p class="testimonial-text">"En tant que femme, le modèle spécifique m'a donné des résultats plus précis. Je recommande vivement !"</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">F</div>
+            <div class="author-info">
+              <strong>Fatima Zahra</strong>
+              <span>Patiente</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section FAQ -->
+  <div class="faq-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Questions fréquentes</h2>
+        <p>Tout ce que vous devez savoir avant de commencer</p>
+      </div>
+
+      <div class="faq-grid">
+        <div class="faq-item" *ngFor="let faq of faqs; let i = index" [class.active]="activeFaq === i" (click)="toggleFaq(i)">
+          <div class="faq-question">
+            <span>{{ faq.question }}</span>
+            <i class="bi" [ngClass]="activeFaq === i ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+          </div>
+          <div class="faq-answer" *ngIf="activeFaq === i">
+            <p>{{ faq.answer }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA Final -->
+  <div class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2>Prêt à prendre soin de votre santé ?</h2>
+        <p>Rejoignez des milliers de patients qui utilisent DiaCare au quotidien</p>
+        <div class="cta-buttons">
+          <button class="btn-primary" (click)="navigateTo('prediction')">
+            Commencer l'évaluation <i class="bi bi-arrow-right"></i>
+          </button>
+          <button class="btn-secondary" (click)="navigateTo('doctors')">
+            Voir les médecins <i class="bi bi-people"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

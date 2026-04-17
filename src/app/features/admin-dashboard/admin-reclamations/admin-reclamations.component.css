@@ -1,0 +1,330 @@
+.admin-reclamations-page {
+  background: #f8fafc;
+  min-height: 100vh;
+  padding: 20px;
+  margin-left: 250px;
+  width: calc(100% - 250px);
+  box-sizing: border-box;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.page-header h2 {
+  margin: 0 0 8px;
+  font-size: 1.8rem;
+  color: #111827;
+}
+
+.page-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.refresh-btn {
+  border: 1px solid #cbd5e1;
+  background: white;
+  color: #111827;
+  border-radius: 14px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.stat-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.stat-label {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.alerts {
+  margin-bottom: 16px;
+}
+
+.alert {
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.alert.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.alert.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.toolbar-card {
+  display: grid;
+  grid-template-columns: 1fr 200px 200px auto;
+  gap: 10px;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 14px;
+  margin-bottom: 20px;
+}
+
+.admin-input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 12px 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.admin-input:focus {
+  border-color: #334155;
+  box-shadow: 0 0 0 4px rgba(51, 65, 85, 0.08);
+}
+
+.reset-btn {
+  border: none;
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #e2e8f0;
+  color: #334155;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.empty-state {
+  text-align: center;
+  color: #64748b;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 40px 20px;
+}
+
+.empty-state i {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.admin-ticket {
+  background: white;
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+}
+
+.ticket-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.ticket-top h4 {
+  margin: 0 0 6px;
+  color: #111827;
+  font-size: 1.2rem;
+}
+
+.ticket-meta {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.92rem;
+}
+
+.ticket-desc {
+  margin: 18px 0;
+  color: #334155;
+  line-height: 1.6;
+}
+
+.tags-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.tag {
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.tag.priority {
+  background: #f8fafc;
+  color: #334155;
+}
+
+.tag.role {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.status-badge {
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-open {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.status-progress {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.status-answered {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.status-resolved {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.status-rejected {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.existing-response {
+  margin-bottom: 16px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border-left: 4px solid #111827;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.status-actions,
+.action-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.btn-warning,
+.btn-success,
+.btn-secondary,
+.btn-dark,
+.btn-danger-outline {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.btn-success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.btn-secondary {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.btn-dark {
+  background: #111827;
+  color: white;
+}
+
+.btn-danger-outline {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.form-block {
+  margin-bottom: 14px;
+}
+
+.form-block label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+@media (max-width: 1200px) {
+  .admin-reclamations-page {
+    margin-left: 220px;
+    width: calc(100% - 220px);
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .toolbar-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-reclamations-page {
+    margin-left: 0;
+    width: 100%;
+    padding: 16px;
+  }
+
+  .page-header,
+  .ticket-top {
+    flex-direction: column;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

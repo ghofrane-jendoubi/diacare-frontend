@@ -1,0 +1,67 @@
+<div class="payment-modal" *ngIf="show" (click)="close()">
+  <div class="payment-modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Paiement de la consultation</h2>
+      <button class="close-btn" (click)="close()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Récapitulatif -->
+      <div class="summary" *ngIf="appointment">
+        <div class="summary-item">
+          <span>Consultation</span>
+          <strong>{{ appointment.title }}</strong>
+        </div>
+        <div class="summary-item">
+          <span>Date</span>
+          <strong>{{ appointment.startTime | date:'dd/MM/yyyy' }}</strong>
+        </div>
+        <div class="summary-item">
+          <span>Heure</span>
+          <strong>{{ appointment.startTime | date:'HH:mm' }}</strong>
+        </div>
+        <div class="summary-item total">
+          <span>Montant</span>
+          <strong>{{ appointment.fee }} TND</strong>
+        </div>
+      </div>
+
+      <!-- Message d'erreur -->
+      <div class="error-message" *ngIf="errorMessage">
+        <i class="bi bi-exclamation-triangle"></i>
+        {{ errorMessage }}
+      </div>
+
+      <!-- Message de succès -->
+      <div class="success-message" *ngIf="success">
+        <i class="bi bi-check-circle"></i>
+        <h3>Paiement réussi !</h3>
+        <p>Vous pouvez maintenant accéder à la consultation.</p>
+      </div>
+
+      <!-- Formulaire Stripe -->
+      <div *ngIf="!success && !errorMessage" class="stripe-form">
+        <div #cardElement id="card-element" class="card-element"></div>
+        <div class="security-note">
+          <i class="bi bi-shield-lock"></i>
+          <span>Paiement sécurisé par Stripe</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer" *ngIf="!success">
+      <button class="btn-cancel" (click)="close()">Annuler</button>
+      <button class="btn-pay" (click)="pay()" [disabled]="loading">
+        <i class="bi bi-lock"></i>
+        {{ loading ? 'Traitement...' : 'Payer ' + (appointment?.fee || 0) + ' TND' }}
+      </button>
+    </div>
+
+    <div class="modal-footer" *ngIf="success">
+      <button class="btn-success" (click)="onSuccess()">
+        <i class="bi bi-camera-video"></i>
+        Accéder à la consultation
+      </button>
+    </div>
+  </div>
+</div>

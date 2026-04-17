@@ -1,0 +1,116 @@
+<div class="user-detail-panel">
+  <div class="user-detail-header">
+    <h3>Détails du {{ userType === 'doctor' ? 'Médecin' : userType === 'nutritionist' ? 'Nutritionniste' : 'Patient' }}</h3>
+    <button class="close-btn" (click)="onClose()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+  
+  <div class="user-detail-body">
+    <!-- Informations personnelles -->
+    <div class="detail-section">
+      <h4><i class="bi bi-person-fill me-2"></i>Informations personnelles</h4>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <label>Nom complet</label>
+          <p>{{ user.firstName }} {{ user.lastName }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Email</label>
+          <p>{{ user.email }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Téléphone</label>
+          <p>{{ user.phone || '—' }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Ville</label>
+          <p>{{ user.city || '—' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Informations professionnelles -->
+    <div class="detail-section" *ngIf="userType !== 'patient'">
+      <h4><i class="bi bi-briefcase-fill me-2"></i>Informations professionnelles</h4>
+      <div class="detail-grid">
+        <div class="detail-item" *ngIf="userType === 'doctor'">
+          <label>Spécialité</label>
+          <p>{{ user.speciality || '—' }}</p>
+        </div>
+        <div class="detail-item" *ngIf="userType === 'nutritionist'">
+          <label>Cabinet</label>
+          <p>{{ user.workplace || '—' }}</p>
+        </div>
+        <div class="detail-item">
+          <label>N° Licence</label>
+          <p>{{ user.licenseNumber || '—' }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Expérience</label>
+          <p>{{ user.yearsOfExperience || '—' }} ans</p>
+        </div>
+        <div class="detail-item" *ngIf="userType === 'doctor'">
+          <label>Hôpital</label>
+          <p>{{ user.hospital || '—' }}</p>
+        </div>
+        <div class="detail-item" *ngIf="userType === 'doctor'">
+          <label>Frais consultation</label>
+          <p>{{ user.consultationFee || '—' }} DT</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Informations médicales -->
+    <div class="detail-section" *ngIf="userType === 'patient'">
+      <h4><i class="bi bi-heart-pulse-fill me-2"></i>Informations médicales</h4>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <label>Type de diabète</label>
+          <p>{{ getDiabetesLabel(user.diabetesType) }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Groupe sanguin</label>
+          <p>{{ getBloodTypeLabel(user.bloodType) }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Poids / Taille</label>
+          <p>{{ user.weight ? user.weight + ' kg' : '—' }} / {{ user.height ? user.height + ' cm' : '—' }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Contact urgence</label>
+          <p>{{ user.emergencyContact || '—' }}</p>
+        </div>
+        <div class="detail-item" style="grid-column: span 2" *ngIf="user.familyHistory">
+          <label>Antécédents familiaux</label>
+          <p>{{ user.familyHistory }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Certificat -->
+    <div class="detail-section" *ngIf="userType !== 'patient' && user.certificateImage">
+      <h4><i class="bi bi-file-earmark-image-fill me-2"></i>Certificat</h4>
+      <div class="certificate-container">
+        <img [src]="getCertUrl(user.certificateImage)" 
+             alt="Certificat" 
+             class="certificate-img"
+             (error)="$any($event.target).src='assets/no-image.png'">
+      </div>
+    </div>
+
+    <!-- Statut et actions -->
+    <div class="detail-section" *ngIf="userType !== 'patient'">
+      <h4><i class="bi bi-info-circle-fill me-2"></i>Statut</h4>
+      <div class="status-container">
+        <span class="status-badge" [ngClass]="{
+          'bg-warning': user.certificateStatus === 'PENDING',
+          'bg-success': user.certificateStatus === 'APPROVED',
+          'bg-danger': user.certificateStatus === 'REJECTED'
+        }">
+          {{ getStatusLabel(user.certificateStatus) }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

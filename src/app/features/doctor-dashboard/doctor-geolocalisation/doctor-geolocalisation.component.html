@@ -1,0 +1,92 @@
+<section class="geo-page">
+  <div class="page-header">
+    <div>
+      <h2>Carte géolocalisation médecin</h2>
+      <p>Pharmacies et laboratoires autour de vous.</p>
+    </div>
+
+    <button class="primary-btn" (click)="refreshAroundMe()">Actualiser ma position</button>
+  </div>
+
+  <div *ngIf="loading" class="info-card">Chargement autour de vous...</div>
+  <div *ngIf="errorMessage" class="error-card">{{ errorMessage }}</div>
+
+  <div class="filters-card">
+    <div class="form-row">
+      <input class="geo-input" type="text" [(ngModel)]="addressQuery" placeholder="Rechercher une adresse..." />
+      <button class="secondary-btn" (click)="searchAddress()">Chercher</button>
+    </div>
+
+    <div *ngIf="addressResults.length > 0" class="address-results">
+      <div class="address-result" *ngFor="let result of addressResults" (click)="chooseAddress(result)">
+        {{ result.label }}
+      </div>
+    </div>
+
+    <div class="form-row">
+      <select class="geo-input" [(ngModel)]="radiusMeters" (change)="onRadiusChange()">
+        <option *ngFor="let radius of radiusOptions" [value]="radius">
+          Rayon {{ radius / 1000 }} km
+        </option>
+      </select>
+
+      <select class="geo-input" [(ngModel)]="selectedFilter" (change)="applyFilters()">
+        <option value="all">Tous</option>
+        <option value="pharmacie">Pharmacies</option>
+        <option value="laboratoire">Laboratoires</option>
+      </select>
+    </div>
+
+    <input class="geo-input" type="text" [(ngModel)]="searchTerm" (input)="applyFilters()" placeholder="Filtrer dans les résultats..." />
+
+    <div class="checks-row">
+      <label class="check-item">
+        <input type="checkbox" [(ngModel)]="favoritesOnly" (change)="applyFilters()" />
+        Favoris seulement
+      </label>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <div class="map-card">
+      <div id="doctor-map"></div>
+    </div>
+
+    <div class="list-card">
+      <h3>Résultats ({{ filteredPlaces.length }})</h3>
+
+      <div class="place-card" *ngFor="let place of filteredPlaces">
+        <div class="place-header">
+          <div>
+            <h4>{{ place.name }}</h4>
+            <p>{{ getTypeLabel(place.type) }} • {{ getDistance(place) }}</p>
+          </div>
+          <button class="favorite-btn" (click)="toggleFavorite(place)">
+            {{ isFavorite(place) ? '★' : '☆' }}
+          </button>
+        </div>
+
+        <p class="address">{{ place.address }}</p>
+
+        <div class="meta-row">
+          <span class="badge">{{ getTypeLabel(place.type) }}</span>
+        </div>
+
+        <div class="actions-row">
+          <button class="secondary-btn" (click)="selectPlace(place)">Voir sur la carte</button>
+          <button class="primary-btn" (click)="openDirections(place)">Itinéraire</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="selectedPlace" class="details-card">
+    <h3>Détails</h3>
+    <p><strong>Nom :</strong> {{ selectedPlace.name }}</p>
+    <p><strong>Type :</strong> {{ getTypeLabel(selectedPlace.type) }}</p>
+    <p><strong>Adresse :</strong> {{ selectedPlace.address }}</p>
+    <p><strong>Distance :</strong> {{ getDistance(selectedPlace) }}</p>
+    <p><strong>Téléphone :</strong> {{ selectedPlace.phone || 'Non disponible' }}</p>
+    <p><strong>Site web :</strong> {{ selectedPlace.website || 'Non disponible' }}</p>
+  </div>
+</section>

@@ -1,0 +1,116 @@
+<section class="admin-reclamations-page">
+  <div class="page-header">
+    <div>
+      <h2>Gestion des réclamations</h2>
+      <p>Consultez, filtrez, répondez et pilotez toutes les réclamations de la plateforme.</p>
+    </div>
+    <button class="refresh-btn" (click)="loadAll()">Actualiser</button>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card"><span class="stat-value">{{ stats.total }}</span><span class="stat-label">Total</span></div>
+    <div class="stat-card"><span class="stat-value">{{ stats.open }}</span><span class="stat-label">Ouvertes</span></div>
+    <div class="stat-card"><span class="stat-value">{{ stats.inProgress }}</span><span class="stat-label">En cours</span></div>
+    <div class="stat-card"><span class="stat-value">{{ stats.answered }}</span><span class="stat-label">Répondues</span></div>
+    <div class="stat-card"><span class="stat-value">{{ stats.resolved }}</span><span class="stat-label">Résolues</span></div>
+    <div class="stat-card"><span class="stat-value">{{ stats.rejected }}</span><span class="stat-label">Rejetées</span></div>
+  </div>
+
+  <div class="alerts">
+    <div *ngIf="successMessage" class="alert success">{{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="alert error">{{ errorMessage }}</div>
+  </div>
+
+  <div class="toolbar-card">
+    <input
+      type="text"
+      [(ngModel)]="searchTerm"
+      (input)="applyFilters()"
+      class="admin-input"
+      placeholder="Rechercher par titre ou description..."
+    />
+
+    <select
+      [(ngModel)]="selectedStatus"
+      (change)="applyFilters()"
+      class="admin-input"
+    >
+      <option value="">Tous les statuts</option>
+      <option *ngFor="let s of statuses" [value]="s">{{ getStatusLabel(s) }}</option>
+    </select>
+
+    <select
+      [(ngModel)]="selectedCategory"
+      (change)="applyFilters()"
+      class="admin-input"
+    >
+      <option value="">Toutes les catégories</option>
+      <option *ngFor="let c of categories" [value]="c">{{ getCategoryLabel(c) }}</option>
+    </select>
+
+    <button class="reset-btn" (click)="resetFilters()">Réinitialiser</button>
+  </div>
+
+  <div *ngIf="filteredReclamations.length === 0" class="empty-state">
+    <i class="bi bi-inbox"></i>
+    <p>Aucune réclamation trouvée.</p>
+  </div>
+
+  <div class="admin-ticket" *ngFor="let r of filteredReclamations">
+    <div class="ticket-top">
+      <div>
+        <h4>{{ r.title }}</h4>
+        <p class="ticket-meta">
+          {{ getCategoryLabel(r.category) }} • {{ r.createdAt | date:'short' }} • Créée par {{ getRoleLabel(r.createdByRole) }} #{{ r.createdById }}
+        </p>
+      </div>
+
+      <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+        {{ getStatusLabel(r.status) }}
+      </span>
+    </div>
+
+    <p class="ticket-desc">{{ r.description }}</p>
+
+    <div class="tags-row">
+      <span class="tag priority">{{ getPriorityLabel(r.priority) }}</span>
+      <span class="tag role">Destinataire : {{ getRoleLabel(r.targetRole) }}</span>
+    </div>
+
+    <div *ngIf="r.adminResponse" class="existing-response">
+      <strong>Réponse :</strong>
+      <span>{{ r.adminResponse }}</span>
+    </div>
+
+    <div class="status-actions">
+      <button class="btn-warning" (click)="updateStatus(r.id, 'IN_PROGRESS')">En cours</button>
+      <button class="btn-success" (click)="updateStatus(r.id, 'RESOLVED')">Résoudre</button>
+      <button class="btn-secondary" (click)="updateStatus(r.id, 'REJECTED')">Rejeter</button>
+    </div>
+
+    <div class="form-block">
+      <label>Réponse admin</label>
+      <textarea
+        [(ngModel)]="responseMap[r.id!]"
+        class="admin-input textarea"
+        rows="4"
+        placeholder="Écrivez votre réponse..."
+      ></textarea>
+    </div>
+
+    <div class="form-block">
+      <label>Note interne</label>
+      <textarea
+        [(ngModel)]="internalMap[r.id!]"
+        class="admin-input textarea"
+        rows="3"
+        placeholder="Ajoutez une note interne..."
+      ></textarea>
+    </div>
+
+    <div class="action-row">
+      <button class="btn-dark" (click)="sendResponse(r.id)">Envoyer la réponse</button>
+      <button class="btn-danger-outline" (click)="deleteReclamation(r.id)">Supprimer</button>
+    </div>
+  </div>
+</section>

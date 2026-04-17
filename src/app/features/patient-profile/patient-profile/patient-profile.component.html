@@ -1,0 +1,251 @@
+<!-- patient-profile.component.html -->
+
+<div class="profile-container">
+  <!-- Sidebar -->
+  <app-patient-sidebar></app-patient-sidebar>
+
+  <!-- Main Content -->
+  <div class="profile-content">
+    <!-- Header avec photo de profil -->
+    <div class="profile-header">
+      <div class="profile-avatar-section">
+        <div class="avatar-wrapper">
+          <div class="avatar">
+            <img *ngIf="profilePicUrl" [src]="profilePicUrl" [alt]="currentUser?.firstName">
+            <span *ngIf="!profilePicUrl">{{ initials }}</span>
+          </div>
+          <label class="avatar-upload" title="Changer la photo">
+            <i class="bi bi-camera"></i>
+            <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden>
+          </label>
+        </div>
+        <div class="profile-info">
+          <h1>{{ currentUser?.firstName }} {{ currentUser?.lastName }}</h1>
+          <p class="email">{{ currentUser?.email }}</p>
+          <div class="badges">
+            <span class="badge badge-primary" *ngIf="currentUser?.diabetesType">
+              {{ currentUser?.diabetesType }}
+            </span>
+            <span class="badge badge-secondary" *ngIf="currentUser?.bloodType">
+              {{ currentUser?.bloodType }}
+            </span>
+          </div>
+        </div>
+        <button *ngIf="selectedFile" class="btn-save-photo" (click)="uploadPhoto()">
+          <i class="bi bi-check-lg"></i> Sauvegarder
+        </button>
+      </div>
+    </div>
+
+    <!-- Messages d'alerte -->
+    <div class="alert success" *ngIf="successMsg">
+      <i class="bi bi-check-circle"></i>
+      <span>{{ successMsg }}</span>
+    </div>
+    <div class="alert error" *ngIf="errorMsg">
+      <i class="bi bi-exclamation-triangle"></i>
+      <span>{{ errorMsg }}</span>
+    </div>
+
+    <!-- Onglets -->
+    <div class="tabs">
+      <button class="tab" [class.active]="activeTab === 'info'" (click)="activeTab = 'info'">
+        <i class="bi bi-person"></i>
+        <span>Informations personnelles</span>
+      </button>
+      <button class="tab" [class.active]="activeTab === 'sante'" (click)="activeTab = 'sante'">
+        <i class="bi bi-heart-pulse"></i>
+        <span>Informations de santé</span>
+      </button>
+      <button class="tab" [class.active]="activeTab === 'securite'" (click)="activeTab = 'securite'">
+        <i class="bi bi-shield-lock"></i>
+        <span>Sécurité</span>
+      </button>
+    </div>
+
+    <!-- Onglet: Informations personnelles -->
+    <div class="tab-content" *ngIf="activeTab === 'info'">
+      <div class="card">
+        <h2 class="card-title">
+          <i class="bi bi-person-circle"></i>
+          Informations personnelles
+        </h2>
+        
+        <form (ngSubmit)="saveInfo()">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Prénom <span class="required">*</span></label>
+              <input type="text" [(ngModel)]="profileForm.firstName" name="firstName" placeholder="Votre prénom">
+            </div>
+            <div class="form-group">
+              <label>Nom <span class="required">*</span></label>
+              <input type="text" [(ngModel)]="profileForm.lastName" name="lastName" placeholder="Votre nom">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email <span class="required">*</span></label>
+              <input type="email" [(ngModel)]="profileForm.email" name="email" placeholder="votre@email.com">
+            </div>
+            <div class="form-group">
+              <label>Téléphone</label>
+              <input type="tel" [(ngModel)]="profileForm.phone" name="phone" placeholder="+216 XX XXX XXX">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Date de naissance</label>
+              <input type="date" [(ngModel)]="profileForm.dateOfBirth" name="dateOfBirth">
+            </div>
+            <div class="form-group">
+              <label>Genre</label>
+              <select [(ngModel)]="profileForm.gender" name="gender">
+                <option value="">Sélectionner</option>
+                <option *ngFor="let g of genders" [value]="g">{{ g }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label>Adresse</label>
+            <input type="text" [(ngModel)]="profileForm.address" name="address" placeholder="Votre adresse complète">
+          </div>
+
+          <div class="form-group full-width">
+            <label>Ville</label>
+            <input type="text" [(ngModel)]="profileForm.city" name="city" placeholder="Votre ville">
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+              <i class="bi bi-check-lg"></i>
+              {{ isSaving ? 'Sauvegarde...' : 'Sauvegarder les modifications' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Onglet: Informations de santé -->
+    <div class="tab-content" *ngIf="activeTab === 'sante'">
+      <div class="card">
+        <h2 class="card-title">
+          <i class="bi bi-heart-pulse"></i>
+          Informations médicales
+        </h2>
+
+        <form (ngSubmit)="saveSante()">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Type de diabète</label>
+              <select [(ngModel)]="santeForm.diabetesType" name="diabetesType">
+                <option value="">Sélectionner</option>
+                <option *ngFor="let d of diabetesTypes" [value]="d">{{ d }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Groupe sanguin</label>
+              <select [(ngModel)]="santeForm.bloodType" name="bloodType">
+                <option value="">Sélectionner</option>
+                <option *ngFor="let b of bloodTypes" [value]="b">{{ b }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Poids (kg)</label>
+              <input type="number" [(ngModel)]="santeForm.weight" name="weight" placeholder="Ex: 70" min="1" max="300">
+            </div>
+            <div class="form-group">
+              <label>Taille (cm)</label>
+              <input type="number" [(ngModel)]="santeForm.height" name="height" placeholder="Ex: 175" min="50" max="250">
+            </div>
+          </div>
+
+          <!-- Carte IMC -->
+          <div class="imc-card" *ngIf="imc">
+            <div class="imc-value">{{ imc }}</div>
+            <div class="imc-label">Indice de Masse Corporelle (IMC)</div>
+            <div class="imc-category" [style.color]="imcCategory.color">
+              {{ imcCategory.label }}
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label>Contact d'urgence</label>
+            <input type="text" [(ngModel)]="santeForm.emergencyContact" name="emergencyContact" 
+                   placeholder="Nom et numéro de téléphone">
+          </div>
+
+          <div class="form-group full-width">
+            <label>Antécédents familiaux</label>
+            <textarea [(ngModel)]="santeForm.familyHistory" name="familyHistory" rows="4"
+                      placeholder="Décrivez les antécédents médicaux familiaux..."></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+              <i class="bi bi-check-lg"></i>
+              {{ isSaving ? 'Sauvegarde...' : 'Sauvegarder les informations médicales' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Onglet: Sécurité -->
+    <div class="tab-content" *ngIf="activeTab === 'securite'">
+      <div class="card">
+        <h2 class="card-title">
+          <i class="bi bi-shield-lock"></i>
+          Changer le mot de passe
+        </h2>
+
+        <div class="security-info">
+          <i class="bi bi-info-circle"></i>
+          <span>Utilisez un mot de passe fort d'au moins 8 caractères avec lettres, chiffres et symboles.</span>
+        </div>
+
+        <form (ngSubmit)="changePassword()">
+          <div class="form-group full-width">
+            <label>Mot de passe actuel</label>
+            <input type="password" [(ngModel)]="securiteForm.currentPassword" name="currentPassword" 
+                   placeholder="Entrez votre mot de passe actuel">
+          </div>
+
+          <div class="form-group full-width">
+            <label>Nouveau mot de passe</label>
+            <input type="password" [(ngModel)]="securiteForm.newPassword" name="newPassword" 
+                   placeholder="Nouveau mot de passe (min. 8 caractères)">
+          </div>
+
+          <div class="form-group full-width">
+            <label>Confirmer le mot de passe</label>
+            <input type="password" [(ngModel)]="securiteForm.confirmPassword" name="confirmPassword" 
+                   placeholder="Répéter le nouveau mot de passe">
+            <div class="password-match" *ngIf="securiteForm.confirmPassword">
+              <i class="bi" [ngClass]="securiteForm.newPassword === securiteForm.confirmPassword 
+                   ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
+              <span [class.match]="securiteForm.newPassword === securiteForm.confirmPassword"
+                    [class.no-match]="securiteForm.newPassword !== securiteForm.confirmPassword">
+                {{ securiteForm.newPassword === securiteForm.confirmPassword 
+                   ? 'Les mots de passe correspondent' 
+                   : 'Les mots de passe ne correspondent pas' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+              <i class="bi bi-shield-check"></i>
+              {{ isSaving ? 'Modification...' : 'Modifier le mot de passe' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

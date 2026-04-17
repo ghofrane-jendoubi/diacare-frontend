@@ -1,0 +1,196 @@
+<!-- diabetes-prediction.component.html -->
+<div class="prediction-page">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="hero-icon">
+        <i class="bi bi-heart-pulse"></i>
+      </div>
+      <h1>Évaluation du risque de diabète</h1>
+      <p>Répondez à quelques questions pour évaluer votre risque</p>
+      <div class="hero-badges">
+        <span class="badge"><i class="bi bi-shield-check"></i> 98% de précision</span>
+        <span class="badge"><i class="bi bi-cpu"></i> IA médicale</span>
+        <span class="badge"><i class="bi bi-lock"></i> Données confidentielles</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulaire -->
+  <div class="form-container">
+    <div class="form-header">
+      <h2>Vos informations</h2>
+      <p>Remplissez le formulaire ci-dessous</p>
+    </div>
+
+    <form [formGroup]="predictionForm" (ngSubmit)="onSubmit()">
+      <!-- Age -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-calendar"></i>
+          Quel est votre âge ?
+          <span class="info-icon" (click)="openInfoModal('age'); $event.stopPropagation()">
+            <i class="bi bi-question-circle"></i>
+          </span>
+        </label>
+        <input type="number" formControlName="Age" class="form-input" placeholder="Ex: 45 ans">
+        <div class="field-tip">💡 Le risque augmente après 45 ans</div>
+      </div>
+
+      <!-- Genre -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-gender-ambiguous"></i>
+          Quel est votre genre ?
+          <span class="info-icon" (click)="openInfoModal('gender'); $event.stopPropagation()">
+            <i class="bi bi-question-circle"></i>
+          </span>
+        </label>
+        <div class="gender-options">
+          <label class="option-btn">
+            <input type="radio" formControlName="Gender" [value]="1">
+            <span>Homme</span>
+          </label>
+          <label class="option-btn">
+            <input type="radio" formControlName="Gender" [value]="0">
+            <span>Femme</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Symptômes -->
+      <div class="section-title">
+        <i class="bi bi-activity"></i>
+        <span>Symptômes que vous ressentez</span>
+        <small>(Cliquez sur le ? pour en savoir plus)</small>
+      </div>
+
+      <div class="symptoms-grid">
+        <div *ngFor="let symptom of symptoms" class="symptom-item">
+          <label class="checkbox-card">
+            <input type="checkbox" [formControlName]="symptom.name" [value]="1">
+            <span class="checkmark"></span>
+            <span class="symptom-name">{{ symptom.label }}</span>
+            <span class="info-icon-small" (click)="openSymptomModal(symptom); $event.stopPropagation()">
+              <i class="bi bi-question-circle"></i>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Facteurs de risque -->
+      <div class="section-title">
+        <i class="bi bi-exclamation-triangle"></i>
+        <span>Facteurs de risque</span>
+        <small>(Cliquez sur le ? pour comprendre l'impact)</small>
+      </div>
+
+      <div class="risk-grid">
+        <div *ngFor="let factor of riskFactors" class="risk-item">
+          <label class="checkbox-card">
+            <input type="checkbox" [formControlName]="factor.name" [value]="1">
+            <span class="checkmark"></span>
+            <span class="risk-name">{{ factor.label }}</span>
+            <span class="info-icon-small" (click)="openRiskModal(factor); $event.stopPropagation()">
+              <i class="bi bi-question-circle"></i>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Boutons -->
+      <div class="form-actions">
+        <button type="button" class="btn-reset" (click)="resetForm()">
+          <i class="bi bi-arrow-repeat"></i> Tout effacer
+        </button>
+        <button type="submit" class="btn-analyze" [disabled]="isLoading">
+          <span>{{ isLoading ? 'Analyse en cours...' : 'Analyser mon risque' }}</span>
+          <i class="bi" [ngClass]="isLoading ? 'bi-hourglass-split' : 'bi-arrow-right'"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- MODAL INFO GÉNÉRAL -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-icon">
+          <i [class]="modalIcon"></i>
+        </div>
+        <h3>{{ modalTitle }}</h3>
+        <button class="modal-close" (click)="closeModal()"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="modal-body">
+        <p>{{ modalDescription }}</p>
+        <div class="info-box" *ngIf="modalNormal">
+          <i class="bi bi-check-circle"></i>
+          <div>
+            <strong>Valeurs normales</strong>
+            <span>{{ modalNormal }}</span>
+          </div>
+        </div>
+        <div class="info-box warning" *ngIf="modalRisk">
+          <i class="bi bi-exclamation-triangle"></i>
+          <div>
+            <strong>⚠️ Valeurs à risque</strong>
+            <span>{{ modalRisk }}</span>
+          </div>
+        </div>
+        <div class="info-tip" *ngIf="modalTip">
+          <i class="bi bi-lightbulb"></i>
+          <span>{{ modalTip }}</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ok" (click)="closeModal()">Compris</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL RÉSULTAT -->
+  <div class="result-overlay" *ngIf="showResult && result" (click)="closeResultModal()">
+    <div class="result-modal" (click)="$event.stopPropagation()">
+      <button class="result-close" (click)="closeResultModal()"><i class="bi bi-x"></i></button>
+      
+      <div class="result-status" [class.diabetic]="result.prediction === 1" [class.non-diabetic]="result.prediction === 0">
+        <div class="result-icon">
+          <i class="bi" [ngClass]="result.prediction === 1 ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'"></i>
+        </div>
+        <h2>{{ result.result }}</h2>
+        <p>Risque <strong>{{ result.riskLevel }}</strong></p>
+      </div>
+
+      <div class="result-body">
+        <div class="probability-section">
+          <div class="probability-label">Probabilité estimée</div>
+          <div class="probability-bar">
+            <div class="probability-fill" [style.width.%]="(result.probability * 100)"></div>
+          </div>
+          <div class="probability-value">{{ (result.probability * 100).toFixed(1) }}%</div>
+        </div>
+
+        <div class="recommendations">
+          <h4><i class="bi bi-stars"></i> Recommandations</h4>
+          <ul>
+            <li *ngFor="let rec of result.recommendations"><i class="bi bi-check-circle"></i> {{ rec }}</li>
+          </ul>
+        </div>
+
+        <div class="disclaimer">
+          <i class="bi bi-shield-shaded"></i>
+          <span>Résultat indicatif — Consultez un médecin pour confirmation</span>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn-appointment" (click)="openAppointment()">
+          <i class="bi bi-calendar-plus"></i> Prendre rendez-vous
+        </button>
+        <button class="btn-consult" (click)="openConsultation()">
+          <i class="bi bi-chat-dots"></i> Consulter en ligne
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

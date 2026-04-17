@@ -1,0 +1,296 @@
+<div class="nutrition-dashboard">
+  <!-- En-tête avec thème vert -->
+  <div class="dashboard-header">
+    <div>
+      <h1 class="page-title">
+        <i class="bi bi-tree-fill text-success me-2"></i>
+        Espace Nutritionniste
+      </h1>
+      <p class="page-subtitle">Suivi nutritionnel et plans alimentaires personnalisés</p>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/nutritionnist/geolocalisation" class="btn btn-outline-success">
+        <i class="bi bi-geo-alt me-1"></i>
+        Géolocalisation
+      </a>
+
+      <a routerLink="/nutritionnist/send-reclamation" class="btn btn-success">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        Faire une réclamation
+      </a>
+
+      <div class="date-display">
+        <i class="bi bi-calendar3 me-2 text-success"></i>
+        {{ currentDate | date:'EEEE d MMMM yyyy' }}
+      </div>
+
+      <button class="btn btn-outline-success" (click)="refreshData()">
+        <i class="bi bi-arrow-repeat me-1"></i> Actualiser
+      </button>
+    </div>
+  </div>
+
+  <!-- Cartes de statistiques -->
+  <div class="stats-grid">
+    <div class="stat-card" *ngFor="let stat of statistics">
+      <div class="stat-icon" [ngStyle]="{'background': stat.bgColor}">
+        <i [class]="stat.icon"></i>
+      </div>
+      <div class="stat-content">
+        <h3 class="stat-value">{{ stat.value }}</h3>
+        <p class="stat-label">{{ stat.label }}</p>
+        <span class="stat-trend" [class.positive]="stat.trend > 0">
+          <i class="bi" [ngClass]="stat.trend > 0 ? 'bi-arrow-up' : 'bi-arrow-down'"></i>
+          {{ stat.trend }}% vs semaine dernière
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section principale avec 2 colonnes -->
+  <div class="row g-4 mb-4">
+    <!-- Colonne gauche - Graphique et alertes -->
+    <div class="col-lg-8">
+      <!-- Graphique glycémies -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-graph-up text-success me-2"></i>
+              Évolution Glycémique Moyenne
+            </h5>
+            <select class="form-select form-select-sm w-auto" [(ngModel)]="selectedPeriod">
+              <option value="week">Cette semaine</option>
+              <option value="month">Ce mois</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <div class="d-flex align-items-end justify-content-between" style="height: 200px;">
+              <div *ngFor="let data of weeklyGlucoseData" class="chart-bar-container">
+                <div class="chart-bar-wrapper">
+                  <div class="chart-bar" 
+                       [style.height.px]="(data.value / maxGlucose) * 150"
+                       [style.background]="data.value > 1.4 ? 'linear-gradient(180deg, #f1c40f, #f39c12)' : 'linear-gradient(180deg, #2ecc71, #27ae60)'">
+                  </div>
+                </div>
+                <small class="text-muted">{{ data.day }}</small>
+                <small class="fw-bold">{{ data.value }}g</small>
+              </div>
+            </div>
+            <div class="chart-legend mt-3">
+              <span class="legend-item">
+                <span class="legend-color" style="background: #2ecc71;"></span>
+                Glycémie normale (< 1.4g/L)
+              </span>
+              <span class="legend-item">
+                <span class="legend-color" style="background: #f1c40f;"></span>
+                Glycémie élevée (> 1.4g/L)
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Patients récents -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-people-fill text-success me-2"></i>
+              Patients Récents
+            </h5>
+            <a href="#" class="view-all-link">Voir tous <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Âge</th>
+                  <th>Type Diabète</th>
+                  <th>Dernière Visite</th>
+                  <th>Prochain RDV</th>
+                  <th>Statut</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let patient of recentPatients">
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="patient-avatar bg-success bg-opacity-10">
+                        <i class="bi bi-person-circle text-success"></i>
+                      </div>
+                      {{ patient.name }}
+                    </div>
+                  </td>
+                  <td>{{ patient.age }} ans</td>
+                  <td><span class="badge bg-info bg-opacity-10 text-info">{{ patient.diabetesType }}</span></td>
+                  <td>{{ patient.lastVisit | date:'dd/MM' }}</td>
+                  <td class="fw-bold text-success">{{ patient.nextAppointment | date:'dd/MM' }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="getStatusClass(patient.status)">
+                      {{ patient.status === 'active' ? 'Actif' : patient.status === 'warning' ? 'Attention' : 'Bon' }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-success" (click)="viewPatient(patient)">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Colonne droite - Alertes et conseils -->
+    <div class="col-lg-4">
+      <!-- Alertes nutritionnelles -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+          <h5 class="mb-0">
+            <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+            Alertes Nutritionnelles
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="alerts-list">
+            <div *ngFor="let alert of nutritionAlerts" class="alert-item" [ngClass]="alert.severity">
+              <div class="d-flex align-items-start">
+                <i [class]="getSeverityIcon(alert.severity) + ' me-3 fs-5'"></i>
+                <div class="flex-grow-1">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <strong>{{ alert.patientName }}</strong>
+                    <small class="text-muted">{{ alert.value }}</small>
+                  </div>
+                  <p class="mb-1">{{ alert.alert }}</p>
+                  <small class="text-muted">{{ alert.recommendations }}</small>
+                  <div class="mt-2">
+                    <button class="btn btn-sm btn-outline-success" (click)="handleAlert(alert)">
+                      <i class="bi bi-check2"></i> Traiter
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Consultations du jour -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+          <h5 class="mb-0">
+            <i class="bi bi-calendar-check-fill text-success me-2"></i>
+            Consultations Aujourd'hui
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="consultations-list">
+            <div *ngFor="let consult of upcomingConsultations" class="consultation-item">
+              <div class="d-flex">
+                <div class="consultation-time">
+                  <span class="time">{{ consult.time }}</span>
+                  <span class="duration">{{ consult.duration }}min</span>
+                </div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">{{ consult.patientName }}</h6>
+                  <p class="mb-1">{{ consult.type }}</p>
+                  <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    {{ consult.preparation }}
+                  </small>
+                </div>
+                <button class="btn btn-sm btn-success" (click)="startConsultation(consult)">
+                  <i class="bi bi-play-fill"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conseils du jour -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+          <h5 class="mb-0">
+            <i class="bi bi-lightbulb-fill text-warning me-2"></i>
+            Conseil du Jour
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="daily-tips">
+            <div *ngFor="let tip of dailyTips" class="tip-item">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              {{ tip }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plans alimentaires récents -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="bi bi-basket-fill text-success me-2"></i>
+          Plans Alimentaires Récents
+        </h5>
+        <a href="#" class="view-all-link">Créer un plan <i class="bi bi-plus-circle"></i></a>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row g-4">
+        <div class="col-md-4" *ngFor="let plan of recentMealPlans">
+          <div class="meal-plan-card">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <h6 class="mb-1">{{ plan.patientName }}</h6>
+                <small class="text-muted">{{ plan.planName }}</small>
+              </div>
+              <span class="badge" [ngClass]="getStatusClass(plan.status)">
+                {{ plan.status === 'compliant' ? 'Respecté' : 'À surveiller' }}
+              </span>
+            </div>
+            <div class="nutrition-facts">
+              <div class="fact">
+                <small>Calories</small>
+                <strong>{{ plan.calories }} kcal</strong>
+              </div>
+              <div class="fact">
+                <small>Glucides</small>
+                <strong>{{ plan.carbs }}g</strong>
+              </div>
+              <div class="fact">
+                <small>Protéines</small>
+                <strong>{{ plan.protein }}g</strong>
+              </div>
+              <div class="fact">
+                <small>Lipides</small>
+                <strong>{{ plan.fat }}g</strong>
+              </div>
+            </div>
+            <div class="mt-3 d-flex justify-content-between">
+              <small class="text-muted">
+                <i class="bi bi-calendar me-1"></i>
+                {{ plan.date | date:'dd/MM' }}
+              </small>
+              <button class="btn btn-sm btn-outline-success" (click)="viewMealPlan(plan)">
+                Détails <i class="bi bi-arrow-right ms-1"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

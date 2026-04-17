@@ -1,0 +1,83 @@
+<section class="geo-page">
+  <div class="page-header">
+    <div>
+      <h2>Carte géolocalisation admin</h2>
+      <p>Vue globale des médecins, pharmacies, nutritionnistes et laboratoires.</p>
+    </div>
+
+    <button class="primary-btn" (click)="loadNearbyPlaces()">Actualiser</button>
+  </div>
+
+  <div *ngIf="loading" class="info-card">Chargement de la carte admin...</div>
+  <div *ngIf="errorMessage" class="error-card">{{ errorMessage }}</div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h4>{{ stats.medecins }}</h4>
+      <p>Médecins</p>
+    </div>
+    <div class="stat-card">
+      <h4>{{ stats.pharmacies }}</h4>
+      <p>Pharmacies</p>
+    </div>
+    <div class="stat-card">
+      <h4>{{ stats.nutritionnistes }}</h4>
+      <p>Nutritionnistes</p>
+    </div>
+    <div class="stat-card">
+      <h4>{{ stats.laboratoires }}</h4>
+      <p>Laboratoires</p>
+    </div>
+  </div>
+
+  <div class="filters-card">
+    <div class="form-row">
+      <input class="geo-input" type="text" [(ngModel)]="addressQuery" placeholder="Rechercher une adresse..." />
+      <button class="secondary-btn" (click)="searchAddress()">Chercher</button>
+    </div>
+
+    <div *ngIf="addressResults.length > 0" class="address-results">
+      <div class="address-result" *ngFor="let result of addressResults" (click)="chooseAddress(result)">
+        {{ result.label }}
+      </div>
+    </div>
+
+    <div class="form-row">
+      <select class="geo-input" [(ngModel)]="radiusMeters" (change)="onRadiusChange()">
+        <option *ngFor="let radius of radiusOptions" [value]="radius">
+          Rayon {{ radius / 1000 }} km
+        </option>
+      </select>
+
+      <select class="geo-input" [(ngModel)]="selectedFilter" (change)="applyFilters()">
+        <option value="all">Tous</option>
+        <option value="medecin">Médecins</option>
+        <option value="pharmacie">Pharmacies</option>
+        <option value="nutritionniste">Nutritionnistes</option>
+        <option value="laboratoire">Laboratoires</option>
+      </select>
+    </div>
+
+    <input class="geo-input" type="text" [(ngModel)]="searchTerm" (input)="applyFilters()" placeholder="Filtrer dans les résultats..." />
+  </div>
+
+  <div class="content-grid">
+    <div class="map-card">
+      <div id="admin-map"></div>
+    </div>
+
+    <div class="list-card">
+      <h3>Résultats ({{ filteredPlaces.length }})</h3>
+
+      <div class="place-card" *ngFor="let place of filteredPlaces">
+        <h4>{{ place.name }}</h4>
+        <p>{{ getTypeLabel(place.type) }}</p>
+        <p>{{ place.address }}</p>
+
+        <div class="actions-row">
+          <button class="secondary-btn" (click)="focusPlace(place)">Voir sur la carte</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

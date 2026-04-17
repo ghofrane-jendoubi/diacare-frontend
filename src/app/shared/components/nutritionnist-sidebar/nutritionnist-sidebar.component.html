@@ -1,0 +1,207 @@
+<div class="sidebar" [class.collapsed]="isCollapsed">
+  <!-- Logo et Brand - Version corrigée -->
+  <div class="brand-section">
+    <div class="logo-container">
+      <div class="logo-icon">
+        <i class="bi bi-hexagon-fill"></i>
+        <span class="logo-text">DC</span>
+      </div>
+      <div class="brand-text" *ngIf="!isCollapsed">
+        <span class="brand-name">DiaCare</span>
+        <span class="brand-subtitle">Espace Nutritionniste</span>
+      </div>
+    </div>
+    <button class="collapse-btn" (click)="onToggleSidebar()">
+      <i class="bi" [ngClass]="isCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
+    </button>
+  </div>
+
+  <!-- Profil Nutritionniste - Version avec icône au lieu de photo -->
+  <div class="profile-section">
+    <div class="profile-icon">
+      <i class="bi bi-person-circle"></i>
+      <span class="status-indicator online"></span>
+    </div>
+    <div class="profile-info" *ngIf="!isCollapsed">
+      <h6>Dr. Sophie Martin</h6>
+      <div class="profile-meta">
+        <span class="badge-role">Nutritionniste</span>
+        <span class="badge-id">#NUT-2024</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Menu Principal -->
+  <div class="menu-section">
+    <div class="menu-group">
+      <div class="menu-label" *ngIf="!isCollapsed">PRINCIPAL</div>
+      
+      <!-- Dashboard -->
+      <a routerLink="/nutritionnist" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="menu-item">
+        <div class="menu-icon">
+          <i class="bi bi-speedometer2"></i>
+        </div>
+        <span class="menu-text" *ngIf="!isCollapsed">Dashboard</span>
+        <div class="menu-badge" *ngIf="!isCollapsed">
+          <span class="badge pulse">3</span>
+        </div>
+      </a>
+
+      <!-- Patients -->
+      <a class="menu-item" style="cursor: not-allowed;">
+        <div class="menu-icon">
+          <i class="bi bi-people-fill"></i>
+        </div>
+        <span class="menu-text" *ngIf="!isCollapsed">Mes Patients</span>
+        <div class="menu-badge" *ngIf="!isCollapsed">
+          <span class="badge bg-success">156</span>
+        </div>
+      </a>
+
+      <!-- Plans Alimentaires -->
+      <a class="menu-item" style="cursor: not-allowed;">
+        <div class="menu-icon">
+          <i class="bi bi-basket-fill"></i>
+        </div>
+        <span class="menu-text" *ngIf="!isCollapsed">Plans Alimentaires</span>
+        <div class="menu-badge" *ngIf="!isCollapsed">
+          <span class="badge bg-info">38</span>
+        </div>
+      </a>
+
+      <!-- Consultations -->
+      <a class="menu-item" style="cursor: not-allowed;">
+        <div class="menu-icon">
+          <i class="bi bi-calendar-check-fill"></i>
+        </div>
+        <span class="menu-text" *ngIf="!isCollapsed">Consultations</span>
+        <div class="menu-badge" *ngIf="!isCollapsed">
+          <span class="badge bg-warning">24</span>
+        </div>
+      </a>
+      <!-- Dashboard -->
+      <a routerLink="/nutritionnist/reclamations" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="menu-item">
+        <div class="menu-icon">
+          <i class="bi bi-speedometer2"></i>
+        </div>
+        <span class="menu-text" *ngIf="!isCollapsed">Reclamation</span>
+        <div class="menu-badge" *ngIf="!isCollapsed">
+          <span class="badge pulse">3</span>
+        </div>
+      </a>
+      
+    </div>
+<a routerLink="/nutritionnist/geolocalisation" routerLinkActive="active" class="menu-item">
+  <i class="bi bi-geo-alt"></i>
+  <span>Géolocalisation</span>
+</a>
+    <div class="menu-group">
+      <div class="menu-label" *ngIf="!isCollapsed">SUIVI NUTRITIONNEL</div>
+      
+      <!-- Évolution -->
+      <a class="menu-item" style="cursor: not-allowed;">
+        <div class="menu-icon">
+          <i class="bi bi-graph-up"></i>
+        </div>
+        <span class="menu-text" *ngIf="!isCollapsed">Évolution</span>
+        <div class="menu-badge" *ngIf="!isCollapsed">
+          <span class="badge success">+12%</span>
+        </div>
+      </a>
+
+      <!-- Alertes -->
+      <a class="menu-item" style="cursor: not-allowed;">
+        <div class="menu-icon">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <span class="menu-text" *ngIf="!isCollapsed">Alertes</span>
+        <div class="menu-badge" *ngIf="!isCollapsed">
+          <span class="badge bg-danger pulse">3</span>
+        </div>
+      </a>
+
+      <!-- Objectifs -->
+      <a class="menu-item" style="cursor: not-allowed;">
+        <div class="menu-icon">
+          <i class="bi bi-trophy-fill"></i>
+        </div>
+        <span class="menu-text" *ngIf="!isCollapsed">Objectifs</span>
+        <div class="menu-badge" *ngIf="!isCollapsed">
+          <span class="badge success">82%</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="menu-group">
+      <div class="menu-label" *ngIf="!isCollapsed">RESSOURCES</div>
+      
+      <!-- Documents -->
+      <a class="menu-item" style="cursor: not-allowed;">
+        <div class="menu-icon">
+          <i class="bi bi-file-earmark-pdf-fill"></i>
+        </div>
+        <span class="menu-text" *ngIf="!isCollapsed">Documents</span>
+      </a>
+
+      <!-- Vidéos -->
+      <a class="menu-item" style="cursor: not-allowed;">
+        <div class="menu-icon">
+          <i class="bi bi-play-btn-fill"></i>
+        </div>
+        <span class="menu-text" *ngIf="!isCollapsed">Vidéos éducatives</span>
+      </a>
+
+      <!-- Recettes -->
+      <a class="menu-item" style="cursor: not-allowed;">
+        <div class="menu-icon">
+          <i class="bi bi-book-fill"></i>
+        </div>
+        <span class="menu-text" *ngIf="!isCollapsed">Recettes</span>
+        <div class="menu-badge" *ngIf="!isCollapsed">
+          <span class="badge bg-primary">24</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Section Footer avec stats rapides -->
+  <div class="sidebar-footer" *ngIf="!isCollapsed">
+    <div class="quick-stats">
+      <div class="quick-stat-item">
+        <span class="stat-value">82%</span>
+        <span class="stat-label">Réussite</span>
+      </div>
+      <div class="quick-stat-divider"></div>
+      <div class="quick-stat-item">
+        <span class="stat-value">156</span>
+        <span class="stat-label">Patients</span>
+      </div>
+      <div class="quick-stat-divider"></div>
+      <div class="quick-stat-item">
+        <span class="stat-value">38</span>
+        <span class="stat-label">Plans</span>
+      </div>
+    </div>
+    
+    <div class="footer-actions">
+      <a class="footer-item" style="cursor: not-allowed;">
+        <i class="bi bi-gear"></i>
+        <span>Paramètres</span>
+      </a>
+      <a class="footer-item text-danger" style="cursor: not-allowed;">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Déconnexion</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Version simplifiée pour sidebar réduite -->
+  <div class="sidebar-footer-collapsed" *ngIf="isCollapsed">
+    <a class="footer-icon" title="Paramètres">
+      <i class="bi bi-gear"></i>
+    </a>
+    <a class="footer-icon text-danger" title="Déconnexion">
+      <i class="bi bi-box-arrow-right"></i>
+    </a>
+  </div>
+</div>

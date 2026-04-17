@@ -1,0 +1,51 @@
+.layout-wrapper {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.sidebar-fixed {
+  width: 280px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 100;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0; /* Évite les débordements */
+  background: #f8fafc;
+}
+
+.content-area {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Quand la sidebar est réduite */
+:host-context(.sidebar-collapsed) .sidebar-fixed {
+  width: 80px;
+}
+
+:host-context(.sidebar-collapsed) .main-content {
+  margin-left: 80px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar-fixed {
+    position: fixed;
+    left: -280px;
+    transition: left 0.3s ease;
+  }
+  
+  .sidebar-fixed.mobile-open {
+    left: 0;
+  }
+  
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+}

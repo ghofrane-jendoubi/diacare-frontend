@@ -1,0 +1,194 @@
+.geo-page {
+  padding: 24px;
+  background: #f7fbff;
+  min-height: 100vh;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.page-header h2 {
+  margin: 0 0 8px;
+  color: #1e3a8a;
+}
+
+.page-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.filters-card,
+.map-card,
+.list-card,
+.details-card,
+.info-card,
+.error-card {
+  background: white;
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 18px;
+  border: 1px solid #dbeafe;
+}
+
+.error-card {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 18px;
+}
+
+#doctor-map {
+  width: 100%;
+  height: 600px;
+  border-radius: 14px;
+}
+
+.geo-input {
+  width: 100%;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 180px;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.address-results {
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.address-result {
+  padding: 12px 14px;
+  border-bottom: 1px solid #dbeafe;
+  cursor: pointer;
+  background: white;
+}
+
+.address-result:last-child {
+  border-bottom: none;
+}
+
+.address-result:hover {
+  background: #eff6ff;
+}
+
+.checks-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.check-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.place-card {
+  border: 1px solid #dbeafe;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.place-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.place-card h4 {
+  margin: 0 0 6px;
+  color: #1e293b;
+}
+
+.place-card p {
+  margin: 0 0 8px;
+  color: #64748b;
+}
+
+.address {
+  color: #475569;
+}
+
+.meta-row,
+.actions-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.badge {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.primary-btn,
+.secondary-btn,
+.favorite-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+}
+
+.secondary-btn {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.favorite-btn {
+  background: #fff7ed;
+  color: #d97706;
+  min-width: 44px;
+}
+
+@media (max-width: 992px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #doctor-map {
+    height: 420px;
+  }
+
+  .page-header {
+    flex-direction: column;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}

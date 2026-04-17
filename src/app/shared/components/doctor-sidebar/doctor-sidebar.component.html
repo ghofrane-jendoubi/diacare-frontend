@@ -1,0 +1,166 @@
+<div class="sidebar" [class.collapsed]="isCollapsed">
+  <!-- Toggle Button -->
+  <button class="sidebar-toggle" (click)="toggleSidebar()">
+    <i class="bi" [ngClass]="isCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
+  </button>
+
+  <!-- Logo et Brand -->
+  <div class="brand-section" (click)="navigateTo('/doctor')">
+    <div class="logo-wrapper">
+      <div class="logo-icon">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 2L2 9L16 16L30 9L16 2Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 16L16 23L30 16" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 23L16 30L30 23" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="16" cy="16" r="2" fill="white"/>
+        </svg>
+      </div>
+      <div class="brand-text" [class.hidden]="isCollapsed">
+        <h4>DiaCare</h4>
+        <span>Espace Médecin</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Informations médecin -->
+  <div class="doctor-section" [class.collapsed]="isCollapsed">
+    <div class="doctor-card">
+      <div class="doctor-avatar">
+        <div class="avatar-initials">
+          {{ doctorInfo.firstName?.charAt(0) || 'D' }}{{ doctorInfo.lastName?.charAt(0) || 'R' }}
+        </div>
+        <span class="online-status" [class.online]="doctorInfo.online"></span>
+      </div>
+      <div class="doctor-details" [class.hidden]="isCollapsed">
+        <h6>{{ doctorInfo.name }}</h6>
+        <span class="speciality">{{ doctorInfo.speciality }}</span>
+        <div class="doctor-meta">
+          <span class="license">
+            <i class="bi bi-card-list"></i> N° {{ doctorInfo.licenseNumber }}
+          </span>
+          <span class="experience" *ngIf="doctorInfo.yearsOfExperience">
+            <i class="bi bi-calendar-heart"></i> {{ doctorInfo.yearsOfExperience }} ans
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="nav-section">
+    <ul class="nav-menu">
+      <!-- Dashboard -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor')" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+          <i class="bi bi-speedometer2"></i>
+          <span>Tableau de bord</span>
+        </a>
+      </li>
+
+      <!-- Rendez-vous -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/doctor_appointments')" routerLinkActive="active">
+          <i class="bi bi-calendar-check"></i>
+          <span>Rendez-vous</span>
+          <span class="badge" *ngIf="pendingAppointmentsCount > 0">
+            {{ pendingAppointmentsCount }}
+          </span>
+        </a>
+      </li>
+
+      <!-- Agenda -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/appointments')" routerLinkActive="active">
+          <i class="bi bi-calendar-week"></i>
+          <span>Agenda</span>
+        </a>
+      </li>
+
+      <!-- Messages -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/chat')" routerLinkActive="active">
+          <i class="bi bi-chat-dots"></i>
+          <span>Messages</span>
+          <span class="badge has-messages" *ngIf="unreadMessagesCount > 0">
+            {{ unreadMessagesCount }}
+          </span>
+        </a>
+      </li>
+
+      <!--reclamation-->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/reclamations')" routerLinkActive="active">
+          <i class="bi bi-calendar-check"></i>
+          <span>Reclamation</span>
+          <span class="badge" *ngIf="pendingAppointmentsCount > 0">
+            {{ pendingAppointmentsCount }}
+          </span>
+        </a>
+      </li>
+      <li class="nav-divider"></li>
+    
+
+<a routerLink="/doctor/geolocalisation" routerLinkActive="active" class="menu-item">
+  <i class="bi bi-geo-alt"></i>
+  <span>Géolocalisation</span>
+</a>
+
+      <!-- Patients -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/patients')" routerLinkActive="active">
+          <i class="bi bi-people"></i>
+          <span>Mes patients</span>
+          <span class="badge" *ngIf="totalPatientsCount > 0">
+            {{ totalPatientsCount }}
+          </span>
+        </a>
+      </li>
+
+      <!-- Consultations en ligne -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/consultations')" routerLinkActive="active">
+          <i class="bi bi-camera-video"></i>
+          <span>Consultations en ligne</span>
+        </a>
+      </li>
+
+      <!-- Analyses -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/analyses')" routerLinkActive="active">
+          <i class="bi bi-file-medical"></i>
+          <span>Analyses</span>
+          <span class="badge" *ngIf="pendingAnalysesCount > 0">
+            {{ pendingAnalysesCount }}
+          </span>
+        </a>
+      </li>
+
+      <li class="nav-divider"></li>
+
+      <!-- Paramètres -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/settings')" routerLinkActive="active">
+          <i class="bi bi-gear"></i>
+          <span>Paramètres</span>
+        </a>
+      </li>
+
+      <!-- Aide -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/help')" routerLinkActive="active">
+          <i class="bi bi-question-circle"></i>
+          <span>Aide</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Footer avec déconnexion -->
+  <div class="sidebar-footer">
+    <div class="footer-divider"></div>
+    <button class="logout-btn" (click)="logout()">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Déconnexion</span>
+    </button>
+  </div>
+</div>

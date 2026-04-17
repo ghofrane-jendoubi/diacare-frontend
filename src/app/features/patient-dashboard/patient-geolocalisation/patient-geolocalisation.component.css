@@ -1,0 +1,282 @@
+.geo-page {
+  padding: 24px;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.top-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.page-header h2 {
+  margin: 0 0 8px;
+  color: #1e293b;
+}
+
+.page-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.filters-card,
+.map-card,
+.list-card,
+.details-card,
+.info-card,
+.error-card,
+.recommended-box {
+  background: white;
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 18px;
+  border: 1px solid #e2e8f0;
+}
+
+.smart-cards {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.smart-card {
+  background: white;
+  border-radius: 18px;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+}
+
+.smart-card.best {
+  border-left: 5px solid #4f46e5;
+}
+
+.smart-card.urgency {
+  border-left: 5px solid #dc2626;
+  background: #fff7f7;
+}
+
+.smart-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.smart-card h3 {
+  margin: 0 0 6px;
+}
+
+.smart-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.recommended-list {
+  display: grid;
+  gap: 10px;
+}
+
+.recommended-item {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.recommended-item span {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+}
+
+.error-card {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 18px;
+}
+
+#patient-map {
+  width: 100%;
+  height: 600px;
+  border-radius: 14px;
+}
+
+.geo-input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 180px;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.address-results {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.address-result {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  cursor: pointer;
+  background: white;
+}
+
+.address-result:last-child {
+  border-bottom: none;
+}
+
+.address-result:hover {
+  background: #f8fafc;
+}
+
+.checks-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.check-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.place-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.place-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.place-card h4 {
+  margin: 0 0 6px;
+  color: #1e293b;
+}
+
+.place-card p {
+  margin: 0 0 8px;
+  color: #64748b;
+}
+
+.address {
+  color: #475569;
+}
+
+.meta-row,
+.actions-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.badge {
+  background: #eef2ff;
+  color: #4338ca;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.badge.score {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.badge.open {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge.closed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.primary-btn,
+.secondary-btn,
+.favorite-btn,
+.danger-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  color: white;
+}
+
+.secondary-btn {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.favorite-btn {
+  background: #fff7ed;
+  color: #d97706;
+  min-width: 44px;
+}
+
+.danger-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+
+@media (max-width: 992px) {
+  .content-grid,
+  .smart-cards {
+    grid-template-columns: 1fr;
+  }
+
+  #patient-map {
+    height: 420px;
+  }
+
+  .page-header {
+    flex-direction: column;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}

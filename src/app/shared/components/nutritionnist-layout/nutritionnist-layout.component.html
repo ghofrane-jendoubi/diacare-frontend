@@ -1,0 +1,13 @@
+<!-- shared/components/nutritionnist-layout/nutritionnist-layout.component.html -->
+<div class="layout-wrapper">
+  <!-- Sidebar avec largeur fixe -->
+  <app-nutritionnist-sidebar class="sidebar-fixed"></app-nutritionnist-sidebar>
+  
+  <!-- Main content avec marge à gauche -->
+  <div class="main-content">
+    <app-nutritionnist-topbar></app-nutritionnist-topbar>
+    <div class="content-area">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

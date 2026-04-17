@@ -1,0 +1,324 @@
+<!-- HERO SECTION -->
+
+<section id="accueil" class="hero" [style.backgroundImage]="'url(' + heroImage + ')'">
+  <div class="hero-overlay"></div>
+  <div class="hero-container">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <i class="bi bi-star-fill"></i>
+        <span>Bienvenue dans votre espace personnel</span>
+      </div>
+
+      <h1 class="hero-title">
+        Votre santé, <span class="gradient-text">notre priorité</span>
+      </h1>
+
+      <p class="hero-description">
+        Connectez-vous avec des médecins spécialistes, consultez en ligne, 
+        suivez votre régime avec des nutritionnistes experts, 
+        le tout assisté par une intelligence artificielle de pointe.
+      </p>
+
+      <div class="hero-cta">
+        <a routerLink="/consultation" class="btn btn-primary btn-large">
+          Prendre rendez-vous
+          <i class="bi bi-arrow-right"></i>
+        </a>
+        <a href="#services" class="btn btn-outline-light btn-large">
+          Découvrir nos services
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-number">500+</span>
+          <span class="stat-label">Médecins</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">50+</span>
+          <span class="stat-label">Nutritionnistes</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">10k+</span>
+          <span class="stat-label">Patients</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">98%</span>
+          <span class="stat-label">Satisfaits</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      
+    </div>
+  </div>
+</section>
+
+<!-- SECTION SERVICES PATIENT -->
+<section id="services" class="services">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">🩺 Vos services</span>
+      <h2>Tous vos outils de santé</h2>
+      <p>Accédez à l'ensemble des services conçus pour votre bien-être</p>
+    </div>
+
+    <div class="services-grid">
+      <!-- Contacter médecin -->
+      <div class="service-card">
+        <div class="service-icon" style="background: #e8f0fe">
+          <i class="bi bi-camera-video-fill" style="color: #2563eb"></i>
+        </div>
+        <h3>Contacter un médecin</h3>
+        <p>Consultations en ligne avec des spécialistes, sans vous déplacer.</p>
+        <ul class="service-features">
+          <li><i class="bi bi-check-circle-fill"></i> Rendez-vous en 24h</li>
+          <li><i class="bi bi-check-circle-fill"></i> Médecins spécialistes</li>
+          <li><i class="bi bi-check-circle-fill"></i> Ordonnances en ligne</li>
+        </ul>
+        <a routerLink="/doctors" class="service-link">Voir les médecins →</a>
+      </div>
+
+      <!-- Nutrition -->
+      <div class="service-card">
+        <div class="service-icon" style="background: #e6f7e6">
+          <i class="bi bi-egg-fried" style="color: #10b981"></i>
+        </div>
+        <h3>Suivi nutritionnel</h3>
+        <p>Des nutritionnistes experts créent des plans alimentaires adaptés.</p>
+        <ul class="service-features">
+          <li><i class="bi bi-check-circle-fill"></i> Plans personnalisés</li>
+          <li><i class="bi bi-check-circle-fill"></i> Analyse des repas</li>
+          <li><i class="bi bi-check-circle-fill"></i> Conseils quotidiens</li>
+        </ul>
+        <a routerLink="/nutrition" class="service-link">Découvrir →</a>
+      </div>
+
+      <!-- Espace éducatif -->
+      <div class="service-card">
+        <div class="service-icon" style="background: #fff2e5">
+          <i class="bi bi-book-fill" style="color: #f97316"></i>
+        </div>
+        <h3>Espace éducatif</h3>
+        <p>Vidéos, articles et ressources pour mieux comprendre votre diabète.</p>
+        <ul class="service-features">
+          <li><i class="bi bi-check-circle-fill"></i> Vidéos explicatives</li>
+          <li><i class="bi bi-check-circle-fill"></i> Articles médicaux</li>
+          <li><i class="bi bi-check-circle-fill"></i> Conseils d'experts</li>
+        </ul>
+        <a routerLink="/education" class="service-link">Apprendre →</a>
+      </div>
+
+      <!-- Géolocalisation -->
+      <div class="service-card">
+        <div class="service-icon" style="background: #e0f2fe">
+          <i class="bi bi-geo-alt-fill" style="color: #0891b2"></i>
+        </div>
+        <h3>Géolocalisation</h3>
+        <p>Trouvez les médecins, pharmacies et hôpitaux proches de chez vous.</p>
+        <ul class="service-features">
+          <li><i class="bi bi-check-circle-fill"></i> Médecins à proximité</li>
+          <li><i class="bi bi-check-circle-fill"></i> Pharmacies de garde</li>
+          <li><i class="bi bi-check-circle-fill"></i> Hôpitaux</li>
+        </ul>
+        <a routerLink="/geolocation" class="service-link">Rechercher →</a>
+      </div>
+
+      <!-- Parapharmacie -->
+      <div class="service-card">
+        <div class="service-icon" style="background: #f3e8ff">
+          <i class="bi bi-capsule-pill" style="color: #8b5cf6"></i>
+        </div>
+        <h3>Parapharmacie</h3>
+        <p>Commandez vos médicaments et produits de santé en ligne.</p>
+        <ul class="service-features">
+          <li><i class="bi bi-check-circle-fill"></i> Livraison à domicile</li>
+          <li><i class="bi bi-check-circle-fill"></i> Produits certifiés</li>
+          <li><i class="bi bi-check-circle-fill"></i> Paiement sécurisé</li>
+        </ul>
+        <a routerLink="/pharmacy" class="service-link">Acheter →</a>
+      </div>
+
+      <!-- Chatbot -->
+      <div class="service-card">
+        <div class="service-icon" style="background: #dbeafe">
+          <i class="bi bi-robot" style="color: #2563eb"></i>
+        </div>
+        <h3>Chatbot DiaCare</h3>
+        <p>Assistant IA disponible 24h/24 pour répondre à vos questions.</p>
+        <ul class="service-features">
+          <li><i class="bi bi-check-circle-fill"></i> Réponses instantanées</li>
+          <li><i class="bi bi-check-circle-fill"></i> Disponible 24/7</li>
+          <li><i class="bi bi-check-circle-fill"></i> Spécialisé diabète</li>
+        </ul>
+        <a routerLink="/chatbot" class="service-link">Discuter →</a>
+      </div>
+
+      <!-- Analyses IA -->
+      <div class="service-card">
+        <div class="service-icon" style="background: #dcfce7">
+          <i class="bi bi-cpu" style="color: #16a34a"></i>
+        </div>
+        <h3>Analyses par IA</h3>
+        <p>Analyse d'images et prédictions personnalisées pour anticiper.</p>
+        <ul class="service-features">
+          <li><i class="bi bi-check-circle-fill"></i> Analyse de la langue</li>
+          <li><i class="bi bi-check-circle-fill"></i> Prédictions glycémie</li>
+          <li><i class="bi bi-check-circle-fill"></i> Alertes précoces</li>
+        </ul>
+        <a routerLink="/ia-analyses" class="service-link">Découvrir →</a>
+      </div>
+
+      <!-- Réclamations -->
+      <div class="service-card">
+        <div class="service-icon" style="background: #fee2e2">
+          <i class="bi bi-exclamation-triangle-fill" style="color: #dc2626"></i>
+        </div>
+        <h3>Réclamations</h3>
+        <p>Contactez notre support en cas de problème ou de question.</p>
+        <ul class="service-features">
+          <li><i class="bi bi-check-circle-fill"></i> Support réactif</li>
+          <li><i class="bi bi-check-circle-fill"></i> Suivi personnalisé</li>
+          <li><i class="bi bi-check-circle-fill"></i> Réponse sous 24h</li>
+        </ul>
+        <a routerLink="/reclamations" class="service-link">Faire une réclamation →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION COMMENT ÇA MARCHE -->
+<section id="comment-ca-marche" class="how-it-works">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">⚡ Comment ça marche</span>
+      <h2>Votre santé en 3 étapes simples</h2>
+      <p>Une plateforme intuitive conçue pour simplifier votre parcours de soins</p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-icon">
+          <i class="bi bi-person-plus-fill"></i>
+        </div>
+        <h3>Créez votre compte</h3>
+        <p>Inscrivez-vous gratuitement et complétez votre profil médical en quelques minutes.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-icon">
+          <i class="bi bi-calendar-check-fill"></i>
+        </div>
+        <h3>Choisissez votre spécialiste</h3>
+        <p>Sélectionnez un médecin ou nutritionniste selon vos besoins et prenez rendez-vous.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-icon">
+          <i class="bi bi-chat-dots-fill"></i>
+        </div>
+        <h3>Suivez votre santé</h3>
+        <p>Consultez en ligne, échangez avec votre équipe et suivez vos progrès au quotidien.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION AVANTAGES -->
+<section class="benefits">
+  <div class="container">
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <i class="bi bi-clock-history"></i>
+        <h4>Disponibilité 24/7</h4>
+        <p>Accédez à vos services à tout moment, où que vous soyez</p>
+      </div>
+      <div class="benefit-card">
+        <i class="bi bi-shield-lock"></i>
+        <h4>Données sécurisées</h4>
+        <p>Chiffrement de bout en bout, conformité RGPD</p>
+      </div>
+      <div class="benefit-card">
+        <i class="bi bi-people"></i>
+        <h4>Équipe pluridisciplinaire</h4>
+        <p>Médecins, nutritionnistes et IA à votre service</p>
+      </div>
+      <div class="benefit-card">
+        <i class="bi bi-graph-up"></i>
+        <h4>Suivi personnalisé</h4>
+        <p>Recommandations adaptées à votre profil</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION TÉMOIGNAGES -->
+<section id="temoignages" class="testimonials">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">💬 Témoignages</span>
+      <h2>Ce que disent nos patients</h2>
+      <p>Découvrez les retours de notre communauté</p>
+    </div>
+
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-rating">
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+        </div>
+        <p class="testimonial-text">"Grâce à DiaCare, je peux consulter mon endocrinologue sans me déplacer. Les nutritionnistes m'ont aidé à rééquilibrer mon alimentation."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">F</div>
+          <div class="author-info">
+            <h4>Fatima B.</h4>
+            <p>Patiente diabétique type 2</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="testimonial-rating">
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+        </div>
+        <p class="testimonial-text">"L'IA m'alerte quand ma glycémie risque de monter. J'ai pu éviter plusieurs crises grâce aux prédictions."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">A</div>
+          <div class="author-info">
+            <h4>Ahmed M.</h4>
+            <p>Patient diabétique type 1</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="testimonial-rating">
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+        </div>
+        <p class="testimonial-text">"En tant que nutritionniste, je peux suivre l'évolution de mes patients en temps réel. Un outil indispensable !"</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">S</div>
+          <div class="author-info">
+            <h4>Sophie L.</h4>
+            <p>Nutritionniste</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,297 @@
+<div class="messaging-container">
+  <!-- Sidebar des conversations -->
+  <div class="conversations-sidebar" [class.mobile-hidden]="!showMobileConversations">
+    <div class="sidebar-header">
+      <h2>Messages</h2>
+      <button class="new-chat-btn" (click)="startNewChat()">
+        <i class="bi bi-plus-circle"></i>
+      </button>
+    </div>
+
+    <!-- Barre de recherche -->
+    <div class="search-box">
+      <i class="bi bi-search"></i>
+      <input type="text" 
+             placeholder="Rechercher un médecin..." 
+             [(ngModel)]="searchTerm"
+             (input)="filterConversations()">
+    </div>
+
+    <!-- Liste des conversations -->
+    <div class="conversations-list">
+      <div *ngIf="loadingConversations" class="loading-conversations">
+        <div class="spinner-small"></div>
+        <p>Chargement...</p>
+      </div>
+      
+      <div *ngFor="let conv of filteredConversations" 
+           class="conversation-item"
+           [class.active]="conv.doctorId === selectedDoctorId"
+           (click)="selectConversation(conv.doctorId)">
+        
+        <div class="conversation-avatar">
+          <img [src]="getFullUrl(conv.doctorProfilePicture) || 'assets/images/default-doctor.png'" 
+               alt="{{ conv.doctorName }}"
+               (error)="onImageError($event)">
+          
+        </div>
+
+        <div class="conversation-info">
+          <div class="conversation-header">
+            <h4>{{ conv.doctorName }}</h4>
+            <span class="message-time">{{ formatTime(conv.lastMessageTime) }}</span>
+          </div>
+          
+          <div class="conversation-preview">
+            <p class="last-message">{{ conv.lastMessage || 'Aucun message' }}</p>
+            <span *ngIf="conv.unreadCount > 0" class="unread-badge">
+              {{ conv.unreadCount }}
+            </span>
+          </div>
+          
+          <p class="doctor-speciality">{{ conv.speciality }}</p>
+        </div>
+      </div>
+
+      <div *ngIf="!loadingConversations && filteredConversations.length === 0" class="no-conversations">
+        <i class="bi bi-chat-dots"></i>
+        <p>Aucune conversation</p>
+        <button class="btn-start" (click)="goToDoctors()">Trouver des médecins</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zone de chat principale -->
+  <div class="chat-main" [class.mobile-full]="!showMobileConversations">
+    <!-- Bouton retour mobile -->
+    <button class="mobile-back-btn" *ngIf="!showMobileConversations" (click)="showMobileConversations = true">
+      <i class="bi bi-arrow-left"></i>
+    </button>
+
+    <!-- Si un médecin est sélectionné -->
+    <ng-container *ngIf="selectedDoctorId && selectedDoctor">
+      <!-- En-tête du chat -->
+      <div class="chat-header">
+        <div class="doctor-info">
+          <img [src]="getFullUrl(selectedDoctor.doctorProfilePicture) || 'assets/images/default-doctor.png'" 
+               alt="{{ selectedDoctor.doctorName }}"
+               class="doctor-avatar"
+               (error)="onImageError($event)">
+          <div class="doctor-details">
+            <h3>{{ selectedDoctor.doctorName }}</h3>
+            <p class="speciality">{{ selectedDoctor.speciality }}</p>
+            
+          </div>
+        </div>
+        <div class="chat-actions">
+          <button class="action-btn" (click)="viewDoctorProfile()" title="Voir profil">
+            <i class="bi bi-person"></i>
+          </button>
+          <button class="action-btn" (click)="scheduleAppointment()" title="Prendre rendez-vous">
+            <i class="bi bi-calendar-plus"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div class="messages" #messagesContainer>
+        <div *ngIf="loading" class="loading">Chargement des messages...</div>
+        
+        <div *ngFor="let message of messages" 
+             class="message"
+             [class.my-message]="message.sender.id === currentUserId"
+             [class.their-message]="message.sender.id !== currentUserId">
+          
+          <div class="message-bubble">
+            <!-- Avatar du destinataire (pour les messages reçus) -->
+            <img *ngIf="message.sender.id !== currentUserId" 
+                 [src]="getFullUrl(selectedDoctor.doctorProfilePicture) || 'assets/images/default-doctor.png'"
+                 class="message-avatar"
+                 (error)="onImageError($event)">
+            
+            <div class="message-content-wrapper">
+              <!-- Message texte -->
+              <div class="message-content" *ngIf="message.content">{{ message.content }}</div>
+              
+              <!-- Image -->
+              <div class="message-image" *ngIf="message.imageUrl">
+                <img [src]="getFullUrl(message.imageUrl)" 
+                     alt="Image" 
+                     class="chat-image" 
+                     (click)="openImage(getFullUrl(message.imageUrl))"
+                     (error)="onImageError($event)">
+              </div>
+              
+              <!-- Audio amélioré -->
+              <div class="message-audio" *ngIf="message.audioUrl">
+                <div class="audio-player">
+                  <button class="play-btn" (click)="toggleAudio(message)" [class.playing]="isPlaying(message)">
+                    <i class="bi" [ngClass]="isPlaying(message) ? 'bi-pause-fill' : 'bi-play-fill'"></i>
+                  </button>
+                  <div class="audio-wave" *ngIf="!isPlaying(message)">
+                    <span></span><span></span><span></span><span></span><span></span>
+                  </div>
+                  <div class="audio-wave-animated" *ngIf="isPlaying(message)">
+                    <span class="wave1"></span><span class="wave2"></span><span class="wave3"></span>
+                    <span class="wave4"></span><span class="wave5"></span>
+                  </div>
+                  <span class="audio-duration">{{ formatDuration(message.audioDuration) }}</span>
+                  <audio #audioPlayer [src]="getFullUrl(message.audioUrl)" preload="metadata"></audio>
+                </div>
+              </div>
+              
+              <!-- Documents -->
+              <div class="message-document" *ngIf="message.documentUrl">
+                <div class="document-card" (click)="openDocument(message.documentUrl)">
+                  <div class="document-icon">
+                    <i class="bi" [ngClass]="getDocumentIcon(message.documentUrl)"></i>
+                  </div>
+                  <div class="document-info">
+                    <div class="document-name">{{ getDocumentName(message.documentUrl) }}</div>
+                    <div class="document-size" *ngIf="getDocumentSize(message.documentUrl)">{{ getDocumentSize(message.documentUrl) }}</div>
+                    <div class="document-action">
+                      <i class="bi bi-download"></i> Télécharger
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Pied du message -->
+              <div class="message-footer">
+                <span class="message-time">{{ formatTime(message.sentAt) }}</span>
+                <span class="message-status" *ngIf="message.sender.id === currentUserId">
+                  <i *ngIf="message.seen" class="bi bi-check-all" title="Vu"></i>
+                  <i *ngIf="!message.seen && message.delivered" class="bi bi-check" title="Livré"></i>
+                  <i *ngIf="!message.delivered" class="bi bi-check" title="Envoyé"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="messages.length === 0 && !loading" class="no-messages">
+          <i class="bi bi-chat-dots"></i>
+          <p>Aucun message. Commencez la conversation !</p>
+        </div>
+      </div>
+
+      <!-- Zone de saisie avec options -->
+      <div class="message-input-area">
+        <!-- Bouton pour image -->
+        <button class="attach-btn" (click)="fileInput.click()" title="Joindre une image">
+          <i class="bi bi-image"></i>
+        </button>
+        <input #fileInput type="file" accept="image/*" (change)="onImageSelected($event)" style="display: none;">
+        
+        <!-- Bouton pour documents -->
+        <button class="attach-btn" (click)="documentInput.click()" title="Joindre un document">
+          <i class="bi bi-file-earmark-pdf"></i>
+        </button>
+        <input #documentInput type="file" accept=".pdf,.doc,.docx,.txt,.xlsx" (change)="onDocumentSelected($event)" style="display: none;">
+        
+        <!-- Bouton pour audio -->
+        <button class="attach-btn" (click)="startRecording()" *ngIf="!isRecording && !recordedAudio" title="Enregistrer un message vocal">
+          <i class="bi bi-mic"></i>
+        </button>
+        <button class="attach-btn recording" (click)="stopRecording()" *ngIf="isRecording" title="Arrêter l'enregistrement">
+          <i class="bi bi-stop-circle"></i>
+        </button>
+        
+        <input #messageInput 
+               type="text" 
+               [(ngModel)]="newMessage" 
+               (keyup.enter)="sendMessage()"
+               placeholder="Écrivez votre message..."
+               class="message-input"
+               [disabled]="isRecording">
+        
+        <button class="send-btn" (click)="sendMessage()" 
+                [disabled]="(!newMessage.trim() && !selectedImage && !recordedAudio && !selectedDocument) || isRecording">
+          <i class="bi bi-send"></i>
+        </button>
+      </div>
+
+      <!-- Aperçu de l'image sélectionnée -->
+      <div class="file-preview" *ngIf="selectedImage">
+        <div class="preview-content">
+          <img [src]="imagePreview" alt="Aperçu">
+          <span class="file-name">{{ selectedImage.name }}</span>
+          <button class="remove-file" (click)="cancelImage()">
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Aperçu du document sélectionné -->
+      <div class="file-preview" *ngIf="selectedDocument">
+        <div class="preview-content">
+          <i class="bi bi-file-earmark-pdf" style="font-size: 1.5rem; color: #dc2626;"></i>
+          <span class="file-name">{{ selectedDocument.name }}</span>
+          <button class="remove-file" (click)="cancelDocument()">
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Statut d'enregistrement audio -->
+      <div class="recording-status" *ngIf="isRecording">
+        <div class="recording-indicator">
+          <span class="recording-dot"></span>
+          <span>Enregistrement en cours...</span>
+        </div>
+        <div class="recording-controls">
+          <button class="btn-stop-recording" (click)="stopRecording()">
+            <i class="bi bi-stop-circle"></i> Arrêter
+          </button>
+          <button class="btn-cancel-recording" (click)="cancelRecording()">
+            <i class="bi bi-x-circle"></i> Annuler
+          </button>
+        </div>
+      </div>
+
+      <!-- Message audio enregistré -->
+      <div class="audio-preview" *ngIf="recordedAudio && !isRecording">
+        <div class="preview-content">
+          <i class="bi bi-mic"></i>
+          <span>Message vocal ({{ formatDuration(audioDuration) }})</span>
+          <button class="remove-file" (click)="cancelAudio()">
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+      </div>
+    </ng-container>
+    
+    <!-- Écran vide si aucun médecin sélectionné -->
+    <div class="no-chat-selected" *ngIf="!selectedDoctorId">
+      <i class="bi bi-chat-dots"></i>
+      <h3>Vos messages</h3>
+      <p>Envoyez et recevez des messages de vos médecins</p>
+      <button class="btn-start" (click)="goToDoctors()">
+        Commencer une conversation
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal PDF Viewer -->
+<div class="pdf-modal" *ngIf="showPdfModal" (click)="closePdfModal()">
+  <div class="pdf-modal-content" (click)="$event.stopPropagation()">
+    <div class="pdf-modal-header">
+      <h3>
+        <i class="bi bi-file-earmark-pdf"></i>
+        {{ currentPdfName }}
+      </h3>
+      <button class="close-btn" (click)="closePdfModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="pdf-modal-body">
+      <iframe [src]="currentPdfUrl" width="100%" height="100%" frameborder="0"></iframe>
+    </div>
+    <div class="pdf-modal-footer">
+      <button class="btn-download" (click)="downloadCurrentPdf()">
+        <i class="bi bi-download"></i> Télécharger
+      </button>
+    </div>
+  </div>
+</div>

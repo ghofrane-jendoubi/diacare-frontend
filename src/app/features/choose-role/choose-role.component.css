@@ -1,0 +1,463 @@
+/* Animations originales */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  20% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Page principale */
+.choose-role-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Formes flottantes */
+.floating-shapes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.shape {
+  position: absolute;
+  background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float 20s ease-in-out infinite;
+}
+
+.shape-1 {
+  width: 300px;
+  height: 300px;
+  top: -150px;
+  right: -150px;
+  animation-delay: 0s;
+}
+
+.shape-2 {
+  width: 200px;
+  height: 200px;
+  bottom: -100px;
+  left: -100px;
+  animation-delay: 5s;
+}
+
+.shape-3 {
+  width: 150px;
+  height: 150px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: 10s;
+}
+
+/* Header original */
+.logo-wrapper {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.heart-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  transform: rotate(45deg);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+  animation: float 3s ease-in-out infinite;
+}
+
+.heart-icon svg {
+  transform: rotate(-45deg);
+}
+
+.elegant-title {
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: -0.5px;
+}
+
+.highlight {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.fade-in {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+/* Role Cards - Largeur réduite et originale */
+.role-card {
+  width: 280px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 0.6s ease-out forwards;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+}
+
+.role-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s ease;
+}
+
+.role-card:hover::before {
+  left: 100%;
+}
+
+.role-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.12);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+.role-card.click-animation {
+  animation: pulse 0.3s ease-out;
+}
+
+/* Effet de brillance */
+.glow-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.6), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.role-card:hover .glow-effect {
+  opacity: 1;
+  animation: shine 1.5s ease-in-out infinite;
+}
+
+/* Card content */
+.card-content {
+  padding: 1.5rem;
+  position: relative;
+  text-align: center;
+  z-index: 1;
+}
+
+/* Icône avec effet glass */
+.icon-glass {
+  display: inline-flex;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.icon-wrapper {
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.role-card:hover .icon-wrapper {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+}
+
+.role-icon {
+  font-size: 32px;
+  transition: transform 0.3s ease;
+}
+
+.role-card:hover .role-icon {
+  transform: scale(1.1);
+}
+
+/* Couleurs des icônes */
+.role-admin .role-icon { color: #6c5ce7; }
+.role-doctor .role-icon { color: #00b894; }
+.role-nutritionist .role-icon { color: #e67e22; }
+.role-patient .role-icon { color: #3498db; }
+
+/* Badge original */
+.role-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.badge-original {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  letter-spacing: 1px;
+}
+
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Informations */
+.role-info {
+  text-align: center;
+}
+
+.role-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.3px;
+}
+
+.role-description {
+  color: #718096;
+  font-size: 0.7rem;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+/* Ligne décorative */
+.decorative-line {
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #667eea, transparent);
+  margin: 0.75rem auto;
+  transition: width 0.3s ease;
+}
+
+.role-card:hover .decorative-line {
+  width: 60px;
+}
+
+/* Indicateur original */
+.role-indicator {
+  margin-bottom: 1rem;
+}
+
+.indicator-original {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: #a0aec0;
+  background: #f7fafc;
+  padding: 0.25rem 0.8rem;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.role-card:hover .indicator-original {
+  background: white;
+  color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+.indicator-original i {
+  font-size: 0.7rem;
+}
+
+/* Bouton original */
+.btn-wrapper {
+  margin-top: 0.5rem;
+}
+
+.btn-original {
+  background: transparent;
+  color: #667eea;
+  border: none;
+  padding: 0.4rem 1rem;
+  border-radius: 25px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.btn-original svg {
+  transition: transform 0.3s ease;
+}
+
+.role-card:hover .btn-original {
+  gap: 0.8rem;
+  color: #5a4bcf;
+}
+
+.role-card:hover .btn-original svg {
+  transform: translateX(3px);
+}
+
+/* Footer élégant */
+.footer-decoration {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  background: #cbd5e0;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.dot:hover {
+  background: #667eea;
+  transform: scale(1.5);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .role-card {
+    width: 260px;
+  }
+  
+  .card-content {
+    padding: 1.25rem;
+  }
+  
+  .icon-wrapper {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .role-icon {
+    font-size: 28px;
+  }
+  
+  .role-title {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .role-card {
+    width: 240px;
+  }
+  
+  .card-content {
+    padding: 1rem;
+  }
+  
+  .icon-wrapper {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .role-icon {
+    font-size: 24px;
+  }
+  
+  .role-title {
+    font-size: 1rem;
+  }
+  
+  .heart-icon {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+/* Glassmorphisme */
+@supports (backdrop-filter: blur(10px)) {
+  .role-card {
+    background: rgba(255, 255, 255, 0.7);
+  }
+}

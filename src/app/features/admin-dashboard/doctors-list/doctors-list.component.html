@@ -1,0 +1,189 @@
+<div class="list-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <i class="bi bi-person-badge-fill me-2"></i>
+        Médecins
+      </h1>
+      <p class="page-subtitle">{{ doctors.length }} médecin(s) enregistré(s)</p>
+    </div>
+    <button class="btn-refresh" (click)="loadDoctors()">
+      <i class="bi bi-arrow-repeat me-1"></i> Actualiser
+    </button>
+  </div>
+
+  <!-- Alertes -->
+  <div *ngIf="successMessage" class="alert-success">✅ {{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert-error">❌ {{ errorMessage }}</div>
+
+  <!-- Stats rapides -->
+  <div class="quick-stats">
+    <div class="qs-item total" (click)="onFilterChange('ALL')" style="cursor:pointer">
+      <span class="qs-value">{{ doctors.length }}</span>
+      <span class="qs-label">Total</span>
+    </div>
+    <div class="qs-item pending" (click)="onFilterChange('PENDING')" style="cursor:pointer">
+      <span class="qs-value">{{ countByStatus('PENDING') }}</span>
+      <span class="qs-label">En attente</span>
+    </div>
+    <div class="qs-item approved" (click)="onFilterChange('APPROVED')" style="cursor:pointer">
+      <span class="qs-value">{{ countByStatus('APPROVED') }}</span>
+      <span class="qs-label">Approuvés</span>
+    </div>
+    <div class="qs-item rejected" (click)="onFilterChange('REJECTED')" style="cursor:pointer">
+      <span class="qs-value">{{ countByStatus('REJECTED') }}</span>
+      <span class="qs-label">Rejetés</span>
+    </div>
+  </div>
+
+  <!-- Barre recherche + filtre -->
+  <div class="toolbar">
+    <div class="search-box">
+      <i class="bi bi-search"></i>
+      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearch()"
+             placeholder="Rechercher par nom, email, spécialité...">
+    </div>
+    <div class="filter-tabs">
+      <button [class.active]="statusFilter==='ALL'" (click)="onFilterChange('ALL')">Tous</button>
+      <button [class.active]="statusFilter==='PENDING'" (click)="onFilterChange('PENDING')">En attente</button>
+      <button [class.active]="statusFilter==='APPROVED'" (click)="onFilterChange('APPROVED')">Approuvés</button>
+      <button [class.active]="statusFilter==='REJECTED'" (click)="onFilterChange('REJECTED')">Rejetés</button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-box">
+    <div class="spinner"></div>
+    <p>Chargement...</p>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!isLoading && filteredDoctors.length === 0" class="empty-state">
+    <i class="bi bi-inbox"></i>
+    <p>Aucun médecin trouvé</p>
+  </div>
+
+  <!-- Table -->
+  <div class="table-card" *ngIf="!isLoading && filteredDoctors.length > 0">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Médecin</th>
+          <th>Spécialité</th>
+          <th>Hôpital</th>
+          <th>Licence</th>
+          <th>Expérience</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let doctor of filteredDoctors; let i = index">
+          <td class="idx">{{ i + 1 }}</td>
+          <td>
+            <div class="user-cell">
+              <div class="avatar blue">
+                <i class="bi bi-person-fill"></i>
+              </div>
+              <div>
+                <p class="name">Dr. {{ doctor.firstName }} {{ doctor.lastName }}</p>
+                <p class="email">{{ doctor.email }}</p>
+              </div>
+            </div>
+          </td>
+          <td><span class="tag blue">{{ doctor.speciality || '—' }}</span></td>
+          <td>{{ doctor.hospital || '—' }}</td>
+          <td><code>{{ doctor.licenseNumber || '—' }}</code></td>
+          <td>{{ doctor.yearsOfExperience || '—' }} ans</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(doctor.certificateStatus)">
+              {{ getStatusLabel(doctor.certificateStatus) }}
+            </span>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="btn-icon view" title="Voir détails" (click)="openModal(doctor)">
+                <i class="bi bi-eye"></i>
+              </button>
+              <button class="btn-icon approve" title="Approuver"
+                      *ngIf="doctor.certificateStatus !== 'APPROVED'"
+                      (click)="approve(doctor)" [disabled]="actionLoading">
+                <i class="bi bi-check-lg"></i>
+              </button>
+              <button class="btn-icon reject" title="Rejeter"
+                      *ngIf="doctor.certificateStatus !== 'REJECTED'"
+                      (click)="reject(doctor)" [disabled]="actionLoading">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="bi bi-person-vcard-fill me-2"></i>Détails du médecin</h3>
+      <button class="modal-close" (click)="closeModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body" *ngIf="selectedDoctor">
+      <div class="modal-status-bar">
+        Statut :
+        <span class="status-badge ms-2" [ngClass]="getStatusClass(selectedDoctor.certificateStatus)">
+          {{ getStatusLabel(selectedDoctor.certificateStatus) }}
+        </span>
+      </div>
+      <div class="modal-section">
+        <h4 class="modal-section-title"><i class="bi bi-person-fill me-2"></i>Informations personnelles</h4>
+        <div class="modal-grid">
+          <div class="modal-field"><label>Nom complet</label><p>{{ selectedDoctor.firstName }} {{ selectedDoctor.lastName }}</p></div>
+          <div class="modal-field"><label>Email</label><p>{{ selectedDoctor.email }}</p></div>
+          <div class="modal-field"><label>Téléphone</label><p>{{ selectedDoctor.phone || '—' }}</p></div>
+          <div class="modal-field"><label>Ville</label><p>{{ selectedDoctor.city || '—' }}</p></div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h4 class="modal-section-title"><i class="bi bi-briefcase-fill me-2"></i>Informations professionnelles</h4>
+        <div class="modal-grid">
+          <div class="modal-field"><label>Spécialité</label><p>{{ selectedDoctor.speciality || '—' }}</p></div>
+          <div class="modal-field"><label>Hôpital</label><p>{{ selectedDoctor.hospital || '—' }}</p></div>
+          <div class="modal-field"><label>N° Licence</label><p>{{ selectedDoctor.licenseNumber || '—' }}</p></div>
+          <div class="modal-field"><label>Expérience</label><p>{{ selectedDoctor.yearsOfExperience || '—' }} ans</p></div>
+          <div class="modal-field"><label>Frais consultation</label><p>{{ selectedDoctor.consultationFee || '—' }} DT</p></div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h4 class="modal-section-title"><i class="bi bi-file-earmark-image-fill me-2"></i>Certificat</h4>
+        <div class="cert-box">
+          <img *ngIf="selectedDoctor.certificateImage"
+               [src]="getCertUrl(selectedDoctor.certificateImage)"
+               class="cert-img" alt="Certificat"
+               (error)="$any($event.target).src='assets/no-image.png'">
+          <div *ngIf="!selectedDoctor.certificateImage" class="no-cert">
+            <i class="bi bi-file-earmark-x"></i><p>Aucun certificat</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-approve-lg"
+                *ngIf="selectedDoctor.certificateStatus !== 'APPROVED'"
+                (click)="approve(selectedDoctor)" [disabled]="actionLoading">
+          <i class="bi bi-check-circle-fill me-2"></i>{{ actionLoading ? 'En cours...' : 'Approuver' }}
+        </button>
+        <button class="btn-reject-lg"
+                *ngIf="selectedDoctor.certificateStatus !== 'REJECTED'"
+                (click)="reject(selectedDoctor)" [disabled]="actionLoading">
+          <i class="bi bi-x-circle-fill me-2"></i>{{ actionLoading ? 'En cours...' : 'Rejeter' }}
+        </button>
+        <button class="btn-close-modal" (click)="closeModal()">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>

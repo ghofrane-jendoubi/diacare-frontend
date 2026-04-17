@@ -1,0 +1,209 @@
+<section class="reclamations-page">
+  <div class="page-header">
+    <div>
+      <h2>Réclamations</h2>
+      <p>Créez, modifiez et suivez vos réclamations en temps réel.</p>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-value">{{ stats.total }}</span>
+      <span class="stat-label">Total</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ stats.open }}</span>
+      <span class="stat-label">Ouvertes</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ stats.inProgress }}</span>
+      <span class="stat-label">En cours</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ stats.resolved }}</span>
+      <span class="stat-label">Résolues</span>
+    </div>
+  </div>
+
+  <div class="alerts">
+    <div *ngIf="successMessage" class="alert success">{{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="alert error">{{ errorMessage }}</div>
+  </div>
+
+  <div class="reclamations-layout">
+    <div class="form-card">
+      <div class="card-head">
+        <div class="icon-box">
+          <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <div>
+          <h3>{{ editingId ? 'Modifier la réclamation' : 'Nouvelle réclamation' }}</h3>
+          <p>Expliquez clairement votre problème pour obtenir une réponse rapide.</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="title">Titre</label>
+        <input
+          id="title"
+          type="text"
+          [(ngModel)]="reclamationForm.title"
+          class="custom-input"
+          placeholder="Ex: Problème rendez-vous"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="category">Catégorie</label>
+        <select
+          id="category"
+          [(ngModel)]="reclamationForm.category"
+          (change)="onCategoryChange()"
+          class="custom-input"
+        >
+          <option *ngFor="let c of categories" [value]="c">
+            {{ getCategoryLabel(c) }}
+          </option>
+        </select>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="priority">Priorité</label>
+          <select
+            id="priority"
+            [(ngModel)]="reclamationForm.priority"
+            class="custom-input"
+          >
+            <option *ngFor="let p of priorities" [value]="p">
+              {{ getPriorityLabel(p) }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="targetRole">Destinataire</label>
+          <select
+            id="targetRole"
+            [(ngModel)]="reclamationForm.targetRole"
+            class="custom-input"
+          >
+            <option *ngFor="let role of targetRoles" [value]="role">
+              {{ getRoleLabel(role) }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea
+          id="description"
+          [(ngModel)]="reclamationForm.description"
+          class="custom-input textarea-input"
+          rows="6"
+          placeholder="Décrivez le problème rencontré..."
+        ></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button class="submit-btn" (click)="submitReclamation()" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Envoi...' : (editingId ? 'Enregistrer les modifications' : 'Envoyer la réclamation') }}
+        </button>
+
+        <button *ngIf="editingId" class="cancel-btn" (click)="cancelEdit()">
+          Annuler
+        </button>
+      </div>
+    </div>
+
+    <div class="list-card">
+      <div class="list-head">
+        <h3>Mes réclamations</h3>
+        <span class="count-badge">{{ filteredReclamations.length }}</span>
+      </div>
+
+      <div class="filters">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (input)="applyFilters()"
+          class="custom-input"
+          placeholder="Rechercher par titre ou description..."
+        />
+
+        <select
+          [(ngModel)]="selectedStatus"
+          (change)="applyFilters()"
+          class="custom-input"
+        >
+          <option value="">Tous les statuts</option>
+          <option *ngFor="let s of statuses" [value]="s">{{ getStatusLabel(s) }}</option>
+        </select>
+
+        <select
+          [(ngModel)]="selectedCategory"
+          (change)="applyFilters()"
+          class="custom-input"
+        >
+          <option value="">Toutes les catégories</option>
+          <option *ngFor="let c of categories" [value]="c">{{ getCategoryLabel(c) }}</option>
+        </select>
+      </div>
+
+      <div class="filter-actions">
+        <button class="reset-btn" (click)="resetFilters()">Réinitialiser les filtres</button>
+      </div>
+
+      <div *ngIf="filteredReclamations.length === 0" class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <p>Aucune réclamation pour le moment.</p>
+      </div>
+
+      <div *ngFor="let r of filteredReclamations" class="reclamation-item">
+        <div class="item-top">
+          <div>
+            <h4>{{ r.title }}</h4>
+            <p class="item-meta">
+              {{ getCategoryLabel(r.category) }} • {{ r.createdAt | date:'short' }}
+            </p>
+          </div>
+
+          <span class="status-pill" [ngClass]="getStatusClass(r.status)">
+            {{ getStatusLabel(r.status) }}
+          </span>
+        </div>
+
+        <p class="item-desc">{{ r.description }}</p>
+
+        <div class="item-tags">
+          <span class="tag priority">{{ getPriorityLabel(r.priority) }}</span>
+          <span class="tag role">Vers {{ getRoleLabel(r.targetRole) }}</span>
+        </div>
+
+        <div *ngIf="r.adminResponse" class="response-box">
+          <strong>Réponse :</strong>
+          <span>{{ r.adminResponse }}</span>
+        </div>
+
+        <div class="item-actions">
+          <button
+            *ngIf="r.status === 'OPEN'"
+            class="edit-btn"
+            (click)="startEdit(r)"
+          >
+            Modifier
+          </button>
+
+          <button
+            *ngIf="r.status === 'OPEN'"
+            class="delete-btn"
+            (click)="deleteReclamation(r.id, r.status)"
+          >
+            Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

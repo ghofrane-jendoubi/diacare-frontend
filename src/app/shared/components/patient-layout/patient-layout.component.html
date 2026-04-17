@@ -1,0 +1,13 @@
+<app-navbar
+  [menuItems]="patientMenuItems"
+  [isLoggedIn]="true"
+  [userId]="patientId"
+  [userName]="userName"
+  [userEmail]="userEmail">
+</app-navbar>
+
+<div class="patient-content">
+  <router-outlet></router-outlet>
+</div>
+
+<app-footer></app-footer>

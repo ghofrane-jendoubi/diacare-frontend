@@ -1,0 +1,236 @@
+<div class="doctor-dashboard">
+  <!-- En-tête -->
+  <div class="dashboard-header">
+    <div>
+      <h1 class="page-title">
+        <i class="bi bi-heart-pulse-fill text-primary me-2"></i>
+        Espace Médecin
+      </h1>
+      <p class="page-subtitle">Suivi médical et consultations</p>
+    </div>
+
+    <div class="header-actions">
+      <a routerLink="/doctor/geolocalisation" class="btn btn-outline-primary">
+        <i class="bi bi-geo-alt me-1"></i>
+        Géolocalisation
+      </a>
+
+      <a routerLink="/doctor/send-reclamation" class="btn btn-primary">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        Faire une réclamation
+      </a>
+
+      <div class="date-display">
+        <i class="bi bi-calendar3 me-2 text-primary"></i>
+        {{ currentDate | date:'EEEE d MMMM yyyy' }}
+      </div>
+
+      <button class="btn btn-outline-primary" (click)="refreshData()">
+        <i class="bi bi-arrow-repeat me-1"></i> Actualiser
+      </button>
+    </div>
+  </div>
+
+  <!-- Cartes de statistiques -->
+  <div class="stats-grid">
+    <div class="stat-card" *ngFor="let stat of statistics">
+      <div class="stat-icon" [ngStyle]="{'background': stat.bgColor}">
+        <i [class]="stat.icon"></i>
+      </div>
+      <div class="stat-content">
+        <h3 class="stat-value">{{ stat.value }}</h3>
+        <p class="stat-label">{{ stat.label }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section principale -->
+  <div class="row g-4 mb-4">
+    <!-- Colonne gauche -->
+    <div class="col-lg-8">
+      <!-- Rendez-vous du jour -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-calendar-check-fill text-primary me-2"></i>
+              Rendez-vous du Jour
+              <span class="badge bg-primary ms-2">{{ todayAppointments.length }}</span>
+            </h5>
+            <button class="view-all-link btn btn-link" (click)="goToDoctorAppointments()">
+              Voir agenda <i class="bi bi-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="appointments-list">
+            <div *ngIf="loading.appointments" class="text-center py-4">
+              <div class="spinner-border text-primary" role="status"></div>
+              <p class="mt-2">Chargement...</p>
+            </div>
+            <div *ngFor="let apt of todayAppointments" class="appointment-item">
+              <div class="appointment-time">
+                <span class="time">{{ apt.time }}</span>
+              </div>
+              <div class="appointment-content">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h6 class="mb-1">{{ apt.patientName }} <span class="text-muted" *ngIf="apt.age">({{ apt.age }} ans)</span></h6>
+                    <p class="mb-1">{{ apt.type }}</p>
+                    <small class="text-muted">
+                      <i class="bi bi-calendar me-1"></i> {{ apt.reason }}
+                    </small>
+                  </div>
+                  <div class="d-flex flex-column align-items-end">
+                    <span class="badge mb-2" [ngClass]="getStatusClass(apt.status)">
+                      {{ apt.status === 'confirmed' ? 'Confirmé' : apt.status === 'pending' ? 'En attente' : apt.status === 'urgent' ? 'Urgent' : 'Planifié' }}
+                    </span>
+                    <button class="btn btn-sm btn-primary" (click)="startConsultation(apt)">
+                      <i class="bi bi-play-fill me-1"></i> Démarrer
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="!loading.appointments && todayAppointments.length === 0" class="text-center py-4">
+              <i class="bi bi-calendar-x fs-1 text-muted"></i>
+              <p class="mt-2 text-muted">Aucun rendez-vous pour aujourd'hui</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analyses en attente -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+          <h5 class="mb-0">
+            <i class="bi bi-file-medical-fill text-primary me-2"></i>
+            Analyses en Attente
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Type d'analyse</th>
+                  <th>Date</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let analysis of pendingAnalyses">
+                  <td>{{ analysis.patientName }}</td>
+                  <td>{{ analysis.type }}</td>
+                  <td>{{ analysis.date | date:'dd/MM/yyyy' }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="getStatusClass(analysis.status)">
+                      {{ analysis.status === 'urgent' ? 'Urgent' : analysis.status === 'pending' ? 'En attente' : 'Traité' }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary" (click)="viewAnalysis(analysis)">
+                      <i class="bi bi-eye"></i> Analyser
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="pendingAnalyses.length === 0">
+                  <td colspan="5" class="text-center text-muted py-4">
+                    <i class="bi bi-check-circle fs-1"></i>
+                    <p class="mt-2">Aucune analyse en attente</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Colonne droite -->
+    <div class="col-lg-4">
+      <!-- Demandes de consultation -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-chat-dots-fill text-primary me-2"></i>
+              Messages récents
+              <span class="badge bg-danger ms-2">{{ onlineRequests.length }}</span>
+            </h5>
+            <button class="btn btn-sm btn-link" (click)="goToChat()">
+              <i class="bi bi-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="requests-list">
+            <div *ngIf="loading.messages" class="text-center py-4">
+              <div class="spinner-border spinner-border-sm text-primary"></div>
+            </div>
+            <div *ngFor="let request of onlineRequests" class="request-item">
+              <div class="d-flex">
+                <div class="flex-grow-1">
+                  <div class="d-flex justify-content-between">
+                    <h6 class="mb-1">{{ request.patientName }}</h6>
+                    <span class="badge" [ngClass]="getUrgencyBadge(request.urgency)">
+                      {{ request.unreadCount > 0 ? request.unreadCount + ' non lus' : 'Lu' }}
+                    </span>
+                  </div>
+                  <p class="mb-1">{{ request.reason | slice:0:60 }}{{ request.reason.length > 60 ? '...' : '' }}</p>
+                  <small class="text-muted">{{ request.time }}</small>
+                  <div class="mt-2">
+                    <button class="btn btn-sm btn-primary" (click)="acceptRequest(request)">
+                      <i class="bi bi-chat-dots"></i> Répondre
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="!loading.messages && onlineRequests.length === 0" class="text-center py-4">
+              <i class="bi bi-chat-dots fs-1 text-muted"></i>
+              <p class="mt-2 text-muted">Aucun message récent</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Derniers messages -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+          <h5 class="mb-0">
+            <i class="bi bi-envelope-fill text-primary me-2"></i>
+            Conversations récentes
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12" *ngFor="let msg of recentMessages">
+              <div class="message-card" [class.unread]="msg.unread">
+                <div class="d-flex align-items-center mb-2">
+                  <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2">
+                    <i class="bi bi-person-fill text-primary"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0">{{ msg.from }}</h6>
+                    <small class="text-muted">{{ msg.time }}</small>
+                  </div>
+                  <span *ngIf="msg.unread" class="badge bg-danger ms-auto">Nouveau</span>
+                </div>
+                <p class="mb-0">{{ msg.message | slice:0:80 }}{{ msg.message.length > 80 ? '...' : '' }}</p>
+                <button class="btn btn-sm btn-link text-primary mt-2 p-0" (click)="viewMessage(msg)">
+                  Lire la suite <i class="bi bi-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+            <div *ngIf="recentMessages.length === 0" class="text-center py-3">
+              <p class="text-muted">Aucune conversation</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

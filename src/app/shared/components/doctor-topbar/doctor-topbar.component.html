@@ -1,0 +1,155 @@
+<nav class="doctor-topbar" [class.scrolled]="isScrolled">
+  <div class="topbar-container">
+    <!-- Logo / Brand -->
+    <div class="brand-section">
+      <div class="logo-wrapper">
+        <div class="logo-icon">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 2L2 9L16 16L30 9L16 2Z" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 16L16 23L30 16" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 23L16 30L30 23" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="16" cy="16" r="2" fill="#2563eb"/>
+          </svg>
+        </div>
+        <span class="brand-name">DiaCare</span>
+        <span class="doctor-badge">Médecin</span>
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-section">
+      <div class="search-wrapper">
+        <i class="bi bi-search search-icon"></i>
+        <input type="text" 
+               class="search-input" 
+               placeholder="Rechercher un patient, dossier médical..."
+               [(ngModel)]="searchTerm"
+               (keyup.enter)="onSearch()">
+        <kbd class="search-shortcut">Ctrl + K</kbd>
+      </div>
+    </div>
+
+    <!-- Right Actions -->
+    <div class="actions-section">
+      <!-- Notifications -->
+      <div class="action-dropdown" (click)="toggleNotifications()">
+        <button class="action-btn" [class.has-notification]="unreadCount > 0">
+          <i class="bi bi-bell"></i>
+          <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+        </button>
+        
+        <!-- Notifications Dropdown -->
+        <div class="dropdown-menu notifications-menu" [class.show]="showNotifications">
+          <div class="dropdown-header">
+            <h5>Notifications</h5>
+            <button class="mark-all-btn" (click)="markAllAsRead()">Tout marquer lu</button>
+          </div>
+          <div class="dropdown-list">
+            <div *ngFor="let notif of notifications" 
+                 class="notification-item" 
+                 [class.unread]="!notif.read"
+                 (click)="openNotification(notif)">
+              <div class="notification-icon" [ngClass]="getIconClass(notif.type)">
+                <i class="bi" [ngClass]="getNotificationIcon(notif.title)"></i>
+              </div>
+              <div class="notification-content">
+                <p class="notification-title">{{ notif.title }}</p>
+                <p class="notification-text">{{ notif.message | slice:0:60 }}...</p>
+                <span class="notification-time">{{ formatTime(notif.createdAt) }}</span>
+              </div>
+            </div>
+            <div *ngIf="notifications.length === 0" class="empty-state">
+              <i class="bi bi-bell-slash"></i>
+              <p>Aucune notification</p>
+            </div>
+          </div>
+          <div class="dropdown-footer">
+            <a routerLink="/doctor/notifications">Voir toutes les notifications</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div class="action-dropdown" (click)="toggleMessages()">
+        <button class="action-btn" [class.has-notification]="unreadMessagesCount > 0">
+          <i class="bi bi-chat-dots"></i>
+          <span class="notification-badge" *ngIf="unreadMessagesCount > 0">{{ unreadMessagesCount > 9 ? '9+' : unreadMessagesCount }}</span>
+        </button>
+        
+        <!-- Messages Dropdown -->
+        <div class="dropdown-menu messages-menu" [class.show]="showMessages">
+          <div class="dropdown-header">
+            <h5>Messages récents</h5>
+            <a routerLink="/doctor/chat" class="view-all-link">Voir tout</a>
+          </div>
+          <div class="dropdown-list">
+            <div *ngFor="let msg of recentMessages" 
+                 class="message-item" 
+                 [class.unread]="msg.unread"
+                 (click)="openChat(msg)">
+              <div class="message-avatar">
+                <span>{{ msg.patientName?.charAt(0) || 'P' }}</span>
+              </div>
+              <div class="message-content">
+                <div class="message-header">
+                  <strong>{{ msg.patientName }}</strong>
+                  <span class="message-time">{{ msg.time }}</span>
+                </div>
+                <p class="message-preview">{{ msg.lastMessage | slice:0:50 }}...</p>
+              </div>
+            </div>
+            <div *ngIf="recentMessages.length === 0" class="empty-state">
+              <i class="bi bi-chat-dots"></i>
+              <p>Aucun message</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile -->
+      <div class="profile-dropdown" (click)="toggleProfile()">
+        <button class="profile-btn">
+          <div class="profile-avatar">
+            <span class="avatar-initials">{{ doctorInitials }}</span>
+          </div>
+          <div class="profile-info">
+            <span class="doctor-name">{{ doctorName }}</span>
+            <span class="doctor-specialty">{{ doctorSpecialty }}</span>
+          </div>
+          <i class="bi bi-chevron-down dropdown-arrow" [class.rotated]="showProfile"></i>
+        </button>
+        
+        <!-- Profile Dropdown -->
+        <div class="dropdown-menu profile-menu" [class.show]="showProfile">
+          <div class="profile-header">
+            <div class="profile-avatar large">
+              <span class="avatar-initials">{{ doctorInitials }}</span>
+            </div>
+            <div class="profile-info">
+              <strong>{{ doctorName }}</strong>
+              <span>{{ doctorEmail }}</span>
+              <span class="specialty-badge">{{ doctorSpecialty }}</span>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <a routerLink="/doctor/profile" class="dropdown-item">
+            <i class="bi bi-person"></i> Mon profil
+          </a>
+          <a routerLink="/doctor/appointments" class="dropdown-item">
+            <i class="bi bi-calendar"></i> Mes rendez-vous
+          </a>
+          <a routerLink="/doctor/patients" class="dropdown-item">
+            <i class="bi bi-people"></i> Mes patients
+          </a>
+          <a routerLink="/doctor/settings" class="dropdown-item">
+            <i class="bi bi-gear"></i> Paramètres
+          </a>
+          <div class="dropdown-divider"></div>
+          <a (click)="logout()" class="dropdown-item text-danger">
+            <i class="bi bi-box-arrow-right"></i> Déconnexion
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>

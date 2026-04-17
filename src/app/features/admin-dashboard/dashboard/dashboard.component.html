@@ -1,0 +1,231 @@
+<div class="admin-dashboard">
+  <!-- En-tête -->
+  <div class="dashboard-header">
+    <div>
+      <h1 class="page-title">
+        <i class="bi bi-grid-1x2-fill me-2"></i>
+        Tableau de Bord
+      </h1>
+      <p class="page-subtitle">Vue d'ensemble de la plateforme DiaCare</p>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/admin/geolocalisation" class="btn btn-outline-primary">
+        <i class="bi bi-geo-alt me-1"></i>
+        Géolocalisation
+      </a>
+
+      <div class="date-badge">
+        <i class="bi bi-calendar3 me-2"></i>
+        {{ currentDate | date:'EEEE d MMMM yyyy' }}
+      </div>
+
+      <button class="btn-refresh" (click)="refreshData()">
+        <i class="bi bi-arrow-repeat"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card" *ngFor="let stat of statistics">
+      <div class="stat-icon" [style.background]="stat.bgColor">
+        <i [class]="stat.icon"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">{{ stat.label }}</span>
+        <h3 class="stat-value">{{ stat.value }}</h3>
+        <span class="stat-trend" [class.positive]="stat.trend > 0">
+          <i class="bi" [ngClass]="stat.trend > 0 ? 'bi-arrow-up' : 'bi-arrow-down'"></i>
+          {{ stat.trend }}%
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section principale -->
+  <div class="row g-4">
+    <!-- Demandes de certification -->
+    <div class="col-lg-7">
+      <div class="card">
+        <div class="card-header">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-patch-check-fill text-primary fs-4 me-2"></i>
+            <h5 class="mb-0">Demandes de Certification</h5>
+          </div>
+          <span class="badge bg-warning">{{ pendingDoctors.length }} en attente</span>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Médecin</th>
+                  <th>Spécialité</th>
+                  <th>N° Certificat</th>
+                  <th>Demandé le</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let doctor of pendingDoctors">
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="doctor-avatar">
+                        <i class="bi bi-person-circle"></i>
+                      </div>
+                      <span class="fw-medium">Dr. {{ doctor.name }}</span>
+                    </div>
+                  </td>
+                  <td>{{ doctor.specialty }}</td>
+                  <td><code>{{ doctor.certId }}</code></td>
+                  <td>
+                    <span class="time-badge">
+                      <i class="bi bi-clock me-1"></i>
+                      il y a {{ doctor.waitingDays }}j
+                    </span>
+                  </td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="btn-action view" (click)="viewCertificate(doctor)" title="Voir">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                      <button class="btn-action approve" (click)="approveDoctor(doctor)" title="Approuver">
+                        <i class="bi bi-check-lg"></i>
+                      </button>
+                      <button class="btn-action reject" (click)="rejectDoctor(doctor)" title="Refuser">
+                        <i class="bi bi-x-lg"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistiques rapides -->
+    <div class="col-lg-5">
+      <div class="card h-100">
+        <div class="card-header">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-graph-up-arrow text-primary fs-4 me-2"></i>
+            <h5 class="mb-0">Activité Récente</h5>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="stats-mini-grid">
+            <div class="stat-mini-item">
+              <div class="stat-mini-icon bg-primary bg-opacity-10">
+                <i class="bi bi-calendar-check text-primary"></i>
+              </div>
+              <div>
+                <span class="stat-mini-label">Consultations aujourd'hui</span>
+                <h4 class="stat-mini-value">156</h4>
+              </div>
+            </div>
+            <div class="stat-mini-item">
+              <div class="stat-mini-icon bg-success bg-opacity-10">
+                <i class="bi bi-cart-check text-success"></i>
+              </div>
+              <div>
+                <span class="stat-mini-label">Commandes en cours</span>
+                <h4 class="stat-mini-value">23</h4>
+              </div>
+            </div>
+            <div class="stat-mini-item">
+              <div class="stat-mini-icon bg-info bg-opacity-10">
+                <i class="bi bi-chat-dots text-info"></i>
+              </div>
+              <div>
+                <span class="stat-mini-label">Messages non lus</span>
+                <h4 class="stat-mini-value">12</h4>
+              </div>
+            </div>
+            <div class="stat-mini-item">
+              <div class="stat-mini-icon bg-warning bg-opacity-10">
+                <i class="bi bi-exclamation-triangle text-warning"></i>
+              </div>
+              <div>
+                <span class="stat-mini-label">Réclamations</span>
+                <h4 class="stat-mini-value">8</h4>
+              </div>
+            </div>
+          </div>
+
+          <div class="recent-activities mt-4">
+            <h6 class="section-subtitle">Dernières activités</h6>
+            <div class="activity-list">
+              <div class="activity-item" *ngFor="let activity of recentActivities">
+                <div class="activity-icon" [ngClass]="activity.color">
+                  <i [class]="activity.icon"></i>
+                </div>
+                <div class="activity-content">
+                  <p class="activity-text">{{ activity.description }}</p>
+                  <span class="activity-time">{{ activity.time }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Commandes récentes -->
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-cart-check-fill text-primary fs-4 me-2"></i>
+            <h5 class="mb-0">Dernières Commandes</h5>
+          </div>
+          <a href="#" class="view-all">Voir tout <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>N° Commande</th>
+                  <th>Patient</th>
+                  <th>Date</th>
+                  <th>Montant</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let order of recentOrders">
+                  <td><span class="order-id">#{{ order.id }}</span></td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="patient-avatar">
+                        <i class="bi bi-person-circle"></i>
+                      </div>
+                      {{ order.patientName }}
+                    </div>
+                  </td>
+                  <td>{{ order.date | date:'dd/MM/yyyy' }}</td>
+                  <td class="order-amount">{{ order.amount | currency:'MAD ' }}</td>
+                  <td>
+                    <span class="status-badge" [ngClass]="order.status">
+                      {{ getOrderStatusText(order.status) }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="btn-action view" (click)="viewOrder(order)">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
