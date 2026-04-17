@@ -1,0 +1,72 @@
+<div class="comments-container">
+
+  <div class="page-header">
+    <button class="btn-back" routerLink="/doctor/education">← Retour</button>
+    <h1>💬 Gestion des commentaires</h1>
+    <span class="total-badge">{{ comments.length }} commentaires</span>
+  </div>
+
+  <div class="loading" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Chargement...</p>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && comments.length === 0">
+    <div class="empty-icon">💬</div>
+    <h3>Aucun commentaire</h3>
+    <p>Vos patients n'ont pas encore commenté vos articles</p>
+  </div>
+
+  <div class="comments-list" *ngIf="!isLoading">
+    <div class="comment-card" *ngFor="let comment of comments">
+
+      <div class="comment-header">
+        <div class="user-info">
+          <div class="avatar">{{ comment.userName ? comment.userName.charAt(0) : 'P' }}</div>
+          <div>
+            <strong>{{ comment.userName || 'Patient' }}</strong>
+            <span class="time">{{ timeAgo(comment.createdAt) }}</span>
+          </div>
+        </div>
+        <div class="comment-actions">
+          <button class="action-btn reply" (click)="startReply(comment.id)">
+            ↩ Répondre
+          </button>
+          <button class="action-btn delete" (click)="deleteComment(comment.id)">
+            🗑️
+          </button>
+        </div>
+      </div>
+
+      <p class="comment-text">{{ comment.commentText }}</p>
+
+      <!-- Réponse publique -->
+      <div class="reply-form" *ngIf="replyingTo === comment.id">
+        <div class="reply-header">💬 Répondre publiquement</div>
+        <textarea [(ngModel)]="replyText"
+                  placeholder="Votre réponse visible par tous..."
+                  rows="3"></textarea>
+        <div class="form-actions">
+          <button class="btn-cancel" (click)="replyingTo = null">Annuler</button>
+          <button class="btn-send" (click)="submitReply(comment.id)"
+                  [disabled]="!replyText.trim()">
+            Publier la réponse
+          </button>
+        </div>
+      </div>
+
+      <!-- Réponses existantes -->
+      <div class="replies" *ngIf="comment.replies && comment.replies.length > 0">
+        <div class="reply-item" *ngFor="let reply of comment.replies">
+          <div class="reply-avatar doctor">Dr</div>
+          <div class="reply-body">
+            <strong>{{ reply.userName }}</strong>
+            <span class="time">{{ timeAgo(reply.createdAt) }}</span>
+            <p>{{ reply.commentText }}</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

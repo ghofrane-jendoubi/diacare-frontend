@@ -1,0 +1,264 @@
+<!-- src/app/features/patient-home/pages/forum/forum.component.html -->
+<div class="forum-wrapper">
+  <!-- Bouton toggle sidebar sur mobile -->
+  <button class="mobile-sidebar-toggle" (click)="toggleSidebar()" *ngIf="isMobile">
+    {{ isSidebarCollapsed ? '☰ Menu' : '✕ Fermer' }}
+  </button>
+
+  <div class="forum-layout" [class.sidebar-collapsed]="isSidebarCollapsed">
+    <!-- CONTENU PRINCIPAL -->
+    <div class="forum-main">
+      <div class="forum-container">
+
+        <!-- En‑tête avec titre et actions -->
+        <div class="forum-header">
+          <div>
+            <h1>👥 Communauté DiaCare</h1>
+            <p>Partagez vos expériences avec d'autres patients diabétiques</p>
+          </div>
+          <div class="header-actions">
+            <div class="view-toggle">
+              <button [class.active]="viewMode === 'grid'" (click)="viewMode = 'grid'">📱 Grille</button>
+              <button [class.active]="viewMode === 'list'" (click)="viewMode = 'list'">📄 Liste</button>
+            </div>
+            <button class="btn-new-post" (click)="showNewPost = !showNewPost">
+              {{ showNewPost ? '✕ Annuler' : '✏️ Partager' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Alertes -->
+        <div class="alert-success" *ngIf="postSuccess">{{ postSuccess }}</div>
+        <div class="alert-error" *ngIf="postError">{{ postError }}</div>
+
+        <!-- Formulaire nouveau post -->
+        <div class="new-post-form" *ngIf="showNewPost">
+          <h3>✏️ Partager avec la communauté</h3>
+          <div class="ia-badge">
+            🤖 Modération IA active – Contenus dangereux filtrés automatiquement
+          </div>
+          <div class="form-group">
+            <label>Catégorie</label>
+            <div class="category-selector">
+              <button *ngFor="let cat of categories.slice(1)" type="button"
+                      [class.selected]="newPost.category === cat.key"
+                      (click)="newPost.category = cat.key">
+                {{ cat.icon }} {{ cat.label }}
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Titre *</label>
+            <input type="text" [(ngModel)]="newPost.title" placeholder="Un titre accrocheur..."
+                   class="form-input" maxlength="255">
+          </div>
+          <div class="form-group">
+            <label>Contenu *</label>
+            <textarea [(ngModel)]="newPost.content" placeholder="Partagez votre expérience..."
+                      rows="5" class="form-textarea" maxlength="2000"></textarea>
+            <span class="char-count">{{ newPost.content.length }}/2000</span>
+          </div>
+          <button class="btn-submit" (click)="submitPost()"
+                  [disabled]="isPosting || !newPost.title.trim() || !newPost.content.trim()">
+            {{ isPosting ? '⏳ Publication...' : '🚀 Publier' }}
+          </button>
+        </div>
+
+        <!-- Barre de recherche et filtres -->
+        <div class="search-filter-bar">
+          <div class="search-box">
+            <input type="text" [(ngModel)]="searchQuery" placeholder="🔍 Rechercher..." class="search-input"
+                   (keyup.enter)="performSearch()">
+            <button class="search-btn" (click)="performSearch()">🔍</button>
+          </div>
+          <button class="filter-toggle" (click)="showFilters = !showFilters">
+            🎛️ Filtres {{ activeFiltersCount > 0 ? '('+activeFiltersCount+')' : '' }}
+          </button>
+        </div>
+
+        <!-- Filtres détaillés (catégories multiples) -->
+        <div class="filter-panel" *ngIf="showFilters">
+          <div class="filter-group">
+            <label>Catégories :</label>
+            <div class="filter-chips">
+              <button *ngFor="let cat of categories.slice(1)"
+                      class="filter-chip" [class.active]="selectedCategories.includes(cat.key)"
+                      (click)="toggleCategoryFilter(cat.key)">
+                {{ cat.icon }} {{ cat.label }}
+              </button>
+            </div>
+          </div>
+          <div class="filter-actions">
+            <button class="btn-apply" (click)="applyFilters()">Appliquer</button>
+            <button class="btn-reset" (click)="resetFilters()">Réinitialiser</button>
+          </div>
+        </div>
+
+        <!-- Affichage des posts (grille ou liste) -->
+        <div class="loading" *ngIf="isLoading">
+          <div class="spinner"></div>
+          <p>Chargement de la communauté...</p>
+        </div>
+
+        <div class="posts-container" [class.grid-view]="viewMode === 'grid'" [class.list-view]="viewMode === 'list'">
+          <div class="empty-forum" *ngIf="posts.length === 0 && !isLoading">
+            <div class="empty-icon">💬</div>
+            <h3>Aucune publication</h3>
+            <p>Soyez le premier à partager votre expérience !</p>
+            <button class="btn-new-post" (click)="showNewPost = true">✏️ Partager maintenant</button>
+          </div>
+
+          <div class="post-card" *ngFor="let post of posts" (click)="openPost(post)">
+            <div class="moderation-badge" *ngIf="post.isModerated">
+              ⚠️ Contenu signalé par l'IA – Vérification en cours
+            </div>
+            <div class="post-header">
+              <div class="author-info">
+                <div class="avatar">{{ getAvatarLetter(post.patientName) }}</div>
+                <div>
+                  <strong>{{ post.patientName }}</strong>
+                  <span class="post-time">{{ timeAgo(post.createdAt) }}</span>
+                </div>
+              </div>
+              <div class="post-meta">
+                <span class="category-tag">{{ getCategoryIcon(post.category) }} {{ post.category }}</span>
+                <button class="btn-delete" *ngIf="post.patientId === currentUser?.id"
+                        (click)="deletePost(post, $event)" title="Supprimer">🗑️</button>
+              </div>
+            </div>
+            <h3 class="post-title">{{ post.title }}</h3>
+            <p class="post-preview">{{ post.content | slice:0:150 }}{{ post.content.length > 150 ? '...' : '' }}</p>
+            <div class="post-footer">
+              <button class="like-btn" [class.liked]="post.isLiked" (click)="toggleLike(post, $event)">
+                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+                     [attr.fill]="post.isLiked ? 'currentColor' : 'none'">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                {{ post.likeCount }}
+              </button>
+              <button class="comment-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                {{ post.commentCount }}
+              </button>
+              <button class="share-btn" (click)="sharePost(post, $event)">📤</button>
+              <span class="read-more">Lire la suite →</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" *ngIf="totalPages > 1">
+          <button [disabled]="currentPage === 0" (click)="changePage(currentPage - 1)">← Précédent</button>
+          <span>Page {{ currentPage + 1 }} / {{ totalPages }}</span>
+          <button [disabled]="currentPage === totalPages - 1" (click)="changePage(currentPage + 1)">Suivant →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="forum-sidebar" [class.collapsed]="isSidebarCollapsed">
+      <!-- Profil utilisateur -->
+      <div class="sidebar-card user-card" *ngIf="currentUser">
+        <div class="user-avatar">{{ getAvatarLetter(currentUser.name) }}</div>
+        <div class="user-info">
+          <strong>{{ currentUser.name }}</strong>
+          <span>Membre depuis</span>
+        </div>
+        <div class="user-stats">
+          <div><span>📝</span> {{ userStats.postCount }} posts</div>
+          <div><span>❤️</span> {{ userStats.likeCount }} likes reçus</div>
+          <div><span>💬</span> {{ userStats.commentCount }} commentaires</div>
+        </div>
+      </div>
+
+      <!-- Catégories -->
+      <div class="sidebar-card">
+        <h3>📂 Catégories</h3>
+        <ul class="category-list">
+          <li *ngFor="let cat of categoryCounts" (click)="onCategoryChange(cat.category)">
+            <span class="cat-icon">{{ getCategoryIcon(cat.category) }}</span>
+            <span class="cat-name">{{ getCategoryLabel(cat.category) }}</span>
+            <span class="cat-count">{{ cat.count }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Top posts -->
+      <div class="sidebar-card">
+        <h3>🔥 Top posts</h3>
+        <ul class="top-posts">
+          <li *ngFor="let post of topPosts" (click)="openPostFromId(post.id)">
+            <div class="top-post-title">{{ post.title | slice:0:35 }}{{ post.title.length > 35 ? '…' : '' }}</div>
+            <div class="top-post-stats">❤️ {{ post.likeCount }} 💬 {{ post.commentCount }}</div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Top contributeurs -->
+      <div class="sidebar-card">
+        <h3>🏆 Top contributeurs</h3>
+        <ul class="top-contributors">
+          <li *ngFor="let user of topContributors">
+            <div class="contributor-avatar">{{ getAvatarLetter(user.patientName) }}</div>
+            <div class="contributor-info">
+              <strong>{{ user.patientName }}</strong>
+              <span>📝 {{ user.postCount }} posts • 💬 {{ user.commentCount }} commentaires</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE DÉTAIL -->
+<div class="post-modal" *ngIf="selectedPost" (click)="closePost()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="author-info">
+        <div class="avatar large">{{ getAvatarLetter(selectedPost.patientName) }}</div>
+        <div>
+          <strong>{{ selectedPost.patientName }}</strong>
+          <span>{{ timeAgo(selectedPost.createdAt) }}</span>
+        </div>
+      </div>
+      <button class="btn-close-modal" (click)="closePost()">✕</button>
+    </div>
+    <div class="modal-body">
+      <span class="category-tag">{{ getCategoryIcon(selectedPost.category) }} {{ selectedPost.category }}</span>
+      <h2>{{ selectedPost.title }}</h2>
+      <p class="post-full-content">{{ selectedPost.content }}</p>
+    </div>
+    <div class="modal-actions">
+      <button class="like-btn" [class.liked]="selectedPost.isLiked" (click)="toggleLike(selectedPost, $event)">
+        ❤️ {{ selectedPost.likeCount }} J'aime
+      </button>
+    </div>
+    <div class="comments-section">
+      <h3>💬 Commentaires ({{ selectedPost.commentCount }})</h3>
+      <div class="comment-item" *ngFor="let c of comments">
+        <div class="comment-avatar">{{ getAvatarLetter(c.patientName) }}</div>
+        <div class="comment-body">
+          <strong>{{ c.patientName }}</strong>
+          <span class="comment-time">{{ timeAgo(c.createdAt) }}</span>
+          <p>{{ c.content }}</p>
+        </div>
+      </div>
+      <div class="empty-comments" *ngIf="comments.length === 0">Soyez le premier à commenter !</div>
+      <div class="add-comment">
+        <div class="comment-avatar">{{ getAvatarLetter(currentUser?.name || '') }}</div>
+        <div class="comment-input-wrap">
+          <textarea [(ngModel)]="newComment" placeholder="Votre commentaire..." rows="2" maxlength="500"></textarea>
+          <div class="comment-actions">
+            <span class="char-count-sm">{{ newComment.length }}/500</span>
+            <button class="btn-comment" (click)="submitComment()" [disabled]="!newComment.trim() || isCommenting">
+              {{ isCommenting ? '...' : 'Envoyer' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

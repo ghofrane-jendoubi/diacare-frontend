@@ -5,6 +5,7 @@ import { MessageService, SendMessageRequest, DoctorConversationDTO } from '../..
 import { DoctorService } from '../../../../services/doctor.service';
 import { UploadService } from '../../../../services/upload.service';
 import { AudioRecorderService } from '../../../../services/audio-recorder.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-chat',
@@ -65,32 +66,26 @@ export class ChatComponent implements OnInit, OnDestroy {
     private doctorService: DoctorService,
     private uploadService: UploadService,
     private audioRecorder: AudioRecorderService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private authService: AuthService
   ) { }
 
-  ngOnInit(): void {
- 
-  const patientIdStr = localStorage.getItem('patient_id') 
-                    || localStorage.getItem('user_id')
-                    || localStorage.getItem('userId');
+ ngOnInit(): void {
+  const user = this.authService.getCurrentUser();
   
-  if (patientIdStr) {
-    this.currentUserId = parseInt(patientIdStr);
+  if (user) {
+    this.currentUserId = user.id;
+    console.log('Patient connecté ID:', this.currentUserId);
   } else {
-    // Temporaire : utiliser l'ID de session si disponible
-    console.error('patient_id non trouvé dans localStorage');
-    console.log('Toutes les clés:', Object.keys(localStorage));
-    console.log('Valeurs:', Object.fromEntries(
-      Object.keys(localStorage).map(k => [k, localStorage.getItem(k)])
-    ));
+    console.error('Aucun utilisateur connecté');
+    this.router.navigate(['/auth/patient']);
+    return;
   }
+
   
-  console.log('Patient connecté ID:', this.currentUserId);
-    
-    // Charger les conversations
-    this.loadConversations();
-    
-    this.route.params.subscribe(params => {
+  this.loadConversations();
+  
+  this.route.params.subscribe(params => {
       const doctorId = params['doctorId'];
       
       if (doctorId) {

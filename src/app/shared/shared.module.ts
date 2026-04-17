@@ -25,6 +25,7 @@ import { PatientLayoutComponent } from './components/patient-layout/patient-layo
 import { PatientSidebarComponent } from './patient-sidebar/patient-sidebar.component';
 import { UserDetailComponent } from './components/user-detail/user-detail.component';
 import { NutritionTabsComponent } from './components/nutrition-tabs/nutrition-tabs.component';
+import { SafePipe } from './pipes/safe.pipe';
 @NgModule({
   declarations: [
     // Admin
@@ -46,6 +47,7 @@ import { NutritionTabsComponent } from './components/nutrition-tabs/nutrition-ta
     PatientLayoutComponent,
     PatientSidebarComponent, 
     UserDetailComponent,
+    SafePipe
   ],
   imports: [
     CommonModule,
@@ -68,7 +70,9 @@ import { NutritionTabsComponent } from './components/nutrition-tabs/nutrition-ta
     DoctorTopbarComponent,
     PatientSidebarComponent, 
     NavbarComponent,
-    FooterComponent
-  ]
+    FooterComponent,
+    SafePipe
+  ],
+  
 })
 export class SharedModule { }

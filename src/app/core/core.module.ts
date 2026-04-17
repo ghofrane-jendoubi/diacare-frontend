@@ -10,4 +10,4 @@ import { AuthService } from './services/auth.service';
   ],
   providers: [AuthService]
 })
-export class CoreModule { }
+export class CoreModule {}

@@ -1,0 +1,169 @@
+<div class="manager-container">
+
+  <!-- Personalized Welcome -->
+  <div class="personalized-welcome">
+    <div class="welcome-avatar">{{ currentUserFirstName.charAt(0) }}</div>
+    <div class="welcome-text">
+      <h3 class="welcome-title">Bienvenue, Dr {{ currentUserFirstName }}! 👋</h3>
+      <p class="welcome-subtitle">Votre espace de gestion éducatif</p>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="manager-header">
+    <div class="header-left">
+      <h1>🎓 Espace Éducatif Médecin</h1>
+      <p>Gérez vos publications et interagissez avec vos patients</p>
+    </div>
+    <button class="btn-primary" (click)="newArticle()">
+      + Nouvelle publication
+    </button>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card blue">
+      <div class="stat-icon">📄</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats.totalArticles }}</span>
+        <span class="stat-label">Publications</span>
+      </div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-icon">👁️</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ formatCount(stats.totalViews) }}</span>
+        <span class="stat-label">Vues totales</span>
+      </div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-icon">❤️</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ formatCount(stats.totalLikes) }}</span>
+        <span class="stat-label">J'aime</span>
+      </div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon">💬</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ formatCount(stats.totalComments) }}</span>
+        <span class="stat-label">Commentaires</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation tabs -->
+  <div class="tabs">
+    <button class="tab" [class.active]="activeTab === 'articles'"
+            (click)="activeTab = 'articles'">
+      📄 Mes publications
+    </button>
+    <button class="tab" [class.active]="activeTab === 'comments'"
+            [routerLink]="['/doctor/education/comments']">
+      💬 Commentaires
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Chargement...</p>
+  </div>
+
+  <!-- Articles Table -->
+  <div class="articles-table" *ngIf="!isLoading">
+
+    <div class="empty-state" *ngIf="articles.length === 0">
+      <div class="empty-icon">📝</div>
+      <h3>Aucune publication</h3>
+      <p>Commencez par créer votre premier article éducatif</p>
+      <button class="btn-primary" (click)="newArticle()">
+        + Créer un article
+      </button>
+    </div>
+
+    <table *ngIf="articles.length > 0">
+      <thead>
+        <tr>
+          <th>Publication</th>
+          <th>Catégorie</th>
+          <th>Stats</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let article of articles">
+        <tr>
+          <td class="article-cell">
+            <img [src]="article.thumbnailUrl" [alt]="article.title"
+                 class="thumb" onerror="this.src='assets/default-thumb.jpg'">
+            <div class="article-info">
+              <strong>{{ article.title }}</strong>
+              <span>{{ article.createdAt | date:'dd/MM/yyyy' }}</span>
+            </div>
+          </td>
+          <td>
+            <span class="category-badge">{{ article.category }}</span>
+          </td>
+          <td class="stats-cell">
+            <span>👁 {{ formatCount(article.viewCount) }}</span>
+            <span>❤️ {{ formatCount(article.likeCount) }}</span>
+            <span>💬 {{ formatCount(article.commentCount) }}</span>
+          </td>
+          <td>
+            <span class="status-badge"
+                  [class.published]="article.isPublished"
+                  [class.draft]="!article.isPublished">
+              {{ article.isPublished ? 'Publié' : 'Brouillon' }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <button class="btn-icon" (click)="editArticle(article.id)"
+                    title="Modifier">✏️</button>
+            <button class="btn-icon" (click)="togglePublish(article)"
+                    [title]="article.isPublished ? 'Dépublier' : 'Publier'">
+              {{ article.isPublished ? '🔒' : '🌐' }}
+            </button>
+            <button class="btn-icon danger" (click)="deleteArticle(article.id)"
+                    title="Supprimer">🗑️</button>
+          </td>
+        </tr>
+        <tr class="feedback-row">
+          <td colspan="5">
+            <div class="feedback-panel">
+              <div class="feedback-panel-header">
+                <div>
+                  <h4>Ressenti des patients</h4>
+                  <p>Feedbacks concernant cette publication.</p>
+                </div>
+                <span class="feedback-count">{{ getFeedbacksForArticle(article.id).length }} avis</span>
+              </div>
+
+              <div *ngIf="getFeedbacksForArticle(article.id).length > 0; else noFeedbacks" class="feedback-cards">
+                <article class="feedback-card" *ngFor="let feedback of getFeedbacksForArticle(article.id)">
+                  <div class="feedback-card-top">
+                    <strong>{{ feedback.patientName }}</strong>
+                    <span class="emotion-badge" [class.happy]="feedback.emotion === 'HAPPY'" [class.sad]="feedback.emotion === 'SAD'">
+                      {{ getEmotionIcon(feedback.emotion) }} {{ getEmotionLabel(feedback.emotion) }}
+                    </span>
+                  </div>
+                  <p class="feedback-comment" *ngIf="feedback.comment">{{ feedback.comment }}</p>
+                  <p class="feedback-comment muted" *ngIf="!feedback.comment">Aucun commentaire ajouté.</p>
+                  <div class="feedback-meta">
+                    <span>{{ feedback.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+                  </div>
+                </article>
+              </div>
+
+              <ng-template #noFeedbacks>
+                <div class="feedback-empty">Aucun ressenti enregistré pour cette publication.</div>
+              </ng-template>
+            </div>
+          </td>
+        </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+</div>

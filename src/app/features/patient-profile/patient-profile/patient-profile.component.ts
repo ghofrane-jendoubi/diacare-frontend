@@ -122,21 +122,23 @@ export class PatientProfileComponent implements OnInit {
   }
 
   uploadPhoto(): void {
-    if (!this.selectedFile || !this.currentUser) return;
-    const fd = new FormData();
-    fd.append('file', this.selectedFile);
-    this.http.post<any>(
-      `http://localhost:8081/api/patients/${this.currentUser.id}/upload-photo`, fd
-    ).subscribe({
-      next: (res) => {
-        this.authService.updateProfilePicture(res.profilePicture);
-        this.selectedFile = null;
-        this.previewUrl = null;
-        this.showSuccess('Photo de profil mise à jour !');
-      },
-      error: () => this.showError('Erreur lors du téléchargement de la photo.')
-    });
-  }
+  if (!this.selectedFile || !this.currentUser) return;
+  const fd = new FormData();
+  fd.append('file', this.selectedFile);
+  
+  this.http.post<any>(
+    `http://localhost:8081/api/patients/${this.currentUser.id}/upload-photo`, fd
+  ).subscribe({
+    next: (res) => {
+      // res.profilePicture doit contenir le chemin, ex: "/uploads/patients/123/photo.jpg"
+      this.authService.updateProfilePicture(res.profilePicture);
+      this.selectedFile = null;
+      this.previewUrl = null;
+      this.showSuccess('Photo de profil mise à jour !');
+    },
+    error: () => this.showError('Erreur lors du téléchargement de la photo.')
+  });
+}
 
   saveInfo(): void {
     if (!this.currentUser) return;

@@ -1,0 +1,281 @@
+﻿<div class="detail-container" *ngIf="!isLoading && article">
+
+  <nav class="breadcrumb">
+    <a routerLink="/patient/education">Espace Ã‰ducatif</a>
+    <span>â€º</span>
+    <span>{{ categoryLabels[article.category] }}</span>
+    <span>â€º</span>
+    <span class="current">{{ article.title }}</span>
+  </nav>
+
+  <div class="detail-layout">
+
+    <article class="article-main">
+
+      <header class="article-header">
+        <div class="article-meta-top">
+          <span class="category-badge">
+            {{ categoryIcons[article.category] }} {{ categoryLabels[article.category] }}
+          </span>
+          <span class="type-badge" [class]="article.contentType.toLowerCase()">
+            {{ article.contentType }}
+          </span>
+          <span class="difficulty-badge" [class]="article.difficultyLevel.toLowerCase()">
+            {{ difficultyLabels[article.difficultyLevel] }}
+          </span>
+        </div>
+
+        <h1 class="article-title">{{ article.title }}</h1>
+        <p class="article-subtitle" *ngIf="article.subtitle">{{ article.subtitle }}</p>
+
+        <div class="author-bar">
+          <div class="author-info">
+            <div class="author-avatar">
+              {{ article.authorName ? article.authorName.charAt(0) : 'D' }}
+            </div>
+            <div>
+              <strong>Dr. {{ article.authorName }}</strong>
+              <p>{{ article.createdAt | date:'dd/MM/yyyy' }}</p>
+            </div>
+          </div>
+          <div class="reading-time">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            {{ article.readingTime }} min de lecture
+          </div>
+        </div>
+
+        <div class="article-stats">
+          <div class="stat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <span>{{ formatCount(article.viewCount) }} vues</span>
+          </div>
+          <div class="stat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            <span>{{ formatCount(article.likeCount) }} j'aime</span>
+          </div>
+          <div class="stat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span>{{ formatCount(article.commentCount) }} commentaires</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- ===== MEDIA ===== -->
+      <div class="article-media" *ngIf="article.thumbnailUrl || article.videoUrl">
+
+        <div class="youtube-container"
+             *ngIf="article.videoUrl && isYoutubeUrl(article.videoUrl)">
+          <iframe [src]="getYoutubeEmbedUrl(article.videoUrl) | safe"
+                  frameborder="0"
+                  allowfullscreen
+                  allow="accelerometer; autoplay; clipboard-write;
+                         encrypted-media; gyroscope; picture-in-picture">
+          </iframe>
+        </div>
+
+        <video *ngIf="article.videoUrl && !isYoutubeUrl(article.videoUrl)"
+               controls class="article-video">
+          <source [src]="article.videoUrl">
+          Votre navigateur ne supporte pas la vidÃ©o.
+        </video>
+
+        <img *ngIf="!article.videoUrl && article.thumbnailUrl"
+             [src]="article.thumbnailUrl"
+             [alt]="article.title"
+             class="article-image">
+
+      </div>
+
+      <div class="article-content" [innerHTML]="article.content"></div>
+
+      <div #feedbackTrigger class="emotion-feedback-trigger" aria-hidden="true"></div>
+
+      <!-- ===== TRADUCTION ===== -->
+      <div class="translation-panel" *ngIf="showTranslation && !isTranslating && translatedContent">
+        <div class="translation-header">
+          <span>ðŸŒ Traduction ({{ targetLang === 'ar' ? 'Arabe' :
+                targetLang === 'en' ? 'Anglais' :
+                targetLang === 'es' ? 'Espagnol' :
+                targetLang === 'de' ? 'Allemand' :
+                targetLang === 'it' ? 'Italien' : '' }})</span>
+          <button class="close-translation" (click)="showTranslation = false; translatedContent = ''">
+            âœ•
+          </button>
+        </div>
+        <div class="translation-content">
+          <p>{{ translatedContent }}</p>
+        </div>
+      </div>
+      <div class="translation-loading" *ngIf="isTranslating">
+        <div class="mini-spinner"></div>
+        <span>Traduction en cours...</span>
+      </div>
+
+      <!-- ===== QUIZ SECTION ===== -->
+      <div class="quiz-section" *ngIf="quizQuestions.length > 0">
+        <div class="quiz-header" (click)="showQuiz = !showQuiz">
+          <h3> Quiz : testez vos connaissances</h3>
+          <span class="toggle-icon">{{ showQuiz ? 'â–¼' : 'â–¶' }}</span>
+        </div>
+
+        <div *ngIf="showQuiz">
+          <div *ngIf="!quizSubmitted">
+            <div *ngFor="let q of quizQuestions; let i = index" class="quiz-question">
+              <p class="question-text"><strong>{{ i+1 }}. {{ q.question }}</strong></p>
+              <div class="quiz-options">
+                <label *ngFor="let opt of q.options" class="quiz-option">
+                  <input type="radio" name="q{{i}}" [value]="opt" [(ngModel)]="quizAnswers[i]">
+                  {{ opt }}
+                </label>
+              </div>
+            </div>
+            <button class="btn-submit-quiz" (click)="submitQuiz()" [disabled]="!isQuizComplete()">
+              VÃ©rifier mes rÃ©ponses
+            </button>
+          </div>
+
+          <div *ngIf="quizSubmitted" class="quiz-results">
+            <p class="score">Votre score : {{ quizScore }} / {{ quizQuestions.length }}</p>
+            <div *ngFor="let q of quizQuestions; let i = index" class="result-detail">
+              <p><strong>Question {{ i+1 }} :</strong> {{ q.question }}</p>
+              <p>Votre rÃ©ponse : <span [class.correct]="quizAnswers[i] === q.correctAnswer" [class.incorrect]="quizAnswers[i] !== q.correctAnswer">
+                {{ quizAnswers[i] || '(non rÃ©pondue)' }}
+              </span></p>
+              <p class="explanation">ðŸ“˜ Explication : {{ q.explanation }}</p>
+            </div>
+            <button class="btn-reset-quiz" (click)="resetQuiz()">Recommencer le quiz</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="article-tags" *ngIf="article.tags">
+        <strong>Tags :</strong>
+        <span class="tag" *ngFor="let tag of article.tags.split(',')">
+          #{{ tag.trim() }}
+        </span>
+      </div>
+
+      <div class="action-bar">
+        <button class="action-btn like-btn"
+                [class.active]="article.isLiked"
+                (click)="onLike()">
+          <svg viewBox="0 0 24 24"
+               [attr.fill]="article.isLiked ? 'currentColor' : 'none'"
+               stroke="currentColor">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <span>{{ article.isLiked ? "Je n'aime plus" : "J'aime" }}</span>
+          <span class="count-badge">{{ formatCount(article.likeCount) }}</span>
+        </button>
+
+        <button class="action-btn bookmark-btn"
+                [class.active]="article.isBookmarked"
+                (click)="onBookmark()">
+          <svg viewBox="0 0 24 24"
+               [attr.fill]="article.isBookmarked ? 'currentColor' : 'none'"
+               stroke="currentColor">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span>{{ article.isBookmarked ? 'SauvegardÃ©' : 'Sauvegarder' }}</span>
+        </button>
+
+        <button class="action-btn share-btn" (click)="onShare()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="18" cy="5" r="3"/>
+            <circle cx="6" cy="12" r="3"/>
+            <circle cx="18" cy="19" r="3"/>
+            <path d="m8.59 13.51 6.83 3.98M15.41 6.51l-6.82 3.98"/>
+          </svg>
+          <span>Partager</span>
+        </button>
+      </div>
+
+      <app-comment-section
+        [contentId]="article.id"
+        [commentCount]="article.commentCount">
+      </app-comment-section>
+
+    </article>
+
+    <aside class="article-sidebar">
+      <div class="sticky-sidebar">
+
+        <div class="sidebar-card summary-card">
+          <h3>Résumé</h3>
+          <p>{{ article.summary }}</p>
+        </div>
+
+        <!-- ===== CARTE OUTILS ===== -->
+        <div class="sidebar-card tools-card">
+          <h3> Outils</h3>
+
+          <!-- Traduction -->
+          <div class="tool-item">
+            <label class="tool-label"> Traduire l'article</label>
+            <select [(ngModel)]="targetLang" class="lang-select">
+              <option value="ar"> Arabe</option>
+              <option value="en"> Anglais</option>
+              <option value="es"> Espagnol</option>
+              <option value="de"> Allemand</option>
+              <option value="it"> Italien</option>
+            </select>
+            <button class="btn-translate"
+                    (click)="translateArticle()"
+                    [disabled]="isTranslating">
+              {{ isTranslating ? ' Traduction...' : 'Traduire' }}
+            </button>
+          </div>
+
+          <!-- Lecture vocale -->
+          <div class="tool-item">
+            <label class="tool-label">écouter l'article</label>
+            <div class="tts-buttons">
+              <button class="btn-tts"
+                      (click)="startReading()"
+                      [disabled]="isReading">
+                 Lire
+              </button>
+              <button class="btn-stop"
+                      (click)="stopReading()"
+                      [disabled]="!isReading">
+                 Arreter
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-card back-card">
+          <a routerLink="/patient/education" class="back-link">
+             Retour Ã  l'espace educatif
+          </a>
+        </div>
+
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<app-feedback-modal
+  *ngIf="article"
+  [visible]="showFeedbackModal"
+  [contentId]="article.id"
+  (closed)="closeFeedbackModal()"
+  (submitted)="handleFeedbackSubmitted()">
+</app-feedback-modal>
+
+<div class="detail-loading" *ngIf="isLoading">
+  <div class="spinner"></div>
+  <p>Chargement de l'article...</p>
+</div>
+

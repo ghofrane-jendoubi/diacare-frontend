@@ -1,0 +1,44 @@
+<div class="comments-section">
+  <h3 class="comments-title">
+    💬 Commentaires
+    <span class="count-badge">{{ commentCount }}</span>
+  </h3>
+
+  <!-- Formulaire d'ajout -->
+  <div class="comment-form">
+    <div class="user-avatar">P</div>
+    <div class="form-group">
+      <textarea 
+        [(ngModel)]="newComment"
+        name="comment"
+        placeholder="Partagez votre avis ou posez une question..."
+        rows="3">
+      </textarea>
+      <div class="form-actions">
+        <span class="char-count">{{ newComment.length }}/500</span>
+        <button class="submit-btn" (click)="submitComment()" 
+                [disabled]="!newComment.trim() || isSubmitting">
+          <span *ngIf="!isSubmitting">Publier</span>
+          <span *ngIf="isSubmitting">Envoi...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liste des commentaires -->
+  <div class="comments-list">
+    <div *ngIf="isLoading" class="loading-comments">
+      Chargement des commentaires...
+    </div>
+
+    <div *ngIf="!isLoading && comments.length === 0" class="no-comments">
+      Soyez le premier à commenter cet article !
+    </div>
+
+    <app-comment-item 
+      *ngFor="let comment of comments"
+      [comment]="comment"
+      [contentId]="contentId">
+    </app-comment-item>
+  </div>
+</div>

@@ -17,6 +17,7 @@ export class DoctorsListComponent implements OnInit {
 
   constructor(
     private doctorService: DoctorService,
+    
     private router: Router
   ) { }
 

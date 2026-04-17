@@ -1,0 +1,63 @@
+<div class="bookmarks-container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <a routerLink="/patient/education" class="btn-back">← Retour</a>
+    <div class="header-info">
+      <h1>🔖 Mes contenus sauvegardés</h1>
+      <p>Articles, vidéos et ressources que vous avez mis de côté</p>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row" *ngIf="!isLoading">
+    <div class="stat-pill all"
+         [class.active]="filter === 'all'"
+         (click)="filter = 'all'">
+      📚 Tout ({{ bookmarks.length }})
+    </div>
+    <div class="stat-pill article"
+         [class.active]="filter === 'article'"
+         (click)="filter = 'article'">
+      📄 Articles ({{ articleCount }})
+    </div>
+    <div class="stat-pill video"
+         [class.active]="filter === 'video'"
+         (click)="filter = 'video'">
+      ▶️ Vidéos ({{ videoCount }})
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Chargement de vos favoris...</p>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="!isLoading && bookmarks.length === 0">
+    <div class="empty-icon">🔖</div>
+    <h3>Aucun contenu sauvegardé</h3>
+    <p>Cliquez sur le bouton 🔖 d'un article ou d'une vidéo pour le sauvegarder ici</p>
+    <a routerLink="/patient/education" class="btn-explore">
+      📚 Explorer les contenus
+    </a>
+  </div>
+
+  <!-- Empty filtered -->
+  <div class="empty-state" *ngIf="!isLoading && bookmarks.length > 0 && filteredBookmarks.length === 0">
+    <div class="empty-icon">🔍</div>
+    <h3>Aucun contenu dans cette catégorie</h3>
+    <button (click)="filter = 'all'" class="btn-back-filter">Voir tout</button>
+  </div>
+
+  <!-- Grille des favoris -->
+  <div class="bookmarks-grid" *ngIf="!isLoading && filteredBookmarks.length > 0">
+    <app-article-card
+      *ngFor="let article of filteredBookmarks"
+      [article]="article"
+      (bookmarked)="onBookmarkRemoved($event)">
+    </app-article-card>
+  </div>
+
+</div>

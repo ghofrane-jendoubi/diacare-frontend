@@ -1,0 +1,113 @@
+.bookmarks-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.btn-back {
+  padding: 8px 16px;
+  border: 0.5px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  font-size: 13px;
+  text-decoration: none;
+  transition: all 0.15s;
+  white-space: nowrap;
+  margin-top: 4px;
+}
+.btn-back:hover { background: #f1f5f9; }
+
+.header-info h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px;
+}
+.header-info p { color: #64748b; font-size: 14px; margin: 0; }
+
+/* Stats / Filtres */
+.stats-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.stat-pill {
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 0.5px solid #e2e8f0;
+  background: white;
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.stat-pill:hover { border-color: #2563eb; color: #2563eb; }
+.stat-pill.active { background: #2563eb; color: white; border-color: #2563eb; }
+
+/* Grid */
+.bookmarks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* Empty */
+.empty-state {
+  text-align: center;
+  padding: 80px 40px;
+  background: white;
+  border-radius: 16px;
+  border: 0.5px solid #e2e8f0;
+}
+.empty-icon { font-size: 64px; margin-bottom: 16px; }
+.empty-state h3 { font-size: 22px; color: #1e293b; margin-bottom: 8px; }
+.empty-state p { color: #64748b; margin-bottom: 24px; font-size: 14px; }
+
+.btn-explore {
+  display: inline-block;
+  padding: 12px 28px;
+  background: #2563eb;
+  color: white;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+.btn-explore:hover { background: #1d4ed8; }
+
+.btn-back-filter {
+  padding: 10px 24px;
+  background: #eff6ff;
+  color: #2563eb;
+  border: 0.5px solid #bfdbfe;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+/* Loading */
+.loading { text-align: center; padding: 60px; }
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 768px) {
+  .bookmarks-grid { grid-template-columns: 1fr; }
+  .page-header { flex-direction: column; gap: 8px; }
+}

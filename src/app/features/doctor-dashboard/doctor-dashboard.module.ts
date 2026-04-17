@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { DoctorDashboardComponent } from './doctor-dashboard.component';
@@ -10,6 +10,12 @@ import { ImageAnalysisModalComponent } from './pages/chat-doctor/modals/image-an
 import { SendResultModalComponent } from './pages/chat-doctor/modals/send-result-modal/send-result-modal.component';
 import { AppointmentsComponent } from './pages/appointments/appointments.component';
 import { DoctorAppointmentsComponent } from './pages/doctor-appointments/doctor-appointments.component';
+import { ArticleEditorComponent } from './pages/article-editor/article-editor.component';
+import { CommentsManagerComponent } from './pages/comments-manager/comments-manager.component';
+import { EducationManagerComponent } from './pages/education-manager/education-manager.component';
+import { PatientFeedbacksComponent } from './pages/patient-feedbacks/patient-feedbacks.component';
+import { SafePipe } from '../../shared/pipes/safe.pipe';
+import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -18,14 +24,22 @@ import { DoctorAppointmentsComponent } from './pages/doctor-appointments/doctor-
     ImageAnalysisModalComponent,
     SendResultModalComponent,
     AppointmentsComponent,
-    DoctorAppointmentsComponent
+    DoctorAppointmentsComponent,
+    ArticleEditorComponent,
+    CommentsManagerComponent,
+    EducationManagerComponent,
+    PatientFeedbacksComponent,
+  
+
   ],
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     RouterModule,
     DoctorDashboardRoutingModule,
-    FullCalendarModule
+    FullCalendarModule,
+    SharedModule
   ]
 })
-export class DoctorDashboardModule { }
+export class DoctorDashboardModule {}

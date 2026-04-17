@@ -1,0 +1,282 @@
+<div class="ia-dashboard">
+
+  <!-- HEADER -->
+  <div class="dash-header">
+    <div class="header-left">
+      <div class="ai-badge">🤖 IA</div>
+      <div>
+        <h2>Tableau de bord IA</h2>
+        <p>Analyse et prédictions personnalisées</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-refresh" (click)="loadDashboard()" [disabled]="isLoading">
+        🔄 Actualiser
+      </button>
+      <button class="btn-add" (click)="showAddForm = !showAddForm">
+        + Ajouter une mesure
+      </button>
+    </div>
+  </div>
+
+  <!-- FORMULAIRE AJOUT -->
+  <div class="add-form" *ngIf="showAddForm">
+    <h3>📝 Nouvelle mesure de glycémie</h3>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Valeur (g/L)</label>
+        <input type="number" [(ngModel)]="newMesure.valeur"
+               step="0.01" min="0.1" max="5.0"
+               class="field-input">
+      </div>
+      <div class="form-field">
+        <label>Moment</label>
+        <select [(ngModel)]="newMesure.moment" class="field-input">
+          <option *ngFor="let m of moments" [value]="m.value">{{ m.label }}</option>
+        </select>
+      </div>
+      <div class="form-field wide">
+        <label>Notes (optionnel)</label>
+        <input type="text" [(ngModel)]="newMesure.notes"
+               placeholder="ex: après sport, stress..."
+               class="field-input">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" (click)="showAddForm = false">Annuler</button>
+      <button class="btn-save" (click)="ajouterMesure()" [disabled]="isSaving">
+        {{ isSaving ? '⏳ Sauvegarde...' : '✅ Enregistrer' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="ai-spinner">
+      <div class="ring"></div>
+      <div class="ring ring2"></div>
+      <span>🤖</span>
+    </div>
+    <p>L'IA analyse vos données...</p>
+  </div>
+
+  <!-- CONTENU DASHBOARD -->
+  <div class="dash-content" *ngIf="!isLoading && dashboard">
+
+    <!-- SCORE GLOBAL -->
+    <div class="score-card" *ngIf="dashboard.scoresSante">
+      <div class="score-circle-wrap">
+        <svg viewBox="0 0 120 120" class="score-svg">
+          <circle cx="60" cy="60" r="50"
+                  fill="none" stroke="#f1f5f9" stroke-width="10"/>
+          <circle cx="60" cy="60" r="50"
+                  fill="none"
+                  [attr.stroke]="dashboard.scoresSante.couleurRisque"
+                  stroke-width="10"
+                  stroke-linecap="round"
+                  [attr.stroke-dasharray]="314"
+                  [attr.stroke-dashoffset]="314 - (314 * dashboard.scoresSante.global / 100)"
+                  transform="rotate(-90 60 60)"
+                  class="score-progress"/>
+        </svg>
+        <div class="score-value">
+          <span class="score-num">{{ dashboard.scoresSante.global }}</span>
+          <span class="score-pct">/ 100</span>
+        </div>
+      </div>
+      <div class="score-info">
+        <h3>Score de santé</h3>
+        <span class="risk-badge"
+              [style.background]="dashboard.scoresSante.couleurRisque + '20'"
+              [style.color]="dashboard.scoresSante.couleurRisque">
+          Risque {{ dashboard.scoresSante.niveauRisque }}
+        </span>
+        <div class="sub-scores">
+          <div class="sub-score">
+            <span>🩸 Contrôle glycémique</span>
+            <div class="mini-bar">
+              <div class="mini-fill"
+                   [style.width]="dashboard.scoresSante.controleGlycemique + '%'"
+                   [style.background]="dashboard.scoresSante.couleurRisque">
+              </div>
+            </div>
+            <span>{{ dashboard.scoresSante.controleGlycemique }}%</span>
+          </div>
+          <div class="sub-score">
+            <span>📅 Régularité</span>
+            <div class="mini-bar">
+              <div class="mini-fill"
+                   [style.width]="dashboard.scoresSante.regularite + '%'"
+                   style="background: #3b82f6">
+              </div>
+            </div>
+            <span>{{ dashboard.scoresSante.regularite }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS + PRÉDICTION -->
+    <div class="stats-grid">
+
+      <!-- Dernière mesure -->
+      <div class="stat-card" *ngIf="dashboard.stats">
+        <div class="stat-icon" [style.color]="getGlycemieColor(dashboard.stats.derniere)">
+          🩸
+        </div>
+        <div class="stat-data">
+          <span class="stat-num"
+                [style.color]="getGlycemieColor(dashboard.stats.derniere)">
+            {{ dashboard.stats.derniere }} g/L
+          </span>
+          <span class="stat-label">Dernière mesure</span>
+        </div>
+      </div>
+
+      <!-- Moyenne -->
+      <div class="stat-card" *ngIf="dashboard.stats">
+        <div class="stat-icon">📊</div>
+        <div class="stat-data">
+          <span class="stat-num">{{ dashboard.stats.moyenne }} g/L</span>
+          <span class="stat-label">Moyenne</span>
+        </div>
+      </div>
+
+      <!-- Tendance IA -->
+      <div class="stat-card prediction-card" *ngIf="dashboard.prediction">
+        <div class="stat-icon">{{ dashboard.prediction.emoji || '📈' }}</div>
+        <div class="stat-data">
+          <span class="stat-num"
+                [style.color]="dashboard.prediction.couleur">
+            {{ dashboard.prediction.tendance }}
+          </span>
+          <span class="stat-label">Tendance IA</span>
+        </div>
+      </div>
+
+      <!-- Nombre de mesures -->
+      <div class="stat-card">
+        <div class="stat-icon">📝</div>
+        <div class="stat-data">
+          <span class="stat-num">{{ dashboard.totalMesures }}</span>
+          <span class="stat-label">Mesures enregistrées</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- GRAPHIQUE -->
+    <div class="chart-card" *ngIf="chartData.length > 1">
+      <div class="chart-header">
+        <h3>📈 Évolution de votre glycémie</h3>
+        <span class="chart-legend">
+          <span class="dot green"></span> Normal
+          <span class="dot orange"></span> Attention
+          <span class="dot red"></span> Danger
+        </span>
+      </div>
+      <div class="chart-area">
+        <!-- Zones de référence -->
+        <div class="zone-normal">Zone normale (0.7 – 1.3 g/L)</div>
+
+        <svg viewBox="0 0 300 120" class="chart-svg" preserveAspectRatio="none">
+          <!-- Zone normale -->
+          <rect x="0" y="20" width="300" height="50"
+                fill="#f0fdf4" opacity="0.5"/>
+          <!-- Lignes de référence -->
+          <line x1="0" y1="20" x2="300" y2="20"
+                stroke="#16a34a" stroke-width="0.5" stroke-dasharray="4,4"/>
+          <line x1="0" y1="70" x2="300" y2="70"
+                stroke="#f59e0b" stroke-width="0.5" stroke-dasharray="4,4"/>
+          <!-- Courbe de glycémie -->
+          <path [attr.d]="getChartPath()"
+                fill="none" stroke="#3b82f6"
+                stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round"/>
+          <!-- Points -->
+          <ng-container *ngFor="let point of chartData; let i = index">
+            <circle
+              [attr.cx]="(i / (chartData.length - 1)) * 300"
+              [attr.cy]="120 - ((point.y - 0.5) / 2) * 120"
+              r="4"
+              [attr.fill]="point.color"
+              stroke="white" stroke-width="1.5"/>
+          </ng-container>
+        </svg>
+
+        <!-- Valeurs sur axe Y -->
+        <div class="y-labels">
+          <span>2.5</span>
+          <span>1.8</span>
+          <span>1.3</span>
+          <span>0.7</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRÉDICTION IA MESSAGE -->
+    <div class="prediction-banner" *ngIf="dashboard.prediction?.message">
+      <div class="pred-icon">🤖</div>
+      <div class="pred-content">
+        <strong>Analyse IA</strong>
+        <p>{{ dashboard.prediction.message }}</p>
+        <p class="pred-insight" *ngIf="dashboard.prediction.insight">
+          💡 {{ dashboard.prediction.insight }}
+        </p>
+      </div>
+    </div>
+
+    <!-- ALERTES -->
+    <div class="alertes-section" *ngIf="dashboard.alertes?.length > 0">
+      <h3>🔔 Alertes intelligentes</h3>
+      <div class="alerte-item"
+           *ngFor="let alerte of dashboard.alertes"
+           [style.border-left-color]="alerte.couleur"
+           [style.background]="alerte.couleur + '10'">
+        <span class="alerte-emoji">{{ alerte.emoji }}</span>
+        <div>
+          <strong [style.color]="alerte.couleur">{{ alerte.titre }}</strong>
+          <p>{{ alerte.message }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECOMMANDATIONS IA -->
+    <div class="reco-section" *ngIf="dashboard.recommandations?.length > 0">
+      <h3>💡 Recommandations personnalisées par l'IA</h3>
+      <div class="reco-grid">
+        <div class="reco-item"
+             *ngFor="let reco of dashboard.recommandations; let i = index">
+          <div class="reco-num">{{ i + 1 }}</div>
+          <p>{{ reco }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORIQUE -->
+    <div class="historique-section">
+      <h3>🗓️ Historique des mesures</h3>
+      <div class="historique-empty" *ngIf="!dashboard.historique?.length">
+        <span>📭</span>
+        <p>Aucune mesure. Cliquez sur "+ Ajouter une mesure"</p>
+      </div>
+      <div class="historique-list" *ngIf="dashboard.historique?.length">
+        <div class="histo-item"
+             *ngFor="let record of dashboard.historique.slice(0, 8)">
+          <div class="histo-dot"
+               [style.background]="getGlycemieColor(record.valeur)">
+          </div>
+          <div class="histo-info">
+            <span class="histo-val"
+                  [style.color]="getGlycemieColor(record.valeur)">
+              {{ record.valeur }} g/L
+            </span>
+            <span class="histo-moment">{{ record.moment?.replace('_', ' ') }}</span>
+          </div>
+          <span class="histo-date">{{ formatDate(record.date) }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -27,7 +27,8 @@ const routes: Routes = [
   { path: 'my-plans', component: DietPlanViewComponent },
   { path: 'profile', component: PatientProfileComponent },
   { path: 'nutrition-chat', component: PatientChatComponent },
-  { path: 'progress', component: ProgressComponent }
+  { path: 'progress', component: ProgressComponent },
+  { path: 'education', loadChildren: () => import('../education/education.module').then(m => m.EducationModule) }  
 ];
 
 @NgModule({

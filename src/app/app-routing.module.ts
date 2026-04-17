@@ -16,6 +16,7 @@ import { DoctorLayoutComponent } from './shared/components/doctor-layout/doctor-
 import { NutritionnistLayoutComponent } from './shared/components/nutritionnist-layout/nutritionnist-layout.component';
 
 import { HomeComponent } from './features/home/home.component';
+import { AuthGuard } from './shared/guards/auth.guard';
 
 
 const routes: Routes = [
@@ -23,18 +24,25 @@ const routes: Routes = [
 
   
   // Espace patient
- {
-  path: 'patient',
-  component: PatientLayoutComponent,
-  children: [
-
-    { path: '', loadChildren: () => import('./features/patient-dashboard/patient-dashboard.module').then(m => m.PatientDashboardModule) },
-     { 
-        path: 'profile', 
+  {
+    path: 'patient',
+    component: PatientLayoutComponent,
+    children: [
+      { 
+        path: '', 
+        loadChildren: () => import('./features/patient-dashboard/patient-dashboard.module').then(m => m.PatientDashboardModule) 
+      },
+      { 
+        path: 'profiile', 
         loadChildren: () => import('./features/patient-profile/patient-profile.module').then(m => m.PatientProfileModule) 
       },
-  ]
-},
+      { 
+        path: 'education',  
+        canActivate: [AuthGuard],
+        loadChildren: () => import('./features/education/education.module').then(m => m.EducationModule) 
+      }
+    ]
+  },
   // Espace admin
   { 
     path: 'admin', 

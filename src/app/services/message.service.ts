@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 export interface SendMessageRequest {
   senderId: number;
@@ -85,7 +85,15 @@ export class MessageService {
   }
 
   // ✅ Récupérer les conversations d'un médecin (liste des patients)
-  getDoctorConversations(doctorId: number): Observable<PatientConversationDTO[]> {
-    return this.http.get<PatientConversationDTO[]>(`${this.apiUrl}/conversations/doctor/${doctorId}`);
-  }
+  // message.service.ts - getDoctorConversations()
+getDoctorConversations(doctorId: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/conversations/doctor/${doctorId}`).pipe(
+    map(conversations => {
+      return conversations.map(conv => ({
+        ...conv,
+        patientProfilePicture: conv.patientProfilePicture || conv.profilePicture || null
+      }));
+    })
+  );
+}
 }

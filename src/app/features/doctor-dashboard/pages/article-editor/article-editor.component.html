@@ -1,0 +1,394 @@
+<div class="editor-container">
+
+  <div class="editor-header">
+    <button class="btn-back" (click)="cancel()">← Retour</button>
+    <div class="header-title">
+      <h1>{{ isEdit ? '✏️ Modifier la publication' : '📝 Nouvelle publication' }}</h1>
+      <p>{{ isEdit ? 'Modifiez votre article éducatif' : 'Créez un article pour vos patients' }}</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-preview" (click)="activePreview = !activePreview">
+        {{ activePreview ? '✏️ Éditer' : '👁 Aperçu' }}
+      </button>
+      <button class="btn-draft" (click)="saveDraft()" [disabled]="isSaving">
+        💾 Brouillon
+      </button>
+      <button class="btn-publish" (click)="saveArticle()" [disabled]="isSaving">
+        {{ isSaving ? '⏳ Sauvegarde...' : (isEdit ? '✅ Mettre à jour' : '🌐 Publier') }}
+      </button>
+    </div>
+  </div>
+
+  <div class="editor-layout">
+
+    <!-- FORMULAIRE PRINCIPAL -->
+    <div class="editor-main">
+
+      <!-- Titre avec micro -->
+      <div class="field-group">
+        <label class="field-label">Titre <span class="required">*</span></label>
+        <div class="input-with-mic">
+          <input type="text" [(ngModel)]="form.title"
+                 placeholder="Un titre accrocheur et informatif..."
+                 class="input-title" maxlength="255">
+          <div class="mic-control">
+            <button type="button" class="mic-btn"
+                    *ngIf="!(isListening && activeField === 'title')"
+                    (click)="startListening('title')">
+              🎤
+            </button>
+            <button type="button" class="mic-btn stop-btn"
+                    *ngIf="isListening && activeField === 'title'"
+                    (click)="stopListening()">
+              ⏹
+            </button>
+            <span class="listening-indicator" *ngIf="isListening && activeField === 'title'">
+              🎙️ En cours...
+            </span>
+          </div>
+        </div>
+        <span class="field-hint">{{ form.title.length }}/255 caractères</span>
+      </div>
+
+      <!-- Sous-titre avec micro -->
+      <div class="field-group">
+        <label class="field-label">Sous-titre</label>
+        <div class="input-with-mic">
+          <input type="text" [(ngModel)]="form.subtitle"
+                 placeholder="Une phrase d'introduction optionnelle..."
+                 class="input-text" maxlength="500">
+          <div class="mic-control">
+            <button type="button" class="mic-btn"
+                    *ngIf="!(isListening && activeField === 'subtitle')"
+                    (click)="startListening('subtitle')">
+              🎤
+            </button>
+            <button type="button" class="mic-btn stop-btn"
+                    *ngIf="isListening && activeField === 'subtitle'"
+                    (click)="stopListening()">
+              ⏹
+            </button>
+            <span class="listening-indicator" *ngIf="isListening && activeField === 'subtitle'">
+              🎙️ En cours...
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Résumé avec micro + IA -->
+      <div class="field-group">
+        <label class="field-label">
+          Résumé <span class="required">*</span>
+          <span class="field-hint">Affiché dans la liste des articles</span>
+        </label>
+        <div class="input-with-mic">
+          <textarea [(ngModel)]="form.summary"
+                    placeholder="Décrivez brièvement le contenu (2-3 phrases max)..."
+                    rows="3" class="input-text" maxlength="500"></textarea>
+          <div class="mic-control">
+            <!-- Bouton IA maison -->
+            <button type="button" class="mic-btn btn-ia"
+                    (click)="onGenerateCustomSummary()"
+                    [disabled]="isGeneratingSummary">
+              ✨ IA
+            </button>
+            <!-- Bouton micro -->
+            <button type="button" class="mic-btn"
+                    *ngIf="!(isListening && activeField === 'summary')"
+                    (click)="startListening('summary')">
+              🎤
+            </button>
+            <button type="button" class="mic-btn stop-btn"
+                    *ngIf="isListening && activeField === 'summary'"
+                    (click)="stopListening()">
+              ⏹
+            </button>
+            <span class="listening-indicator" *ngIf="isListening && activeField === 'summary'">
+              🎙️ En cours...
+            </span>
+          </div>
+        </div>
+        <span class="field-hint">{{ form.summary.length }}/500 caractères</span>
+      </div>
+
+      <!-- Contenu avec micro -->
+      <div class="field-group">
+        <label class="field-label">Contenu <span class="required">*</span></label>
+        <div class="content-toolbar">
+          <button type="button" class="toolbar-btn" (click)="insertHtml('h2')">H2</button>
+          <button type="button" class="toolbar-btn" (click)="insertHtml('h3')">H3</button>
+          <button type="button" class="toolbar-btn" (click)="insertHtml('p')">¶</button>
+          <button type="button" class="toolbar-btn" (click)="insertHtml('ul')">☰</button>
+          <button type="button" class="toolbar-btn" (click)="insertHtml('blockquote')">❝</button>
+          <button type="button" class="toolbar-btn" (click)="insertHtml('strong')"><strong>B</strong></button>
+          <span class="toolbar-separator"></span>
+          <span class="toolbar-info">HTML : h2, h3, p, ul, blockquote, strong</span>
+        </div>
+        <div class="input-with-mic">
+          <textarea [(ngModel)]="form.content"
+                    (ngModelChange)="estimateReadingTime()"
+                    placeholder="Rédigez votre contenu ici..."
+                    rows="18" class="input-content"></textarea>
+          <div class="mic-control mic-control-large">
+            <button type="button" class="mic-btn mic-btn-large"
+                    *ngIf="!(isListening && activeField === 'content')"
+                    (click)="startListening('content')">
+              🎤
+            </button>
+            <button type="button" class="mic-btn mic-btn-large stop-btn"
+                    *ngIf="isListening && activeField === 'content'"
+                    (click)="stopListening()">
+              ⏹
+            </button>
+            <span class="listening-indicator" *ngIf="isListening && activeField === 'content'">
+              🎙️ En cours...
+            </span>
+          </div>
+        </div>
+        <div class="content-footer">
+          <span class="word-count">{{ wordCount }} mots</span>
+          <span class="read-time">≈ {{ form.readingTime }} min de lecture</span>
+        </div>
+      </div>
+
+      <div class="preview-box" *ngIf="activePreview">
+        <div class="preview-header">
+          <h3>👁 Aperçu du contenu</h3>
+          <span class="preview-badge">Rendu HTML</span>
+        </div>
+        <div class="preview-content" [innerHTML]="form.content"></div>
+      </div>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="editor-sidebar">
+
+      <!-- Classification -->
+      <div class="sidebar-card">
+        <h3 class="card-title">📂 Classification</h3>
+        <div class="field-group">
+          <label class="field-label">Type de contenu</label>
+          <select [(ngModel)]="form.contentType" class="input-select">
+            <option *ngFor="let type of contentTypes" [value]="type.value">{{ type.label }}</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Catégorie</label>
+          <select [(ngModel)]="form.category" class="input-select">
+            <option *ngFor="let cat of categories" [value]="cat.value">{{ cat.icon }} {{ cat.label }}</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Niveau de difficulté</label>
+          <select [(ngModel)]="form.difficultyLevel" class="input-select">
+            <option *ngFor="let level of difficultyLevels" [value]="level.value">{{ level.label }}</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Temps de lecture (min)</label>
+          <input type="number" [(ngModel)]="form.readingTime" min="1" max="120" class="input-text">
+        </div>
+      </div>
+
+      <!-- IMAGE DE COUVERTURE -->
+      <div class="sidebar-card">
+        <h3 class="card-title">🖼️ Image de couverture</h3>
+
+        <div class="media-tabs">
+          <button type="button" [class.active]="imageTab === 'suggest'" (click)="imageTab = 'suggest'">🖼️ Suggestions</button>
+          <button type="button" [class.active]="imageTab === 'unsplash'" (click)="imageTab = 'unsplash'">🔍 Unsplash</button>
+          <button type="button" [class.active]="imageTab === 'url'" (click)="imageTab = 'url'">🔗 URL</button>
+          <button type="button" [class.active]="imageTab === 'upload'" (click)="imageTab = 'upload'">💻 Mon PC</button>
+        </div>
+
+        <!-- Suggestions locales -->
+        <div *ngIf="imageTab === 'suggest'">
+          <div class="suggestion-grid">
+            <div *ngFor="let img of imageSuggestions"
+                 class="suggestion-item"
+                 [class.selected]="form.thumbnailUrl === img.url"
+                 (click)="selectSuggestion(img.url)">
+              <img [src]="img.thumb" [alt]="img.label">
+              <span>{{ img.label }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recherche Unsplash -->
+        <div *ngIf="imageTab === 'unsplash'">
+          <div class="unsplash-search">
+            <input type="text"
+                   [(ngModel)]="unsplashQuery"
+                   placeholder="Rechercher une image (ex: diabète, nutrition)..."
+                   class="input-text"
+                   (keyup.enter)="searchUnsplash()">
+            <button type="button" class="btn-unsplash-search"
+                    (click)="searchUnsplash()"
+                    [disabled]="isSearchingUnsplash">
+              {{ isSearchingUnsplash ? '⏳' : '🔍' }}
+            </button>
+          </div>
+
+          <button type="button" class="btn-auto-search"
+                  (click)="searchUnsplashByCategory()">
+            ✨ Images pour "{{ form.category }}"
+          </button>
+
+          <div class="unsplash-loading" *ngIf="isSearchingUnsplash">
+            <div class="mini-spinner"></div>
+            <span>Recherche en cours...</span>
+          </div>
+
+          <div class="unsplash-grid" *ngIf="unsplashResults.length > 0">
+            <div *ngFor="let img of unsplashResults"
+                 class="unsplash-item"
+                 [class.selected]="form.thumbnailUrl === img.urls.regular"
+                 (click)="selectUnsplashImage(img)">
+              <img [src]="img.urls.thumb" [alt]="img.alt_description">
+              <div class="unsplash-overlay">
+                <span>📷 {{ img.user.name }}</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="unsplash-credit" *ngIf="unsplashResults.length > 0">
+            Photos par <a href="https://unsplash.com" target="_blank">Unsplash</a>
+          </p>
+        </div>
+
+        <!-- URL manuelle -->
+        <div *ngIf="imageTab === 'url'" class="field-group">
+          <label class="field-label">URL de l'image</label>
+          <input type="url" [(ngModel)]="form.thumbnailUrl"
+                 placeholder="https://images.unsplash.com/..."
+                 class="input-text">
+          <span class="field-hint">Unsplash, Pexels, ou toute URL d'image</span>
+        </div>
+
+        <!-- Upload depuis PC -->
+        <div *ngIf="imageTab === 'upload'">
+          <div class="upload-zone" (click)="imageUpload.click()">
+            <div class="upload-icon">📁</div>
+            <strong>Cliquez pour choisir une image</strong>
+            <span>JPG, PNG, WebP — Max 5 MB</span>
+          </div>
+          <input #imageUpload type="file" accept="image/*"
+                 (change)="onImageFileSelected($event)"
+                 style="display: none">
+        </div>
+
+        <!-- Aperçu image -->
+        <div class="img-preview" *ngIf="form.thumbnailUrl && !imagePreviewError">
+          <img [src]="form.thumbnailUrl" alt="Aperçu" (error)="onImageError()">
+          <button type="button" class="remove-img" (click)="form.thumbnailUrl = ''">✕</button>
+        </div>
+        <div class="img-error" *ngIf="imagePreviewError">
+          ⚠️ Impossible de charger l'image
+        </div>
+
+      </div>
+
+      <!-- VIDÉO -->
+      <div class="sidebar-card" *ngIf="form.contentType === 'VIDEO'">
+        <h3 class="card-title">🎥 Vidéo</h3>
+
+        <div class="media-tabs">
+          <button type="button" [class.active]="videoTab === 'youtube'" (click)="videoTab = 'youtube'">▶️ YouTube</button>
+          <button type="button" [class.active]="videoTab === 'url'" (click)="videoTab = 'url'">🔗 URL directe</button>
+        </div>
+
+        <div *ngIf="videoTab === 'youtube'" class="field-group">
+          <label class="field-label">Lien YouTube</label>
+          <input type="url"
+                 [(ngModel)]="form.videoUrl"
+                 (ngModelChange)="onYoutubeLinkChange()"
+                 placeholder="https://www.youtube.com/watch?v=..."
+                 class="input-text">
+          <span class="field-hint">La miniature sera ajoutée automatiquement</span>
+
+          <div class="youtube-preview" *ngIf="getYoutubeEmbedUrl()">
+            <iframe [src]="getYoutubeEmbedUrl() | safe"
+                    frameborder="0"
+                    allowfullscreen
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope">
+            </iframe>
+          </div>
+
+          <div class="youtube-links">
+            <p class="field-hint">🔍 Rechercher sur YouTube :</p>
+            <div class="youtube-search-btns">
+              <a href="https://www.youtube.com/results?search_query=diabète+gestion"
+                 target="_blank" class="yt-link">Gestion diabète</a>
+              <a href="https://www.youtube.com/results?search_query=glycémie+surveillance"
+                 target="_blank" class="yt-link">Glycémie</a>
+              <a href="https://www.youtube.com/results?search_query=nutrition+diabète"
+                 target="_blank" class="yt-link">Nutrition</a>
+              <a href="https://www.youtube.com/results?search_query=insuline+injection"
+                 target="_blank" class="yt-link">Insuline</a>
+              <a href="https://www.youtube.com/results?search_query=exercice+diabète+type+2"
+                 target="_blank" class="yt-link">Exercice</a>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="videoTab === 'url'" class="field-group">
+          <label class="field-label">URL de la vidéo</label>
+          <input type="url" [(ngModel)]="form.videoUrl"
+                 placeholder="https://..."
+                 class="input-text">
+          <span class="field-hint">MP4, WebM ou lien de streaming direct</span>
+        </div>
+
+      </div>
+
+      <!-- Tags et Options -->
+      <div class="sidebar-card">
+        <h3 class="card-title">🏷️ Tags et Options</h3>
+        <div class="field-group">
+          <label class="field-label">Mots-clés</label>
+          <input type="text" [(ngModel)]="form.tags"
+                 placeholder="diabète, nutrition, conseil..."
+                 class="input-text">
+          <span class="field-hint">Séparés par des virgules</span>
+        </div>
+        <div class="options-group">
+          <label class="option-label">
+            <input type="checkbox" [(ngModel)]="form.isFeatured">
+            <div class="option-text">
+              <span>⭐ Mettre en avant</span>
+              <small>Apparaît dans la section "À la une"</small>
+            </div>
+          </label>
+          <label class="option-label">
+            <input type="checkbox" [(ngModel)]="form.isPublished">
+            <div class="option-text">
+              <span>🌐 Publier immédiatement</span>
+              <small>Visible par les patients dès la sauvegarde</small>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Aperçu rapide -->
+      <div class="sidebar-card" *ngIf="form.title">
+        <h3 class="card-title">📋 Aperçu rapide</h3>
+        <div class="article-preview-mini">
+          <img *ngIf="form.thumbnailUrl && !imagePreviewError"
+               [src]="form.thumbnailUrl" alt=""
+               onerror="this.style.display='none'">
+          <div class="preview-info">
+            <strong>{{ form.title.length > 50 ? (form.title | slice:0:50) + '...' : form.title }}</strong>
+            <div class="preview-meta">
+              <span>{{ form.readingTime }} min</span>
+              <span>•</span>
+              <span>{{ form.difficultyLevel === 'BEGINNER' ? 'Débutant' :
+                       form.difficultyLevel === 'INTERMEDIATE' ? 'Intermédiaire' : 'Avancé' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+</div>
