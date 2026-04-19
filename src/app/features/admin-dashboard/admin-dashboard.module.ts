@@ -5,17 +5,21 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { SharedModule } from '../../shared/shared.module';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { DeliveryManagementComponent } from './delivery-management/delivery-management.component';
 
 @NgModule({
   declarations: [
-    DashboardComponent
+    DashboardComponent,
+    DeliveryManagementComponent
   ],
   imports: [
     CommonModule,
     AdminDashboardRoutingModule,
     SharedModule,
     FormsModule,
-    RouterModule
+    RouterModule,
+     CommonModule,   // ← indispensable pour ngClass, ngIf, etc.
+    FormsModule
   ]
 })
 export class AdminDashboardModule { }

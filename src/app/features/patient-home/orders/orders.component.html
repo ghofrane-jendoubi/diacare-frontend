@@ -1,4 +1,5 @@
 <app-navbar></app-navbar>
+
 <div class="container py-4" style="margin-top: 100px;">
   <h2 class="mb-4">
     <i class="bi bi-box-seam me-2"></i> Mes commandes
@@ -56,13 +57,11 @@
                 Total: {{ order.totalPrice | number:'1.2-2' }} DT
               </h5>
               <div class="d-flex justify-content-md-end gap-2">
-                <!-- Payment button (only if not paid/delivered) -->
                 <button *ngIf="order.status !== 'PAID' && order.status !== 'LIVRÉ' && order.status !== 'DELIVERED'"
-        class="btn btn-sm btn-success rounded-pill px-3"
-        (click)="goToPayment(order)">
-  <i class="bi bi-credit-card me-1"></i> Payer
-</button>
-                <!-- Delete button -->
+                        class="btn btn-sm btn-success rounded-pill px-3"
+                        (click)="goToPayment(order)">
+                  <i class="bi bi-credit-card me-1"></i> Payer
+                </button>
                 <button class="btn btn-sm btn-outline-danger rounded-pill px-3"
                         (click)="deleteOrder(order.id)">
                   <i class="bi bi-trash3 me-1"></i> Supprimer
@@ -101,14 +100,55 @@
         <!-- Footer (tracking button) -->
         <div class="card-footer bg-white border-top-0 pb-4 pt-0">
           <div class="d-flex justify-content-end">
-            <button class="btn btn-sm btn-outline-primary rounded-pill px-3"
-                    *ngIf="order.status !== 'LIVRÉ' && order.status !== 'DELIVERED'">
-              <i class="bi bi-truck me-1"></i> Suivre la commande
-            </button>
+          <button class="btn btn-sm btn-outline-primary rounded-pill px-3"
+        *ngIf="order.status === 'PAID' || order.status === 'DELIVERED'"
+        (click)="openTrackingModal(order.id)">
+  <i class="bi bi-truck me-1"></i> Suivre la commande
+</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
 <app-footer></app-footer>
+
+<!-- Tracking Modal -->
+<div class="modal fade" id="trackingModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-truck"></i> Suivi de livraison</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="loadingDelivery" class="text-center py-4">
+          <div class="spinner-border text-primary"></div>
+          <p class="mt-2">Chargement...</p>
+        </div>
+        <div *ngIf="!loadingDelivery && delivery">
+          <p><strong>Code de suivi :</strong> {{ delivery.trackingCode }}</p>
+          <p><strong>Transporteur :</strong> {{ delivery.carrier || 'Non spécifié' }}</p>
+          <p><strong>Véhicule :</strong> {{ delivery.vehicle || 'Non spécifié' }}</p>
+          <p><strong>Livraison estimée :</strong> {{ delivery.estimatedArrival | date:'dd/MM/yyyy HH:mm' }}</p>
+
+          <div class="progress-steps">
+            <div class="step" [class.completed]="isStatus('CONFIRMED')">✅ Confirmée</div>
+            <div class="step" [class.completed]="isStatus('PREPARING')">📦 Préparation</div>
+            <div class="step" [class.completed]="isStatus('SHIPPED')">🚚 Expédiée</div>
+            <div class="step" [class.completed]="isStatus('OUT_FOR_DELIVERY')">🚛 En livraison</div>
+            <div class="step" [class.completed]="isStatus('DELIVERED')">🏠 Livrée</div>
+          </div>
+
+          <div *ngIf="delivery.notes" class="alert alert-info mt-3">
+            <i class="bi bi-info-circle"></i> {{ delivery.notes }}
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>

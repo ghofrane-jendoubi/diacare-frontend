@@ -30,3 +30,22 @@
     justify-content: flex-start;
   }
 }
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.step {
+  flex: 1;
+  text-align: center;
+  font-size: 0.8rem;
+  padding: 8px 0;
+  color: #aaa;
+  border-top: 3px solid #eee;
+  margin: 0 2px;
+}
+.step.completed {
+  color: #28a745;
+  border-top-color: #28a745;
+}

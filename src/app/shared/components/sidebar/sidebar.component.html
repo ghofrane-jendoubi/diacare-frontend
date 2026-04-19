@@ -72,15 +72,15 @@
     <!-- Commerce -->
     <div class="menu-label" *ngIf="!isCollapsed">COMMERCE</div>
     
-    <a class="menu-item" style="cursor: not-allowed;">
-      <i class="bi bi-capsule-pill"></i>
-      <span class="menu-text" *ngIf="!isCollapsed">Parapharmacie</span>
-    </a>
+    <a class="menu-item" routerLink="/admin/marketplace/list" routerLinkActive="active">
+  <i class="bi bi-capsule-pill"></i>
+  <span class="menu-text" *ngIf="!isCollapsed">Parapharmacie</span>
+</a>
 
-    <a class="menu-item" style="cursor: not-allowed;">
-      <i class="bi bi-truck"></i>
-      <span class="menu-text" *ngIf="!isCollapsed">Commandes</span>
-    </a>
+<a class="menu-item" routerLink="/admin/delivery" routerLinkActive="active">
+  <i class="bi bi-truck"></i>
+  <span class="menu-text" *ngIf="!isCollapsed">Commandes</span>
+</a>
 
     <!-- Support -->
     <div class="menu-label" *ngIf="!isCollapsed">SUPPORT</div>

@@ -295,19 +295,23 @@ isBrowser = false;
       }
     }};
 calculateStats(): void {
-  console.log('Products length:', this.products.length);
-  console.log('First product type:', this.products[0]?.type);
-  console.log('All types:', this.products.map(p => p.type));
-
   this.totalProducts = this.products.length;
   this.alimentaireCount = this.products.filter(p => p.type === 'ALIMENTAIRE').length;
   this.medicalCount = this.products.filter(p => p.type === 'MEDICAL').length;
-  this.lowStockCount = this.products.filter(p => p.stock < 10).length;
-  this.totalStock = this.products.reduce((sum, p) => sum + p.stock, 0);
 
-  console.log('alimentaireCount:', this.alimentaireCount);
-  console.log('medicalCount:', this.medicalCount);
-  console.log('lowStockCount:', this.lowStockCount);
+  // Safely convert stock to number, default 0 if missing
+  this.lowStockCount = this.products.filter(p => {
+    const stockNum = Number(p.stock);
+    return !isNaN(stockNum) && stockNum < 10;
+  }).length;
+
+  this.totalStock = this.products.reduce((sum, p) => {
+    const stockNum = Number(p.stock);
+    return sum + (isNaN(stockNum) ? 0 : stockNum);
+  }, 0);
+
+  // Update chart data
+  this.barChartData.datasets[0].data = [this.alimentaireCount, this.medicalCount, this.lowStockCount];
 }
 
 }

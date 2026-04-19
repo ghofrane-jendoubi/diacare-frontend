@@ -46,5 +46,10 @@ confirmOrder(id: number) {
 cancelOrder(id: number) {
   return this.http.post(`/api/orders/${id}/cancel`, {});
 }
+getPaidOrders(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/admin/paid-orders`);
+}
+
+
 
 }
