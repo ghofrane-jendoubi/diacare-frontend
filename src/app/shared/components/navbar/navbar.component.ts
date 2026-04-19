@@ -17,15 +17,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   patientId: number | null = null;
   
-  // ADD THESE MISSING PROPERTIES:
-  isMobileMenuOpen = false;  // Missing property
-  currentUser: any = null;   // Missing property
-
+  // Propriétés pour le menu
+  isMobileMenuOpen = false;
+  currentUser: any = null;
   isScrolled = false;
   isUserMenuOpen = false;
   showNotifications = false;
   activeSection: string = '';
 
+  // Notifications
   notifications: any[] = [];
   unreadCount: number = 0;
   private pollingSubscription: Subscription | null = null;
@@ -33,12 +33,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private notificationService: NotificationService
-    // Remove authService if not injected - you're not using it in constructor
   ) {}
 
   ngOnInit(): void {
     this.loadUserInfo();
-    this.loadCurrentUser(); // Add this to load currentUser
+    this.loadCurrentUser();
     if (this.isLoggedIn && this.userId) {
       this.loadNotificationsFromStorage();
       this.loadNotifications();
@@ -46,7 +45,46 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ADD THIS METHOD to load currentUser
+  ngOnDestroy(): void {
+    this.stopPolling();
+  }
+
+  // ==================== GESTION UTILISATEUR ====================
+
+  // navbar.component.ts
+loadUserInfo(): void {
+  // ✅ Essayer plusieurs sources
+  let patientIdStr = localStorage.getItem('patient_id');
+  
+  if (!patientIdStr) {
+    const user = localStorage.getItem('user');
+    if (user) {
+      const userObj = JSON.parse(user);
+      patientIdStr = userObj.id?.toString();
+    }
+  }
+  
+  if (patientIdStr) {
+    this.patientId = parseInt(patientIdStr);
+    this.userId = this.patientId;
+    this.isLoggedIn = true;
+  }
+  
+  // Récupérer le nom
+  const firstName = localStorage.getItem('patient_firstName');
+  const lastName = localStorage.getItem('patient_lastName');
+  if (firstName && lastName) {
+    this.userName = `${firstName} ${lastName}`;
+  } else if (firstName) {
+    this.userName = firstName;
+  } else {
+    this.userName = 'Patient';
+  }
+  
+  const email = localStorage.getItem('patient_email');
+  if (email) this.userEmail = email;
+}
+
   loadCurrentUser(): void {
     this.currentUser = {
       firstName: localStorage.getItem('patient_firstName') || '',
@@ -56,29 +94,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     };
   }
 
-  loadUserInfo(): void {
-    const patientIdStr = localStorage.getItem('patient_id');
-    if (patientIdStr) {
-      this.patientId = parseInt(patientIdStr);
-      this.userId = this.patientId;
-    }
-    const firstName = localStorage.getItem('patient_firstName');
-    const lastName = localStorage.getItem('patient_lastName');
-    if (firstName && lastName) {
-      this.userName = `${firstName} ${lastName}`;
-    } else if (firstName) {
-      this.userName = firstName;
-    } else {
-      this.userName = 'Patient';
-    }
-    const email = localStorage.getItem('patient_email');
-    if (email) this.userEmail = email;
-    if (this.userId) this.isLoggedIn = true;
-  }
-
-  ngOnDestroy(): void {
-    this.stopPolling();
-  }
+  // ==================== GETTERS ====================
 
   get userInitials(): string {
     if (!this.userName) return 'P';
@@ -90,23 +106,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
       .slice(0, 2);
   }
 
-  // ADD THIS getter for initials (used in template)
   get initials(): string {
     return this.userInitials;
   }
 
-  // ADD THIS getter for profile picture URL
   get profilePictureUrl(): string | null {
     const picture = localStorage.getItem('patient_profilePicture');
     return picture ? `http://localhost:8081${picture}` : null;
   }
 
-  // ADD THIS getter for display name
   get displayName(): string {
     return this.userName;
   }
 
-  // ===== STORAGE =====
+  // ==================== NOTIFICATIONS ====================
 
   loadNotificationsFromStorage(): void {
     if (!this.userId) return;
@@ -131,8 +144,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     };
     localStorage.setItem(`notifications_${this.userId}`, JSON.stringify(data));
   }
-
-  // ===== NOTIFICATIONS =====
 
   loadNotifications(): void {
     if (!this.userId) return;
@@ -189,6 +200,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   openNotification(notification: any): void {
     if (!notification.id) return;
     this.markAsRead(notification.id);
+    
     let route = notification.link || '/';
     if (this.patientId) {
       if (route === '/appointments' || route === 'appointments') route = '/patient/appointments';
@@ -209,6 +221,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
+    
     if (diffMins < 1) return 'À l\'instant';
     if (diffMins < 60) return `Il y a ${diffMins} min`;
     if (diffHours < 24) return `Il y a ${diffHours} h`;
@@ -217,7 +230,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     return notifDate.toLocaleDateString('fr-FR');
   }
 
-  // ===== MENU =====
+  // ==================== MENU ====================
 
   @HostListener('window:scroll', [])
   onScroll() {
@@ -231,15 +244,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (!target.closest('.notifications-wrapper')) this.showNotifications = false;
   }
 
-  toggleMobileMenu() {
+  toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 
-  closeMobileMenu() {
+  closeMobileMenu(): void {
     this.isMobileMenuOpen = false;
   }
 
-  scrollTo(sectionId: string, event?: Event) {
+  toggleUserMenu(): void {
+    this.isUserMenuOpen = !this.isUserMenuOpen;
+    this.showNotifications = false;
+  }
+
+  scrollTo(sectionId: string, event?: Event): void {
     if (event) event.preventDefault();
     const element = document.getElementById(sectionId);
     if (element) {
@@ -249,16 +267,22 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleUserMenu(): void {
-    this.isUserMenuOpen = !this.isUserMenuOpen;
-    this.showNotifications = false;
+  goToGeolocalisation(): void {
+    this.router.navigate(['/patient/geolocalisation']);
+    this.closeMobileMenu();
+    this.isUserMenuOpen = false;
   }
 
-  logout() {
-    ['patient_id', 'patient_email', 'patient_firstName', 'patient_lastName', 'patient_role', 'patient_profilePicture'].forEach(k =>
-      localStorage.removeItem(k)
-    );
+  logout(): void {
+    const keysToRemove = [
+      'patient_id', 'patient_email', 'patient_firstName', 
+      'patient_lastName', 'patient_role', 'patient_profilePicture',
+      'token', 'user'
+    ];
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+    
     if (this.userId) localStorage.removeItem(`notifications_${this.userId}`);
+    
     this.isLoggedIn = false;
     this.userId = null;
     this.patientId = null;

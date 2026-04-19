@@ -1,5 +1,6 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
@@ -10,31 +11,22 @@ export class SidebarComponent implements OnInit {
 
   @Output() toggleSidebar = new EventEmitter<boolean>();
 
-  // États
   isCollapsed = false;
-  isLoading = false;
-  activeRole: 'doctors' | 'nutritionists' | 'patients' | null = null;
-
-  // Compteurs
   doctorsCount = 0;
   nutritionistsCount = 0;
   patientsCount = 0;
-
-  // Listes
-  doctors: any[] = [];
-  nutritionists: any[] = [];
-  patients: any[] = [];
-
-  // Sélection utilisateur
-  selectedUser: any = null;
-  selectedUserType: 'doctor' | 'nutritionist' | 'patient' | null = null;
+  reclamationsCount = 0;
 
   private baseUrl = 'http://localhost:8081/api';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadCounts();
+    this.loadReclamationsCount();
   }
 
   onToggleSidebar(): void {
@@ -59,11 +51,17 @@ export class SidebarComponent implements OnInit {
     });
   }
 
-  getIconClass(): string {
-    return this.isCollapsed ? 'bi-chevron-right' : 'bi-chevron-left';
+  loadReclamationsCount(): void {
+    this.http.get<any[]>(`${this.baseUrl}/reclamations`).subscribe({
+      next: (data) => {
+        this.reclamationsCount = data.filter(r => r.status === 'OPEN' || r.status === 'IN_PROGRESS').length;
+      },
+      error: () => {}
+    });
   }
 
-  navigateHome(): void {
-    window.location.href = '/';
+  logout(): void {
+    localStorage.clear();
+    this.router.navigate(['/login']);
   }
 }

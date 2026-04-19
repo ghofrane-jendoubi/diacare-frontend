@@ -1,10 +1,13 @@
+// nutri-chat.component.ts
 import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ViewChild, ElementRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { interval, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { ChatNutritionService } from '../../../../services/chatnutrition.service';
-import { ChatMessage } from '../../../../models/diet-plan.model';
+// ✅ Importer depuis chatnutrition.service UNIQUEMENT
+import { ChatNutritionService, ChatMessage } from '../../../../services/chatnutrition.service';
+// ❌ Supprimer l'import depuis diet-plan.model
+// import { ChatMessage } from '../../../../models/diet-plan.model';
 
 @Component({
   selector: 'app-nutri-chat',
@@ -117,7 +120,8 @@ export class NutriChatComponent implements OnInit, OnDestroy {
     }
     
     this.isLoading = true;
-    this.chatService.getConversation(patientId).subscribe({
+    // ✅ Utiliser la méthode correcte avec les deux IDs
+    this.chatService.getNutritionistMessagesWithPatient(this.nutritionistId!, patientId).subscribe({
       next: (msgs) => {
         this.messages = msgs;
         this.isLoading = false;
@@ -134,10 +138,10 @@ export class NutriChatComponent implements OnInit, OnDestroy {
 
   startPolling(): void {
     const patientId = this.patientId;
-    if (!patientId) return;
+    if (!patientId || !this.nutritionistId) return;
     
     this.pollSub = interval(5000).pipe(
-      switchMap(() => this.chatService.getConversation(patientId))
+      switchMap(() => this.chatService.getNutritionistMessagesWithPatient(this.nutritionistId!, patientId))
     ).subscribe({
       next: (msgs) => {
         if (msgs.length !== this.messages.length) {
@@ -161,41 +165,35 @@ export class NutriChatComponent implements OnInit, OnDestroy {
     });
   }
 
-  send(): void {
-    if (!this.newMessage.trim() || this.isSending) return;
-    
-    const patientId = this.patientId;
-    const nutritionistId = this.nutritionistId;
-    
-    if (!patientId || !nutritionistId) {
-      console.error('❌ IDs manquants pour envoyer le message');
-      this.errorMessage = 'Erreur: identifiants manquants';
-      return;
-    }
-    
-    this.isSending = true;
+  // nutri-chat.component.ts
+send(): void {
+  if (!this.newMessage.trim() || this.isSending) return;
+  if (!this.patientId || !this.nutritionistId) return;
 
-    this.chatService.sendMessage({
-      content: this.newMessage.trim(),
-      senderId: nutritionistId,
-      senderRole: 'nutritionist',
-      receiverId: patientId,
-      receiverRole: 'patient',
-      patientId: patientId
-    }).subscribe({
-      next: (msg) => {
-        this.messages.push(msg);
-        this.newMessage = '';
-        this.isSending = false;
-        this.scrollToBottom();
-      },
-      error: (err) => {
-        console.error('❌ Erreur envoi message:', err);
-        this.isSending = false;
-        this.errorMessage = 'Erreur lors de l\'envoi';
-      }
-    });
-  }
+  this.isSending = true;
+
+  console.log('📤 Envoi message - Nutritionniste:', this.nutritionistId, 'Patient:', this.patientId);
+
+  this.chatService.sendMessage({
+    content: this.newMessage.trim(),
+    senderId: this.nutritionistId,  
+    senderRole: 'nutritionist',
+    receiverId: this.patientId,       
+    receiverRole: 'patient',
+    patientId: this.patientId        
+  }).subscribe({
+    next: (msg) => {
+      this.messages.push(msg);
+      this.newMessage = '';
+      this.isSending = false;
+      this.scrollToBottom();
+    },
+    error: (err) => {
+      console.error('Erreur envoi:', err);
+      this.isSending = false;
+    }
+  });
+}
 
   useQuickReply(reply: string): void { 
     this.newMessage = reply; 

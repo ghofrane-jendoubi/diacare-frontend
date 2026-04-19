@@ -553,11 +553,40 @@ export class ChatDoctorComponent implements OnInit, OnDestroy {
     });
   }
 
-  getFullUrl(url: string): string {
-    if (!url) return '';
-    if (url.startsWith('http')) return url;
-    return 'http://localhost:8081' + url;
+  // chat-doctor.component.ts
+getFullUrl(url: string): string {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  if (url.startsWith('/uploads')) return `http://localhost:8081${url}`;
+  // Pour les chemins relatifs
+  return `http://localhost:8081/uploads/patients/${url}`;
+}
+
+// Ajouter une méthode pour l'avatar par défaut
+getDefaultAvatar(): string {
+  return 'https://ui-avatars.com/api/?background=2ecc71&color=fff&bold=true&rounded=true&size=48';
+}
+
+// Méthode pour obtenir l'avatar avec fallback
+getPatientAvatar(profilePicture: string | null | undefined, patientName: string): string {
+  if (profilePicture) {
+    const fullUrl = this.getFullUrl(profilePicture);
+    // Vérifier si l'URL est valide
+    if (fullUrl) return fullUrl;
   }
+  // Générer un avatar avec les initiales
+  const initials = this.getInitials(patientName);
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=2ecc71&color=fff&bold=true&rounded=true&size=48`;
+}
+
+private getInitials(name: string): string {
+  if (!name) return 'P';
+  const parts = name.split(' ');
+  if (parts.length >= 2) {
+    return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+  }
+  return name.charAt(0).toUpperCase();
+}
 
   onImageError(event: any) {
     event.target.src = '/default-image.png';

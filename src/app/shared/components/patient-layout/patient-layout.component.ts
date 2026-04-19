@@ -10,12 +10,13 @@ import { filter } from 'rxjs/operators';
 export class PatientLayoutComponent implements OnInit {
   patientMenuItems = [
     { id: 'analyse',      label: 'Analyse',        link: '/patient/choices' },
-    { id: 'nutrition',    label: 'Nutrition',        link: '/patient/nutrition' },
-    { id: 'education',    label: 'Éducation',        link: '/patient/education' },
-    { id: 'messagerie',   label: 'Messagerie',       link: '/patient/chat' },
-    { id: 'pharmacy',     label: 'Parapharmacie',    link: '/patient/pharmacy' },
-    { id: 'chatbot',      label: 'Chatbot',          link: '/patient/chatbot' },
-    { id: 'reclamations', label: 'Support',          link: '/patient/reclamations' }
+    { id: 'nutrition',    label: 'Nutrition',      link: '/patient/nutritionists' },
+    { id: 'education',    label: 'Éducation',      link: '/patient/education' },
+    { id: 'messagerie',   label: 'Messagerie',     link: '/patient/chat' },
+    { id: 'pharmacy',     label: 'Parapharmacie',  link: '/patient/pharmacy' },
+    { id: 'geolocalisation', label: 'Géolocalisation', link: '/patient/geolocalisation', icon: 'bi-geo-alt-fill' },
+    { id: 'chatbot',      label: 'Chatbot',        link: '/patient/chatbot' },
+    { id: 'reclamations', label: 'Support',        link: '/patient/reclamation' }
   ];
 
   patientId: number | null = null;

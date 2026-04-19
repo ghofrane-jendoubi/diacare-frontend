@@ -8,6 +8,9 @@ import { EducationManagerComponent } from './pages/education-manager/education-m
 import { ArticleEditorComponent } from './pages/article-editor/article-editor.component';
 import { CommentsManagerComponent } from './pages/comments-manager/comments-manager.component';
 import { PatientFeedbacksComponent } from './pages/patient-feedbacks/patient-feedbacks.component';
+import { DoctorReclamationsComponent } from './doctor-reclamations/doctor-reclamations.component';
+import { DoctorSendReclamationComponent } from './doctor-send-reclamation/doctor-send-reclamation.component';
+import { DoctorGeolocalisationComponent } from './doctor-geolocalisation/doctor-geolocalisation.component';
 
 const routes: Routes = [
   {
@@ -36,7 +39,12 @@ const routes: Routes = [
   { path: 'education/new', component: ArticleEditorComponent },
   { path: 'education/edit/:id', component: ArticleEditorComponent },
   { path: 'education/comments', component: CommentsManagerComponent },
-  { path: 'feedbacks', component: PatientFeedbacksComponent }
+  { path: 'feedbacks', component: PatientFeedbacksComponent },
+  { path: 'reclamations', component: DoctorReclamationsComponent },
+  { path: 'send-reclamations', component: DoctorSendReclamationComponent },
+  { path: 'geo', component: DoctorGeolocalisationComponent },
+  
+
 ];
 
 @NgModule({

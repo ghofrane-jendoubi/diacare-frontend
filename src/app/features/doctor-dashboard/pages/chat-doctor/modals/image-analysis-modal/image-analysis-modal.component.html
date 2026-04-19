@@ -1,76 +1,135 @@
-<div class="modal-overlay" (click)="close()">
-  <div class="modal-container" (click)="$event.stopPropagation()">
-    <!-- En-tête -->
+<div class="analysis-modal" (click)="close()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    
+    <!-- Header Élégant -->
     <div class="modal-header">
-      <h2>
-        <i class="bi bi-cpu"></i>
-        Analyse d'image - DiaCare AI
-      </h2>
-      <button class="close-btn" (click)="close()">
-        <i class="bi bi-x-lg"></i>
-      </button>
+      <div class="header-glow"></div>
+      <div class="header-content">
+        <div class="header-icon">
+          <i class="bi bi-stars"></i>
+        </div>
+        <div class="header-text">
+          <h2>Analyse IA</h2>
+          <p>Diagnostic assisté par intelligence artificielle</p>
+        </div>
+        <button class="close-modal" (click)="close()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
     </div>
 
-    <!-- Corps -->
+    <!-- Body -->
     <div class="modal-body">
-      <!-- Image -->
-      <div class="image-section">
-        <img [src]="getFullUrl(imageUrl)" alt="Image à analyser" class="analyze-image">
-      </div>
-
-      <!-- Loading -->
-      <div class="loading-section" *ngIf="isLoading">
-        <div class="spinner"></div>
-        <p>Analyse en cours par l'IA...</p>
-        <p class="small">Modèle Deep Learning DiaCare</p>
-      </div>
-
-      <!-- Résultat -->
-      <div class="result-section" *ngIf="analysisResult && !isLoading">
-        <div class="result-badge" [class.diabetes]="analysisResult.prediction === 'Diabetes'"
-                                    [class.non-diabetes]="analysisResult.prediction === 'NonDiabetes'">
-          <div class="result-icon">
-            <i class="bi" [ngClass]="analysisResult.prediction === 'Diabetes' ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'"></i>
-          </div>
-          <div class="result-text">
-            <h3>{{ analysisResult.prediction === 'Diabetes' ? 'Diabète détecté' : 'Non diabétique' }}</h3>
-            <p>Confiance : <strong>{{ analysisResult.confidence }}%</strong></p>
+      
+      <!-- Image Section -->
+      <div class="image-preview">
+        <div class="image-wrapper">
+          <img [src]="getFullUrl(imageUrl)" alt="Image médicale" class="medical-image">
+          <div class="image-overlay">
+            <i class="bi bi-camera-fill"></i>
           </div>
         </div>
+      </div>
 
-        <!-- Barre de confiance -->
-        <div class="confidence-bar">
-          <div class="bar-label">
-            <span>Faible risque</span>
-            <span>Haut risque</span>
+      <!-- Loading State -->
+      <div class="loading-state" *ngIf="isLoading">
+        <div class="ai-brain">
+          <div class="brain-wave"></div>
+          <i class="bi bi-cpu"></i>
+        </div>
+        <div class="loading-text">
+          <h4>Analyse en cours</h4>
+          <p>Notre modèle d'IA analyse l'image...</p>
+        </div>
+        <div class="loading-progress">
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
           </div>
-          <div class="bar-container">
-            <div class="bar-fill" [style.width.%]="analysisResult.confidence"
-                 [class.diabetes-bar]="analysisResult.prediction === 'Diabetes'"
-                 [class.non-diabetes-bar]="analysisResult.prediction === 'NonDiabetes'">
+          <span class="progress-text">Traitement des données</span>
+        </div>
+      </div>
+
+      <!-- Result Section -->
+      <div class="result-container" *ngIf="analysisResult && !isLoading">
+        <!-- Result Badge -->
+        <div class="result-card" 
+             [class.diabetes-result]="analysisResult.prediction === 'Diabetes'"
+             [class.non-diabetes-result]="analysisResult.prediction === 'NonDiabetes'">
+          
+          <div class="result-status">
+            <div class="status-icon">
+              <i class="bi" 
+                 [ngClass]="analysisResult.prediction === 'Diabetes' ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'"></i>
+            </div>
+            <div class="status-info">
+              <h3>{{ analysisResult.prediction === 'Diabetes' ? 'Diabète détecté' : 'État normal' }}</h3>
+              <p>Analyse basée sur les caractéristiques visuelles</p>
+            </div>
+          </div>
+
+          <!-- Confidence Score -->
+          <div class="confidence-section">
+            <div class="confidence-header">
+              <span class="confidence-label">Niveau de confiance</span>
+              <span class="confidence-value">{{ analysisResult.confidence }}%</span>
+            </div>
+            <div class="confidence-track">
+              <div class="confidence-fill" 
+                   [style.width.%]="analysisResult.confidence"
+                   [class.diabetes-fill]="analysisResult.prediction === 'Diabetes'"
+                   [class.non-diabetes-fill]="analysisResult.prediction === 'NonDiabetes'">
+                <div class="fill-glow"></div>
+              </div>
+            </div>
+            <div class="confidence-scale">
+              <span>Faible risque</span>
+              <span>Modéré</span>
+              <span>Haut risque</span>
+            </div>
+          </div>
+
+          <!-- Recommendation -->
+          <div class="recommendation-box" *ngIf="analysisResult.prediction === 'Diabetes'">
+            <i class="bi bi-info-circle-fill"></i>
+            <div class="recommendation-text">
+              <strong>Recommandation médicale</strong>
+              <p>Une consultation avec un spécialiste est recommandée pour un diagnostic approfondi et un plan de traitement adapté.</p>
+            </div>
+          </div>
+
+          <div class="recommendation-box success" *ngIf="analysisResult.prediction === 'NonDiabetes'">
+            <i class="bi bi-check-circle-fill"></i>
+            <div class="recommendation-text">
+              <strong>Bonne nouvelle</strong>
+              <p>L'analyse ne montre pas de signes évidents de diabète. Continuez à surveiller votre santé régulièrement.</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Erreur -->
-      <div class="error-section" *ngIf="error && !isLoading">
-        <i class="bi bi-exclamation-triangle-fill"></i>
+      <!-- Error State -->
+      <div class="error-state" *ngIf="error && !isLoading">
+        <div class="error-icon">
+          <i class="bi bi-shield-exclamation"></i>
+        </div>
+        <h4>Erreur d'analyse</h4>
         <p>{{ error }}</p>
-        <button class="btn-retry" (click)="retryAnalysis()">
-          <i class="bi bi-arrow-repeat"></i> Réessayer
+        <button class="retry-button" (click)="retryAnalysis()">
+          <i class="bi bi-arrow-repeat"></i>
+          <span>Réessayer</span>
         </button>
       </div>
     </div>
 
-    <!-- Pied -->
+    <!-- Footer -->
     <div class="modal-footer" *ngIf="analysisResult && !isLoading">
-      <button class="btn-send-result" (click)="openSendModal()">
-        <i class="bi bi-send"></i>
-        Envoyer le résultat au patient
-      </button>
-      <button class="btn-close" (click)="close()">
+      <button class="footer-btn secondary" (click)="close()">
+        <i class="bi bi-x-circle"></i>
         Fermer
+      </button>
+      <button class="footer-btn primary" (click)="openSendModal()">
+        <i class="bi bi-send-fill"></i>
+        Envoyer au patient
       </button>
     </div>
   </div>

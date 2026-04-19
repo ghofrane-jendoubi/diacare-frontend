@@ -1,64 +1,69 @@
 <!-- nutrition-tabs.component.html -->
-<div class="sidebar">
-
-  <!-- Logo / titre -->
+<div class="nutrition-sidebar" *ngIf="isVisible">
   <div class="sidebar-header">
     <div class="sidebar-logo">
-      <i class="bi bi-heart-pulse-fill"></i>
+      <i class="bi bi-apple"></i>
     </div>
-    <span class="sidebar-title">DiaCare</span>
+    <h4 class="sidebar-title">Nutrition</h4>
   </div>
 
-  <!-- Navigation -->
-  <nav class="sidebar-nav">
-
-    <a routerLink="/patient/nutrition"
-       routerLinkActive="active"
-       [routerLinkActiveOptions]="{exact: true}"
-       class="nav-item">
-      <div class="nav-icon"><i class="bi bi-cpu-fill"></i></div>
-      <span class="nav-label">Analyse IA</span>
-    </a>
-
-    <a routerLink="/patient/my-plans"
-       routerLinkActive="active"
-       class="nav-item">
-      <div class="nav-icon"><i class="bi bi-journal-text"></i></div>
-      <span class="nav-label">Mes Plans</span>
-    </a>
-
-    <a routerLink="/patient/profile"
-       routerLinkActive="active"
-       class="nav-item">
-      <div class="nav-icon"><i class="bi bi-person-heart"></i></div>
-      <span class="nav-label">Mon Profil</span>
-    </a>
-
-    <a routerLink="/patient/progress" routerLinkActive="active" class="nav-item">
-  <div class="nav-icon"><i class="bi bi-graph-up-arrow"></i></div>
-  <span class="nav-label">Ma Progression</span>
-</a>
-    <a routerLink="/patient/nutrition-chat"
-       routerLinkActive="active"
+  <div class="sidebar-nav">
+    <!-- Chat avec le nutritionniste sélectionné -->
+    <a [routerLink]="['/patient/nutrition-chat', nutritionistId]" 
+       routerLinkActive="active" 
        class="nav-item">
       <div class="nav-icon">
-        <i class="bi bi-chat-dots-fill"></i>
-        <!-- Badge non lus -->
-        <span class="unread-badge" *ngIf="unreadCount > 0">
-          {{ unreadCount > 9 ? '9+' : unreadCount }}
-        </span>
+        <i class="bi bi-chat-dots"></i>
+        <span *ngIf="unreadCount > 0" class="unread-badge">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
       </div>
-      <span class="nav-label">
-        Mon Nutritionniste
-        <span class="unread-text" *ngIf="unreadCount > 0">
-          {{ unreadCount }} nouveau{{ unreadCount > 1 ? 'x' : '' }}
-        </span>
-      </span>
+      <span class="nav-text">Chat nutrition</span>
+      <span *ngIf="unreadCount > 0" class="unread-text">{{ unreadCount }}</span>
     </a>
 
-  </nav>
+    <!-- Analyse alimentaire (Food Chat) -->
+    <a routerLink="/patient/nutrition" 
+       routerLinkActive="active" 
+       class="nav-item">
+      <div class="nav-icon">
+        <i class="bi bi-camera"></i>
+      </div>
+      <span class="nav-text">Analyse alimentaire</span>
+    </a>
 
-  <!-- Footer sidebar -->
+    <!-- Mes plans alimentaires -->
+    <a routerLink="/patient/my-plans" 
+       routerLinkActive="active" 
+       class="nav-item">
+      <div class="nav-icon">
+        <i class="bi bi-card-list"></i>
+      </div>
+      <span class="nav-text">Mes plans</span>
+    </a>
 
+    <!-- Mon profil nutritionnel -->
+    <a routerLink="/patient/profile" 
+       routerLinkActive="active" 
+       class="nav-item">
+      <div class="nav-icon">
+        <i class="bi bi-person"></i>
+      </div>
+      <span class="nav-text">Mon profil</span>
+    </a>
 
+    <!-- Mes progrès -->
+    <a routerLink="/patient/progress" 
+       routerLinkActive="active" 
+       class="nav-item">
+      <div class="nav-icon">
+        <i class="bi bi-graph-up"></i>
+      </div>
+      <span class="nav-text">Progrès</span>
+    </a>
+  </div>
+
+  <div class="sidebar-footer" *ngIf="false">
+    <div class="patient-avatar">
+      <i class="bi bi-person-fill"></i>
+    </div>
+  </div>
 </div>

@@ -41,4 +41,5 @@ export class PatientChoicesComponent {
   toggleFaq(index: number): void {
     this.activeFaq = this.activeFaq === index ? null : index;
   }
+  
 }

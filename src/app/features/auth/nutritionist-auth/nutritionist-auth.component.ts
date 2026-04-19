@@ -223,56 +223,82 @@ export class NutritionistAuthComponent {
     });
   }
 
-  signIn() {
-    this.errorMessage = '';
-    
-    if (!this.loginData.email || !this.loginData.password) {
-      this.errorMessage = 'Email et mot de passe requis.';
-      return;
-    }
-    
-    if (!this.isValidEmail(this.loginData.email)) {
-      this.errorMessage = 'Email invalide';
-      return;
-    }
-    
-    this.isLoading = true;
-    this.cdr.detectChanges();
-    
-    if (this.rememberMe && typeof localStorage !== 'undefined') {
-      localStorage.setItem('remembered_email', this.loginData.email);
-    } else if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem('remembered_email');
-    }
-    
-    this.http.post('http://localhost:8081/api/nutritionists/login', this.loginData).subscribe({
-      next: (res: any) => {
-        this.isLoading = false;
-        
-        localStorage.setItem('nutritionist_id', res.id);
-        localStorage.setItem('nutritionist_email', res.email);
-        localStorage.setItem('nutritionist_firstName', res.firstName);
-        localStorage.setItem('nutritionist_lastName', res.lastName);
-        localStorage.setItem('token', 'authenticated');
-        localStorage.setItem('login_timestamp', Date.now().toString());
-        
-        this.successMessage = 'Connexion réussie ! Redirection...';
-        this.cdr.detectChanges();
-        setTimeout(() => {
-          this.router.navigate(['/nutritionnist']);
-        }, 1000);
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.errorMessage = err.error?.message || 'Email ou mot de passe incorrect.';
-        this.cdr.detectChanges();
-        setTimeout(() => {
-          this.errorMessage = '';
-          this.cdr.detectChanges();
-        }, 5000);
-      }
-    });
+  // nutritionist-auth.component.ts - Modifier la méthode signIn()
+
+signIn() {
+  this.errorMessage = '';
+  
+  if (!this.loginData.email || !this.loginData.password) {
+    this.errorMessage = 'Email et mot de passe requis.';
+    return;
   }
+  
+  if (!this.isValidEmail(this.loginData.email)) {
+    this.errorMessage = 'Email invalide';
+    return;
+  }
+  
+  this.isLoading = true;
+  this.cdr.detectChanges();
+  
+  if (this.rememberMe && typeof localStorage !== 'undefined') {
+    localStorage.setItem('remembered_email', this.loginData.email);
+  } else if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem('remembered_email');
+  }
+  
+  this.http.post('http://localhost:8081/api/nutritionists/login', this.loginData).subscribe({
+    next: (res: any) => {
+      this.isLoading = false;
+      
+      // ✅ CRÉER L'OBJET USER COMPLET POUR AUTH SERVICE
+      const user = {
+        id: res.id,
+        firstName: res.firstName,
+        lastName: res.lastName,
+        email: res.email,
+        role: res.role || 'NUTRITIONIST',  // ← IMPORTANT
+        phone: res.phone,
+        profilePicture: res.profilePicture || null
+      };
+      
+      // ✅ STOCKER DANS LE FORMAT ATTENDU PAR AUTH SERVICE
+      localStorage.setItem('user', JSON.stringify(user));
+      
+      // Stocker le token si présent
+      if (res.token) {
+        localStorage.setItem('token', res.token);
+      } else {
+        localStorage.setItem('token', 'authenticated');
+      }
+      
+      // Garder aussi les anciennes clés pour compatibilité (optionnel)
+      localStorage.setItem('nutritionist_id', res.id);
+      localStorage.setItem('nutritionist_email', res.email);
+      localStorage.setItem('nutritionist_firstName', res.firstName);
+      localStorage.setItem('nutritionist_lastName', res.lastName);
+      localStorage.setItem('login_timestamp', Date.now().toString());
+      
+      console.log('✅ Nutritionniste connecté:', user);
+      
+      this.successMessage = 'Connexion réussie ! Redirection...';
+      this.cdr.detectChanges();
+      
+      setTimeout(() => {
+        this.router.navigate(['/nutritionnist']);
+      }, 1000);
+    },
+    error: (err) => {
+      this.isLoading = false;
+      this.errorMessage = err.error?.message || 'Email ou mot de passe incorrect.';
+      this.cdr.detectChanges();
+      setTimeout(() => {
+        this.errorMessage = '';
+        this.cdr.detectChanges();
+      }, 5000);
+    }
+  });
+}
 
   private resetForm() {
     this.signupData = { 

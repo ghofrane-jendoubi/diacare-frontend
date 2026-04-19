@@ -1,217 +1,333 @@
-<div class="appointments-manager">
-  <!-- En-tête -->
-  <div class="page-header">
-    <button class="back-btn" (click)="goBack()">
-      <i class="bi bi-arrow-left"></i>
-    </button>
-    <div class="header-content">
-      <h1>
-        <i class="bi bi-calendar-check"></i>
-        Gestion des rendez-vous
-      </h1>
-      <p>Consultez et gérez tous vos rendez-vous avec vos patients</p>
-    </div>
-    <div class="header-stats">
-      <div class="stat-card">
-        <span class="stat-value">{{ appointments.length }}</span>
-        <span class="stat-label">Total</span>
+<div class="appointments-container">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="hero-text">
+        <div class="greeting-badge">
+          <i class="bi bi-calendar-heart-fill"></i>
+          <span>Gestion des rendez-vous</span>
+        </div>
+        <h1>Planification médicale</h1>
+        <p>Gérez vos consultations et suivez vos rendez-vous avec vos patients</p>
       </div>
-      <div class="stat-card">
-        <span class="stat-value">{{ getPaidCount() }}</span>
-        <span class="stat-label">Payés</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-value">{{ getPendingCount() }}</span>
-        <span class="stat-label">En attente</span>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-circle">
+            <i class="bi bi-calendar-check"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-number">{{ appointments.length }}</span>
+            <span class="stat-label">Total</span>
+          </div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-circle success">
+            <i class="bi bi-check-lg"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-number">{{ getPaidCount() }}</span>
+            <span class="stat-label">Payés</span>
+          </div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-circle warning">
+            <i class="bi bi-hourglass-split"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-number">{{ getPendingCount() }}</span>
+            <span class="stat-label">En attente</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Filtres -->
-  <div class="filters-bar">
-    <div class="filter-tabs">
-      <button class="filter-btn" [class.active]="filterStatus === 'all'" (click)="setFilter('all')">
-        <i class="bi bi-grid-3x3"></i> Tous
-      </button>
-      <button class="filter-btn" [class.active]="filterStatus === 'payé'" (click)="setFilter('payé')">
-        <i class="bi bi-check-circle"></i> Payés
-      </button>
-      <button class="filter-btn" [class.active]="filterStatus === 'en_attente_paiement'" (click)="setFilter('en_attente_paiement')">
-        <i class="bi bi-clock-history"></i> En attente
-      </button>
-      <button class="filter-btn" [class.active]="filterStatus === 'expiré'" (click)="setFilter('expiré')">
-        <i class="bi bi-calendar-x"></i> Expirés
-      </button>
-      <button class="filter-btn" [class.active]="filterStatus === 'annulé'" (click)="setFilter('annulé')">
-        <i class="bi bi-x-circle"></i> Annulés
-      </button>
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Filter Bar -->
+    <div class="filter-section">
+      <div class="filter-tabs">
+        <button class="filter-chip" [class.active]="filterStatus === 'all'" (click)="setFilter('all')">
+          <i class="bi bi-grid-3x3-gap-fill"></i>
+          <span>Tous</span>
+          <span class="chip-count">{{ appointments.length }}</span>
+        </button>
+        <button class="filter-chip" [class.active]="filterStatus === 'payé'" (click)="setFilter('payé')">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Payés</span>
+          <span class="chip-count">{{ getPaidCount() }}</span>
+        </button>
+        <button class="filter-chip" [class.active]="filterStatus === 'en_attente_paiement'" (click)="setFilter('en_attente_paiement')">
+          <i class="bi bi-clock-history"></i>
+          <span>En attente</span>
+          <span class="chip-count">{{ getPendingCount() }}</span>
+        </button>
+        <button class="filter-chip" [class.active]="filterStatus === 'expiré'" (click)="setFilter('expiré')">
+          <i class="bi bi-calendar-x-fill"></i>
+          <span>Expirés</span>
+        </button>
+        <button class="filter-chip" [class.active]="filterStatus === 'annulé'" (click)="setFilter('annulé')">
+          <i class="bi bi-x-circle-fill"></i>
+          <span>Annulés</span>
+        </button>
+      </div>
+
+      <div class="search-wrapper">
+        <i class="bi bi-search"></i>
+        <input 
+          type="text" 
+          placeholder="Rechercher un patient..." 
+          [(ngModel)]="searchTerm"
+          (input)="applyFilters()"
+          class="search-input">
+        <button class="search-btn" *ngIf="searchTerm" (click)="searchTerm = ''; applyFilters()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
     </div>
-    
-    <div class="search-box">
-      <i class="bi bi-search"></i>
-      <input type="text" 
-             placeholder="Rechercher un patient..." 
-             [(ngModel)]="searchTerm"
-             (input)="applyFilters()">
+
+    <!-- Appointments Grid -->
+    <div class="appointments-grid">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-state">
+        <div class="loading-card" *ngFor="let i of [1,2,3]">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-content">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-line medium"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && filteredAppointments.length === 0" class="empty-state">
+        <div class="empty-illustration">
+          <i class="bi bi-calendar2-week"></i>
+        </div>
+        <h3>Aucun rendez-vous trouvé</h3>
+        <p>Aucun rendez-vous ne correspond à vos critères de recherche</p>
+        <button class="primary-btn" (click)="setFilter('all'); searchTerm = ''">
+          <i class="bi bi-arrow-repeat"></i>
+          Réinitialiser les filtres
+        </button>
+      </div>
+
+      <!-- Appointment Cards -->
+      <div *ngFor="let app of filteredAppointments" class="appointment-card" [class.expired]="app.isExpired">
+        <div class="card-glow"></div>
+        <div class="card-header">
+          <div class="patient-section">
+            <div class="patient-avatar" [style.background]="getAvatarGradient(app.patientName)">
+              <span>{{ getPatientInitial(app.patientName) }}</span>
+            </div>
+            <div class="patient-info">
+              <h4>{{ app.patientName || 'Patient' }}</h4>
+              <div class="appointment-title">
+                <i class="bi bi-stethoscope"></i>
+                <span>{{ app.title }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="status-indicator" [class]="getStatusClass(app.status)">
+            <i class="bi" [ngClass]="getStatusIcon(app.status)"></i>
+            <span>{{ getStatusLabel(app.status) }}</span>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-icon">
+                <i class="bi bi-calendar3"></i>
+              </div>
+              <div class="info-text">
+                <span class="info-label">Date</span>
+                <span class="info-value">{{ formatDisplayDate(app.startTime) }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon">
+                <i class="bi bi-clock"></i>
+              </div>
+              <div class="info-text">
+                <span class="info-label">Horaire</span>
+                <span class="info-value">{{ formatDisplayTime(app.startTime) }} - {{ formatDisplayTime(app.endTime) }}</span>
+              </div>
+            </div>
+            <div class="info-item" *ngIf="app.fee">
+              <div class="info-icon">
+                <i class="bi bi-coin"></i>
+              </div>
+              <div class="info-text">
+                <span class="info-label">Consultation</span>
+                <span class="info-value">{{ app.fee }} TND</span>
+              </div>
+            </div>
+            <div class="info-item" *ngIf="app.meetLink">
+              <div class="info-icon">
+                <i class="bi bi-camera-video-fill"></i>
+              </div>
+              <div class="info-text">
+                <span class="info-label">Lien de visio</span>
+                <a [href]="app.meetLink" target="_blank" class="meet-link">
+                  Rejoindre <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="description-section" *ngIf="app.description">
+            <i class="bi bi-chat-quote"></i>
+            <p>{{ app.description }}</p>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button class="action-btn profile-btn" (click)="viewPatientProfile(app.patientId)" title="Voir le profil">
+            <i class="bi bi-person-circle"></i>
+            <span>Profil</span>
+          </button>
+          <button class="action-btn edit-btn" 
+                  (click)="openEditModal(app)" 
+                  [disabled]="!canEdit(app)"
+                  title="Modifier">
+            <i class="bi bi-pencil-square"></i>
+            <span>Modifier</span>
+          </button>
+          <button class="action-btn cancel-btn" 
+                  (click)="cancelAppointment(app)" 
+                  [disabled]="!canCancel(app)"
+                  title="Annuler">
+            <i class="bi bi-trash3"></i>
+            <span>Annuler</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
-
-  <!-- Liste des rendez-vous -->
-  <div class="appointments-list">
-    <div *ngIf="loading" class="loading-state">
-      <div class="spinner"></div>
-      <p>Chargement des rendez-vous...</p>
-    </div>
-
-    <div *ngIf="!loading && filteredAppointments.length === 0" class="empty-state">
-      <i class="bi bi-calendar-x"></i>
-      <h3>Aucun rendez-vous</h3>
-      <p>Aucun rendez-vous ne correspond à vos critères</p>
-    </div>
-
-    <div *ngFor="let app of filteredAppointments" class="appointment-card" [class.expired]="app.isExpired">
-      <div class="card-header">
-        <div class="patient-info">
-          <div class="patient-avatar">
-            <span>{{ getPatientInitial(app.patientName) }}</span>
-          </div>
-          <div class="patient-details">
-            <h3>{{ app.patientName || 'Patient' }}</h3>
-            <p>{{ app.title }}</p>
-          </div>
-        </div>
-        <div class="status-badge" [ngClass]="getStatusClass(app.status)">
-          <i class="bi" [ngClass]="getStatusIcon(app.status)"></i>
-          {{ getStatusLabel(app.status) }}
-        </div>
-      </div>
-
-      <div class="card-body">
-        <div class="info-row">
-          <div class="info-item">
-            <i class="bi bi-calendar"></i>
-            <span>{{ formatDisplayDate(app.startTime) }}</span>
-          </div>
-          <div class="info-item">
-            <i class="bi bi-clock"></i>
-            <span>{{ formatDisplayTime(app.startTime) }} - {{ formatDisplayTime(app.endTime) }}</span>
-          </div>
-          <div class="info-item" *ngIf="app.fee">
-            <i class="bi bi-currency-dollar"></i>
-            <span>{{ app.fee }} TND</span>
-          </div>
-        </div>
-
-        <div class="info-row" *ngIf="app.meetLink">
-          <div class="info-item meet-link">
-            <i class="bi bi-camera-video"></i>
-            <a [href]="app.meetLink" target="_blank">{{ app.meetLink }}</a>
-          </div>
-        </div>
-
-        <div class="info-row" *ngIf="app.description">
-          <div class="info-item">
-            <i class="bi bi-chat-text"></i>
-            <span>{{ app.description }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card-actions">
-  <button class="btn-view" (click)="viewPatientProfile(app.patientId)" title="Voir profil patient">
-    <i class="bi bi-person"></i> Profil
-  </button>
-  <button class="btn-edit" 
-          (click)="openEditModal(app)" 
-          [disabled]="!canEdit(app)" 
-          title="Modifier">
-    <i class="bi bi-pencil"></i> Modifier
-  </button>
-  <button class="btn-delete" 
-          (click)="cancelAppointment(app)" 
-          [disabled]="!canCancel(app)" 
-          title="Annuler">
-    <i class="bi bi-trash"></i> Annuler
-  </button>
 </div>
-    </div>
-  </div>
-</div>
 
-<!-- Modal d'édition -->
+<!-- Edit Modal -->
 <div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
   <div class="modal-container" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>
+      <div class="modal-title">
         <i class="bi bi-pencil-square"></i>
-        Modifier le rendez-vous
-      </h2>
-      <button class="close-btn" (click)="closeEditModal()">
+        <h2>Modifier le rendez-vous</h2>
+      </div>
+      <button class="modal-close" (click)="closeEditModal()">
         <i class="bi bi-x-lg"></i>
       </button>
     </div>
 
     <div class="modal-body">
       <form #editFormRef="ngForm" (ngSubmit)="updateAppointment()">
-        <div class="form-group">
-          <label>Titre de la consultation</label>
-          <input type="text" [(ngModel)]="editForm.title" name="editTitle" required>
+        <div class="form-field">
+          <label class="field-label">
+            <i class="bi bi-tag"></i>
+            Titre de la consultation
+          </label>
+          <input type="text" 
+                 [(ngModel)]="editForm.title" 
+                 name="editTitle" 
+                 class="field-input"
+                 placeholder="Ex: Consultation de suivi"
+                 required>
         </div>
 
-        <div class="row">
-          <div class="col">
-            <div class="form-group">
-              <label>Date</label>
-              <input type="date" [(ngModel)]="editForm.date" name="editDate" required>
-            </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="field-label">
+              <i class="bi bi-calendar"></i>
+              Date
+            </label>
+            <input type="date" 
+                   [(ngModel)]="editForm.date" 
+                   name="editDate" 
+                   class="field-input"
+                   required>
           </div>
-          <div class="col">
-            <div class="form-group">
-              <label>Heure</label>
-              <input type="time" [(ngModel)]="editForm.time" name="editTime" required>
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col">
-            <div class="form-group">
-              <label>Durée (minutes)</label>
-              <select [(ngModel)]="editForm.duration" name="editDuration">
-                <option [ngValue]="15">15 min</option>
-                <option [ngValue]="30">30 min</option>
-                <option [ngValue]="45">45 min</option>
-                <option [ngValue]="60">60 min</option>
-              </select>
-            </div>
-          </div>
-          <div class="col">
-            <div class="form-group">
-              <label>Tarif (TND)</label>
-              <input type="number" [(ngModel)]="editForm.fee" name="editFee" min="0" step="10">
-            </div>
+          <div class="form-field">
+            <label class="field-label">
+              <i class="bi bi-clock"></i>
+              Heure
+            </label>
+            <input type="time" 
+                   [(ngModel)]="editForm.time" 
+                   name="editTime" 
+                   class="field-input"
+                   required>
           </div>
         </div>
 
-        <div class="form-group">
-          <label>Lien Google Meet</label>
-          <div class="meet-link-group">
-            <input type="text" [(ngModel)]="editForm.meetLink" name="editMeetLink" placeholder="https://meet.google.com/...">
-            <button type="button" class="btn-generate" (click)="generateMeetLink()">
-              <i class="bi bi-arrow-repeat"></i> Générer
+        <div class="form-row">
+          <div class="form-field">
+            <label class="field-label">
+              <i class="bi bi-hourglass"></i>
+              Durée
+            </label>
+            <select [(ngModel)]="editForm.duration" name="editDuration" class="field-select">
+              <option [ngValue]="15">15 minutes</option>
+              <option [ngValue]="30">30 minutes</option>
+              <option [ngValue]="45">45 minutes</option>
+              <option [ngValue]="60">60 minutes</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="field-label">
+              <i class="bi bi-coin"></i>
+              Tarif (TND)
+            </label>
+            <input type="number" 
+                   [(ngModel)]="editForm.fee" 
+                   name="editFee" 
+                   class="field-input"
+                   min="0" 
+                   step="10">
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="field-label">
+            <i class="bi bi-camera-video"></i>
+            Lien Google Meet
+          </label>
+          <div class="meet-input-group">
+            <input type="text" 
+                   [(ngModel)]="editForm.meetLink" 
+                   name="editMeetLink" 
+                   class="field-input"
+                   placeholder="https://meet.google.com/...">
+            <button type="button" class="generate-btn" (click)="generateMeetLink()">
+              <i class="bi bi-magic"></i>
+              Générer
             </button>
           </div>
         </div>
 
-        <div class="form-group">
-          <label>Description / Instructions</label>
-          <textarea [(ngModel)]="editForm.description" name="editDescription" rows="3"></textarea>
+        <div class="form-field">
+          <label class="field-label">
+            <i class="bi bi-chat-text"></i>
+            Description / Instructions
+          </label>
+          <textarea [(ngModel)]="editForm.description" 
+                    name="editDescription" 
+                    class="field-textarea"
+                    rows="3"
+                    placeholder="Ajoutez des instructions ou notes pour le patient..."></textarea>
         </div>
 
-        <div class="form-actions">
-          <button type="button" class="btn-cancel" (click)="closeEditModal()">Annuler</button>
-          <button type="submit" class="btn-save" [disabled]="!editFormRef.valid">
-            <i class="bi bi-check-lg"></i> Enregistrer
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="closeEditModal()">
+            <i class="bi bi-x-lg"></i>
+            Annuler
+          </button>
+          <button type="submit" class="btn-primary" [disabled]="!editFormRef.valid">
+            <i class="bi bi-check-lg"></i>
+            Enregistrer les modifications
           </button>
         </div>
       </form>

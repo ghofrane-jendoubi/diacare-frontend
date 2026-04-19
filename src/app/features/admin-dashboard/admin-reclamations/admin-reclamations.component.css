@@ -1,0 +1,568 @@
+/* admin-reclamations.component.css */
+.admin-reclamations-page {
+  background: #f8fafc;
+  min-height: 100vh;
+  padding: 24px 32px;
+  margin-left: 40px;
+  width: calc(100% - 80px);
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+/* ===== PAGE HEADER ===== */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.page-header h2 {
+  margin: 0 0 4px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.5px;
+}
+
+.page-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.refresh-btn {
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #1e293b;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.refresh-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+/* ===== STATS GRID ===== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 20px;
+  padding: 16px 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ===== ALERTS ===== */
+.alerts {
+  margin-bottom: 24px;
+}
+
+.alert {
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.alert.success {
+  background: #dcfce7;
+  color: #166534;
+  border-left: 4px solid #16a34a;
+}
+
+.alert.error {
+  background: #fee2e2;
+  color: #991b1b;
+  border-left: 4px solid #dc2626;
+}
+
+/* ===== TOOLBAR ===== */
+.toolbar-card {
+  display: grid;
+  grid-template-columns: 1fr 200px 200px auto;
+  gap: 12px;
+  background: white;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  padding: 16px 20px;
+  margin-bottom: 28px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.admin-input {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  outline: none;
+  box-sizing: border-box;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  background: #f8fafc;
+}
+
+.admin-input:focus {
+  border-color: #3b82f6;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.reset-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 16px;
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reset-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  text-align: center;
+  color: #64748b;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 60px 20px;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  display: block;
+  color: #cbd5e1;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* ===== TICKET CARD ===== */
+.admin-ticket {
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.admin-ticket:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
+}
+
+.ticket-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.ticket-top h4 {
+  margin: 0 0 8px;
+  color: #0f172a;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.ticket-meta {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.ticket-desc {
+  margin: 16px 0;
+  color: #334155;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 16px;
+}
+
+/* ===== TAGS ===== */
+.tags-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.tag {
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tag.priority {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.tag.role {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+/* ===== STATUS BADGE ===== */
+.status-badge {
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-open {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.status-progress {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.status-answered {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.status-resolved {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.status-rejected {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* ===== EXISTING RESPONSE ===== */
+.existing-response {
+  margin-bottom: 20px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border-left: 4px solid #3b82f6;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+}
+
+.existing-response strong {
+  color: #1e293b;
+}
+
+/* ===== BUTTONS ===== */
+.status-actions,
+.action-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.btn-warning,
+.btn-success,
+.btn-secondary,
+.btn-dark,
+.btn-danger-outline {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+}
+
+.btn-warning:hover,
+.btn-success:hover,
+.btn-secondary:hover,
+.btn-dark:hover,
+.btn-danger-outline:hover {
+  transform: translateY(-1px);
+}
+
+.btn-warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.btn-warning:hover {
+  background: #fde68a;
+}
+
+.btn-success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.btn-success:hover {
+  background: #bbf7d0;
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+.btn-dark {
+  background: #0f172a;
+  color: white;
+}
+
+.btn-dark:hover {
+  background: #1e293b;
+}
+
+.btn-danger-outline {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.btn-danger-outline:hover {
+  background: #fecaca;
+}
+
+/* ===== FORM BLOCK ===== */
+.form-block {
+  margin-bottom: 16px;
+}
+
+.form-block label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.85rem;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  background: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ===== USER NAME STYLES ===== */
+.user-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: #1e293b;
+  background: #f1f5f9;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+.user-name i {
+  font-size: 12px;
+}
+
+.user-role {
+  display: inline-block;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  margin-left: 6px;
+  font-weight: 600;
+}
+
+.role-patient {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.role-doctor {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.role-nutritionnist {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.role-admin {
+  background: #f3e8ff;
+  color: #9333ea;
+}
+
+.loading-name {
+  font-size: 12px;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .admin-reclamations-page {
+    margin-left: 80px;
+    width: calc(100% - 80px);
+    padding: 20px 24px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .toolbar-card {
+    grid-template-columns: 1fr 200px 200px auto;
+  }
+}
+
+@media (max-width: 992px) {
+  .admin-reclamations-page {
+    margin-left: 0;
+    width: 100%;
+    padding: 16px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .toolbar-card {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ticket-top {
+    flex-direction: column;
+  }
+
+  .status-badge {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-reclamations-page {
+    padding: 12px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 12px 16px;
+  }
+
+  .stat-value {
+    font-size: 1.4rem;
+  }
+
+  .admin-ticket {
+    padding: 16px;
+  }
+
+  .ticket-desc {
+    font-size: 0.85rem;
+  }
+
+  .status-actions,
+  .action-row {
+    flex-direction: column;
+  }
+
+  .btn-warning,
+  .btn-success,
+  .btn-secondary,
+  .btn-dark,
+  .btn-danger-outline {
+    width: 100%;
+    text-align: center;
+  }
+}

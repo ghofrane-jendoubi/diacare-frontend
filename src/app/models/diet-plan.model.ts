@@ -23,19 +23,28 @@ export interface FoodEntry {
   parsedResult?: FoodAnalysisResult;
 }
 
+// diet-plan.model.ts
 export interface DietPlan {
-  id?: number;
+  id: number;
   title: string;
-  description?: string;
-  status?: string;
-  targetCalories?: number;
-  targetCarbs?: number;
-  targetProtein?: number;
-  targetFat?: number;
-  createdAt?: string;
+  description: string;
+  startDate?: string;
+  endDate?: string;
+  status: 'active' | 'completed' | 'archived';
+  targetCalories: number;
+  targetCarbs: number;
+  targetProtein: number;
+  targetFat: number;
+  nutritionistId: number;      
+  nutritionist?: {             
+    id: number;
+    firstName: string;
+    lastName: string;
+  };
+  patientId: number;
   meals?: DietMeal[];
-  patient?: any;        // ← objet User
-  nutritionist?: any;   // ← objet User
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface DietMeal {

@@ -10,7 +10,7 @@ import { PatientService } from '../../../services/patient.service';
   styleUrls: ['./doctor-sidebar.component.css']
 })
 export class DoctorSidebarComponent implements OnInit, OnDestroy {
-  // ✅ Ajouter la propriété isCollapsed
+  // Propriété pour la sidebar
   isCollapsed = false;
   
   doctorInfo: any = {
@@ -57,7 +57,7 @@ export class DoctorSidebarComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ✅ Ajouter la méthode toggleSidebar
+  // Méthode pour toggle la sidebar
   toggleSidebar(): void {
     this.isCollapsed = !this.isCollapsed;
   }

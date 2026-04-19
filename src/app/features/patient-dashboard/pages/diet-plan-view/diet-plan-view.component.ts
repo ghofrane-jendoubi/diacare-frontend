@@ -1,3 +1,4 @@
+// diet-plan-view.component.ts
 import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { NutritionService } from '../../../../services/nutrition.service';
 import { DietPlan } from '../../../../models/diet-plan.model';
@@ -16,6 +17,7 @@ export class DietPlanViewComponent implements OnInit {
   isLoading = true;
   error = '';
   patientId: number | null = null;
+  nutritionistId: number | null = null;  // ✅ Garder pour le filtrage
   patientName: string = '';
 
   mealOrder = ['breakfast', 'lunch', 'dinner', 'snack'];
@@ -30,48 +32,75 @@ export class DietPlanViewComponent implements OnInit {
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.loadPatientInfo();
-      this.loadPlans();
     }
   }
 
- loadPatientInfo(): void {
-  const user = this.authService.getCurrentUser();
-  
-  if (user) {
-    this.patientId = user.id;
-    this.patientName = `${user.firstName} ${user.lastName}`;
-    this.loadPlans();
-  } else {
-    this.error = 'Veuillez vous connecter';
-    this.isLoading = false;
-    setTimeout(() => this.router.navigate(['/auth/patient']), 2000);
-  }
-}
-
-  loadPlans(): void {
-    if (!this.patientId) {
-      this.isLoading = false;
-      this.error = 'Patient non identifié';
-      return;
-    }
-    
-    this.isLoading = true;
-    this.nutritionService.getPatientDietPlans(this.patientId).subscribe({
-      next: (plans) => {
-        this.plans = plans;
-        if (plans.length > 0) {
-          this.selectedPlan = plans[0];
-        }
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('❌ Erreur chargement plans:', err);
-        this.error = 'Impossible de charger vos plans alimentaires.';
-        this.isLoading = false;
+  loadPatientInfo(): void {
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      this.patientId = user.id;
+      this.patientName = `${user.firstName} ${user.lastName}`;
+      
+      // ✅ Récupérer le nutritionniste sélectionné
+      const nutritionistId = localStorage.getItem('selected_nutritionist_id');
+      if (nutritionistId) {
+        this.nutritionistId = parseInt(nutritionistId);
       }
-    });
+      
+      this.loadPlans();
+    } else {
+      this.error = 'Veuillez vous connecter';
+      this.isLoading = false;
+      setTimeout(() => this.router.navigate(['/auth/patient']), 2000);
+    }
   }
 
+  // diet-plan-view.component.ts
+loadPlans(): void {
+  if (!this.patientId) {
+    this.isLoading = false;
+    this.error = 'Patient non identifié';
+    return;
+  }
+  
+  this.isLoading = true;
+  this.nutritionService.getPatientDietPlans(this.patientId).subscribe({
+    next: (plans) => {
+      console.log('📋 Tous les plans reçus:', plans);
+      
+      // ✅ Afficher toutes les clés du premier plan
+      if (plans.length > 0) {
+        console.log('🔑 Clés du premier plan:', Object.keys(plans[0]));
+        console.log('📦 Plan complet:', JSON.stringify(plans[0], null, 2));
+      }
+      
+      // ✅ Filtrer correctement
+      if (this.nutritionistId && plans.length > 0) {
+        // Essayer différentes possibilités
+        this.plans = plans.filter(p => {
+          const match = p.nutritionistId === this.nutritionistId || 
+                       p.nutritionist?.id === this.nutritionistId ||
+                       (p as any).nutritionist_id === this.nutritionistId;
+          console.log(`Plan ${p.id}: match=${match}, nutritionistId=${p.nutritionistId}, nutritionist?.id=${p.nutritionist?.id}`);
+          return match;
+        });
+        console.log(`📋 Plans filtrés pour nutritionniste ${this.nutritionistId}:`, this.plans);
+      } else {
+        this.plans = plans;
+      }
+      
+      if (this.plans.length > 0) {
+        this.selectedPlan = this.plans[0];
+      }
+      this.isLoading = false;
+    },
+    error: (err) => {
+      console.error('❌ Erreur chargement plans:', err);
+      this.error = 'Impossible de charger vos plans alimentaires.';
+      this.isLoading = false;
+    }
+  });
+}
   selectPlan(plan: DietPlan): void {
     this.selectedPlan = plan;
   }
@@ -88,7 +117,6 @@ export class DietPlanViewComponent implements OnInit {
     return this.getMealsByType(plan, type).length > 0;
   }
 
-  // ✅ Méthode pour rafraîchir les plans
   refreshPlans(): void {
     this.loadPlans();
   }

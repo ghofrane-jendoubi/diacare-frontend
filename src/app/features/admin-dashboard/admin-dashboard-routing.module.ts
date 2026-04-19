@@ -6,6 +6,8 @@ import { DoctorsListComponent } from './doctors-list/doctors-list.component';
 import { NutritionistsListComponent } from './nutritionists-list/nutritionists-list.component';
 import { PatientsListComponent } from './patients-list/patients-list.component';
 import { UserListComponent } from '../user-list/user-list.component';
+import { AdminGeolocalisationComponent } from './admin-geolocalisation/admin-geolocalisation.component';
+import { AdminReclamationsComponent } from './admin-reclamations/admin-reclamations.component';
 
 const routes: Routes = [
   {
@@ -17,6 +19,8 @@ const routes: Routes = [
        { path: 'users/:type', component: UserListComponent },
       { path: 'nutritionists', component: NutritionistsListComponent, title: 'Nutritionnistes' },
       { path: 'patients', component: PatientsListComponent, title: 'Patients' },
+      { path: 'geo', component: AdminGeolocalisationComponent, title: 'geo' },
+      { path: 'reclamations', component: AdminReclamationsComponent, title: 'reclamations' },
     ]
   }
 ];

@@ -1,0 +1,64 @@
+<!-- nutritionist-patients.component.html -->
+<div class="patients-container">
+  <div class="page-header">
+    <div class="header-left">
+      <h2>
+        <i class="bi bi-people-fill"></i>
+        Mes patients
+      </h2>
+      <p>Gérez vos patients et leurs plans alimentaires</p>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Chargement de vos patients...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMessage" class="error-message">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Liste des patients -->
+  <div *ngIf="!isLoading && !errorMessage" class="patients-grid">
+    <div *ngFor="let patient of patients" class="patient-card">
+      <div class="card-avatar">
+        <div class="avatar-initials">
+          {{ getInitials(patient.firstName, patient.lastName) }}
+        </div>
+      </div>
+      <div class="card-info">
+        <h4>{{ patient.firstName }} {{ patient.lastName }}</h4>
+        <p class="diabetes-type">
+          <i class="bi bi-droplet"></i>
+          {{ getDiabetesTypeLabel(patient.diabetesType) }}
+        </p>
+        <div class="card-meta">
+          <span class="badge email">
+            <i class="bi bi-envelope"></i> {{ patient.email }}
+          </span>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="action-btn chat" (click)="startChat(patient)" title="Discuter">
+          <i class="bi bi-chat-dots"></i>
+        </button>
+        <button class="action-btn profile" (click)="viewPatientProfile(patient.id)" title="Voir profil">
+          <i class="bi bi-eye"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="!isLoading && patients.length === 0" class="empty-state">
+    <div class="empty-icon">
+      <i class="bi bi-people"></i>
+    </div>
+    <h3>Aucun patient</h3>
+    <p>Vous n'avez pas encore de patients assignés</p>
+  </div>
+</div>

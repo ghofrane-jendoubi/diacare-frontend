@@ -349,4 +349,26 @@ request.subscribe({
       info.el.style.borderColor = '#dc2626';
     }
   }
+  getTodayAppointments(): number {
+  const today = new Date().toDateString();
+  return this.events.filter(event => 
+    new Date(event.start).toDateString() === today
+  ).length;
+}
+
+getUpcomingAppointments(): number {
+  const now = new Date();
+  return this.events.filter(event => 
+    new Date(event.start) > now
+  ).length;
+}
+
+getCurrentDate(): string {
+  const date = new Date();
+  return date.toLocaleDateString('fr-FR', { 
+    day: '2-digit', 
+    month: 'long', 
+    year: 'numeric' 
+  });
+}
 }

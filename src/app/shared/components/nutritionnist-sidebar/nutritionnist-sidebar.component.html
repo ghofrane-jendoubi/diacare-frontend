@@ -1,5 +1,5 @@
 <div class="sidebar" [class.collapsed]="isCollapsed">
-  <!-- Logo et Brand - Version corrigée -->
+  <!-- Logo et Brand -->
   <div class="brand-section">
     <div class="logo-container">
       <div class="logo-icon">
@@ -16,17 +16,17 @@
     </button>
   </div>
 
-  <!-- Profil Nutritionniste - Version avec icône au lieu de photo -->
+  <!-- Profil Nutritionniste -->
   <div class="profile-section">
     <div class="profile-icon">
       <i class="bi bi-person-circle"></i>
       <span class="status-indicator online"></span>
     </div>
     <div class="profile-info" *ngIf="!isCollapsed">
-      <h6>Dr. Sophie Martin</h6>
+      <h6>{{ nutritionistName }}</h6>
       <div class="profile-meta">
         <span class="badge-role">Nutritionniste</span>
-        <span class="badge-id">#NUT-2024</span>
+        <span class="badge-id">#{{ nutritionistId }}</span>
       </div>
     </div>
   </div>
@@ -42,24 +42,21 @@
           <i class="bi bi-speedometer2"></i>
         </div>
         <span class="menu-text" *ngIf="!isCollapsed">Dashboard</span>
-        <div class="menu-badge" *ngIf="!isCollapsed">
-          <span class="badge pulse">3</span>
-        </div>
       </a>
 
-      <!-- Patients -->
-      <a class="menu-item" style="cursor: not-allowed;">
+      <!-- ✅ Mes Patients -->
+      <a routerLink="/nutritionnist/patients" routerLinkActive="active" class="menu-item">
         <div class="menu-icon">
           <i class="bi bi-people-fill"></i>
         </div>
         <span class="menu-text" *ngIf="!isCollapsed">Mes Patients</span>
-        <div class="menu-badge" *ngIf="!isCollapsed">
-          <span class="badge bg-success">156</span>
+        <div class="menu-badge" *ngIf="!isCollapsed && patientsCount > 0">
+          <span class="badge bg-success">{{ patientsCount }}</span>
         </div>
       </a>
 
-      <!-- Plans Alimentaires -->
-      <a class="menu-item" style="cursor: not-allowed;">
+      <!-- ✅ Plans Alimentaires -->
+      <a routerLink="/nutritionnist/plans" routerLinkActive="active" class="menu-item">
         <div class="menu-icon">
           <i class="bi bi-basket-fill"></i>
         </div>
@@ -69,8 +66,8 @@
         </div>
       </a>
 
-      <!-- Consultations -->
-      <a class="menu-item" style="cursor: not-allowed;">
+      <!-- ✅ Consultations -->
+      <a routerLink="/nutritionnist/consultations" routerLinkActive="active" class="menu-item">
         <div class="menu-icon">
           <i class="bi bi-calendar-check-fill"></i>
         </div>
@@ -85,7 +82,7 @@
       <div class="menu-label" *ngIf="!isCollapsed">SUIVI NUTRITIONNEL</div>
       
       <!-- Évolution -->
-      <a class="menu-item" style="cursor: not-allowed;">
+      <a routerLink="/nutritionnist/evolution" routerLinkActive="active" class="menu-item">
         <div class="menu-icon">
           <i class="bi bi-graph-up"></i>
         </div>
@@ -96,7 +93,7 @@
       </a>
 
       <!-- Alertes -->
-      <a class="menu-item" style="cursor: not-allowed;">
+      <a routerLink="/nutritionnist/alerts" routerLinkActive="active" class="menu-item">
         <div class="menu-icon">
           <i class="bi bi-exclamation-triangle-fill"></i>
         </div>
@@ -107,7 +104,7 @@
       </a>
 
       <!-- Objectifs -->
-      <a class="menu-item" style="cursor: not-allowed;">
+      <a routerLink="/nutritionnist/objectifs" routerLinkActive="active" class="menu-item">
         <div class="menu-icon">
           <i class="bi bi-trophy-fill"></i>
         </div>
@@ -119,10 +116,41 @@
     </div>
 
     <div class="menu-group">
+      <div class="menu-label" *ngIf="!isCollapsed">SUPPORT</div>
+      
+      <!-- ✅ Réclamations reçues -->
+      <a routerLink="/nutritionnist/reclamation" routerLinkActive="active" class="menu-item">
+        <div class="menu-icon">
+          <i class="bi bi-envelope-paper-fill"></i>
+        </div>
+        <span class="menu-text" *ngIf="!isCollapsed">Réclamations</span>
+        <div class="menu-badge" *ngIf="!isCollapsed && reclamationsCount > 0">
+          <span class="badge bg-danger">{{ reclamationsCount }}</span>
+        </div>
+      </a>
+
+      <!-- ✅ Envoyer réclamation -->
+      <a routerLink="/nutritionnist/send_reclamation" routerLinkActive="active" class="menu-item">
+        <div class="menu-icon">
+          <i class="bi bi-send-fill"></i>
+        </div>
+        <span class="menu-text" *ngIf="!isCollapsed">Envoyer réclamation</span>
+      </a>
+
+      <!-- ✅ Géolocalisation -->
+      <a routerLink="/nutritionnist/geo" routerLinkActive="active" class="menu-item">
+        <div class="menu-icon">
+          <i class="bi bi-geo-alt-fill"></i>
+        </div>
+        <span class="menu-text" *ngIf="!isCollapsed">Géolocalisation</span>
+      </a>
+    </div>
+
+    <div class="menu-group">
       <div class="menu-label" *ngIf="!isCollapsed">RESSOURCES</div>
       
       <!-- Documents -->
-      <a class="menu-item" style="cursor: not-allowed;">
+      <a routerLink="/nutritionnist/documents" routerLinkActive="active" class="menu-item">
         <div class="menu-icon">
           <i class="bi bi-file-earmark-pdf-fill"></i>
         </div>
@@ -130,7 +158,7 @@
       </a>
 
       <!-- Vidéos -->
-      <a class="menu-item" style="cursor: not-allowed;">
+      <a routerLink="/nutritionnist/videos" routerLinkActive="active" class="menu-item">
         <div class="menu-icon">
           <i class="bi bi-play-btn-fill"></i>
         </div>
@@ -138,7 +166,7 @@
       </a>
 
       <!-- Recettes -->
-      <a class="menu-item" style="cursor: not-allowed;">
+      <a routerLink="/nutritionnist/recettes" routerLinkActive="active" class="menu-item">
         <div class="menu-icon">
           <i class="bi bi-book-fill"></i>
         </div>
@@ -159,7 +187,7 @@
       </div>
       <div class="quick-stat-divider"></div>
       <div class="quick-stat-item">
-        <span class="stat-value">156</span>
+        <span class="stat-value">{{ patientsCount }}</span>
         <span class="stat-label">Patients</span>
       </div>
       <div class="quick-stat-divider"></div>
@@ -170,11 +198,11 @@
     </div>
     
     <div class="footer-actions">
-      <a class="footer-item" style="cursor: not-allowed;">
+      <a routerLink="/nutritionnist/settings" class="footer-item">
         <i class="bi bi-gear"></i>
         <span>Paramètres</span>
       </a>
-      <a class="footer-item text-danger" style="cursor: not-allowed;">
+      <a class="footer-item text-danger" (click)="logout()">
         <i class="bi bi-box-arrow-right"></i>
         <span>Déconnexion</span>
       </a>
@@ -183,10 +211,10 @@
 
   <!-- Version simplifiée pour sidebar réduite -->
   <div class="sidebar-footer-collapsed" *ngIf="isCollapsed">
-    <a class="footer-icon" title="Paramètres">
+    <a routerLink="/nutritionnist/settings" class="footer-icon" title="Paramètres">
       <i class="bi bi-gear"></i>
     </a>
-    <a class="footer-icon text-danger" title="Déconnexion">
+    <a class="footer-icon text-danger" (click)="logout()" title="Déconnexion">
       <i class="bi bi-box-arrow-right"></i>
     </a>
   </div>

@@ -1,99 +1,125 @@
-<div class="doctors-container">
-  <div class="page-header">
-    <h1>Nos médecins spécialistes</h1>
-    <p>Choisissez un médecin pour commencer une consultation</p>
-  </div>
-
-  <!-- Section recherche et filtres -->
-  <div class="filter-section">
-    <div class="filter-tabs">
-      <button class="filter-tab" [class.active]="selectedFilter === 'all'" (click)="setFilter('all')">
-        Tous
-      </button>
-      <button class="filter-tab" [class.active]="selectedFilter === 'ENDOCRINOLOGUE'" (click)="setFilter('ENDOCRINOLOGUE')">
-        Endocrinologues
-      </button>
-      <button class="filter-tab" [class.active]="selectedFilter === 'DIABETOLOGUE'" (click)="setFilter('DIABETOLOGUE')">
-        Diabétologues
-      </button>
-      <button class="filter-tab" [class.active]="selectedFilter === 'CARDIOLOGUE'" (click)="setFilter('CARDIOLOGUE')">
-        Cardiologues
-      </button>
-      <button class="filter-tab" [class.active]="selectedFilter === 'GENERALISTE'" (click)="setFilter('GENERALISTE')">
-        Généralistes
-      </button>
-      <button class="filter-tab" [class.active]="selectedFilter === 'OPHTALMOLOGISTE'" (click)="setFilter('OPHTALMOLOGISTE')">
-        Ophtalmologistes
-      </button>
-      <button class="filter-tab" [class.active]="selectedFilter === 'NEPHROLOGUE'" (click)="setFilter('NEPHROLOGUE')">
-        Néphrologues
-      </button>
-      <button class="filter-tab" [class.active]="selectedFilter === 'PODOLOGUE'" (click)="setFilter('PODOLOGUE')">
-        Podologues
-      </button>
-    </div>
-    
-    <div class="search-wrapper">
-      <i class="bi bi-search"></i>
-      <input type="text" 
-             placeholder="Rechercher un médecin..." 
-             class="search-input"
-             [(ngModel)]="searchTerm"
-             (input)="filterDoctors()">
-    </div>
-  </div>
-
-  <div *ngIf="loading" class="loading-spinner">
-    <div class="spinner"></div>
-    <p>Chargement des médecins...</p>
-  </div>
-
-  <div *ngIf="error" class="error-message">
-    {{ error }}
-  </div>
-
-  <div *ngIf="!loading && filteredDoctors.length === 0" class="no-doctors">
-    <i class="bi bi-search-heart"></i>
-    <p>Aucun médecin ne correspond à votre recherche.</p>
-  </div>
-
-  <div class="doctors-grid" *ngIf="!loading && filteredDoctors.length > 0">
-    <div class="doctor-card" *ngFor="let doctor of filteredDoctors">
-      <div class="doctor-image">
-        <img [src]="doctor.profilePicture || 'assets/images/default-doctor.png'" 
-             [alt]="'Dr. ' + doctor.firstName + ' ' + doctor.lastName"
-             (error)="handleImageError($event)">
-        <div class="verified-badge" *ngIf="doctor.certificateStatus === 'APPROVED'" title="Médecin certifié">
-          <i class="bi bi-patch-check-fill"></i>
-        </div>
-      </div>
-      
-      <div class="doctor-info">
-        <h3>Dr. {{ doctor.firstName }} {{ doctor.lastName }}</h3>
-        <p class="speciality">{{ getSpecialityLabel(doctor.speciality) }}</p>
-        
-        <!-- Hospital info -->
-        <div class="hospital-info" *ngIf="doctor.hospital">
-          <i class="bi bi-building"></i>
-          <span>{{ doctor.hospital }}</span>
+<div class="doctors-landing">
+  
+  
+  <!-- Main Content -->
+  <section class="main-section">
+    <div class="container">
+      <!-- Filter Bar -->
+      <div class="filter-container">
+        <div class="speciality-filter">
+          <button class="filter-chip" [class.active]="selectedFilter === 'all'" (click)="setFilter('all')">
+            <i class="bi bi-grid-3x3-gap-fill"></i>
+            <span>Tous</span>
+            <span class="chip-count">{{ doctors.length }}</span>
+          </button>
+          <button class="filter-chip" *ngFor="let spec of specialities" 
+                  [class.active]="selectedFilter === spec.value" 
+                  (click)="setFilter(spec.value)">
+            <i class="bi" [ngClass]="spec.icon"></i>
+            <span>{{ spec.label }}</span>
+          </button>
         </div>
         
-        <!-- Fee info -->
-        <div class="fee-info" *ngIf="doctor.consultationFee">
-          <span class="fee-amount">{{ doctor.consultationFee }} TND</span>
-          <span class="fee-period">/ consultation</span>
-        </div>
-        
-        <!-- Experience -->
-        <div class="doctor-footer" *ngIf="doctor.yearsOfExperience">
-          <i class="bi bi-calendar-heart"></i>
-          <span>{{ doctor.yearsOfExperience }} ans d'expérience</span>
+        <div class="search-container">
+          <i class="bi bi-search"></i>
+          <input type="text" 
+                 placeholder="Rechercher un médecin..." 
+                 class="search-field"
+                 [(ngModel)]="searchTerm"
+                 (input)="filterDoctors()">
+          <button class="search-clear" *ngIf="searchTerm" (click)="searchTerm = ''; filterDoctors()">
+            <i class="bi bi-x-lg"></i>
+          </button>
         </div>
       </div>
 
-      <button class="btn-contact" (click)="startConversation(doctor.id)">
-        <i class="bi bi-chat-dots"></i> Contacter
-      </button>
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-grid">
+        <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6]">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-content">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-line medium"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error" class="error-state">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <h3>Erreur de chargement</h3>
+        <p>{{ error }}</p>
+        <button class="retry-btn" (click)="loadDoctors()">
+          <i class="bi bi-arrow-repeat"></i> Réessayer
+        </button>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && !error && filteredDoctors.length === 0" class="empty-state">
+        <div class="empty-illustration">
+          <i class="bi bi-search-heart"></i>
+        </div>
+        <h3>Aucun médecin trouvé</h3>
+        <p>Aucun médecin ne correspond à vos critères de recherche</p>
+        <button class="reset-btn" (click)="resetFilters()">
+          <i class="bi bi-arrow-repeat"></i> Réinitialiser les filtres
+        </button>
+      </div>
+
+      <!-- Doctors Grid -->
+      <div class="doctors-grid" *ngIf="!loading && !error && filteredDoctors.length > 0">
+        <div class="doctor-card" *ngFor="let doctor of filteredDoctors; let i = index" [style.animation-delay]="i * 0.05 + 's'">
+          <div class="card-glow"></div>
+          
+          <!-- Doctor Avatar -->
+          <div class="doctor-avatar" [style.background]="getAvatarGradient(doctor.id)">
+            <div class="avatar-inner">
+              <i class="bi bi-person-circle"></i>
+              <span class="doctor-initials">{{ getInitials(doctor.firstName, doctor.lastName) }}</span>
+            </div>
+            <div class="verified-badge" *ngIf="doctor.certificateStatus === 'APPROVED'" title="Médecin certifié">
+              <i class="bi bi-patch-check-fill"></i>
+            </div>
+          </div>
+
+          <!-- Doctor Info -->
+          <div class="doctor-info">
+            <h3 class="doctor-name">Dr. {{ doctor.firstName }} {{ doctor.lastName }}</h3>
+            <div class="speciality-badge" [style.background]="getSpecialityColor(doctor.speciality)">
+              <i class="bi" [ngClass]="getSpecialityIcon(doctor.speciality)"></i>
+              <span>{{ getSpecialityLabel(doctor.speciality) }}</span>
+            </div>
+            
+            <div class="info-details">
+              <div class="detail-item" *ngIf="doctor.hospital">
+                <i class="bi bi-building"></i>
+                <span>{{ doctor.hospital }}</span>
+              </div>
+              <div class="detail-item" *ngIf="doctor.yearsOfExperience">
+                <i class="bi bi-calendar-heart"></i>
+                <span>{{ doctor.yearsOfExperience }} ans d'expérience</span>
+              </div>
+              <div class="detail-item" *ngIf="doctor.consultationFee">
+                <i class="bi bi-cash-stack"></i>
+                <span class="fee">{{ doctor.consultationFee }} TND</span>
+                <span class="fee-period">/ consultation</span>
+              </div>
+              <div class="detail-item" *ngIf="doctor.licenseNumber">
+                <i class="bi bi-card-text"></i>
+                <span>Licence: {{ doctor.licenseNumber }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Button -->
+          <button class="contact-btn" (click)="startConversation(doctor.id)">
+            <i class="bi bi-chat-dots-fill"></i>
+            <span>Contacter</span>
+            <i class="bi bi-arrow-right"></i>
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
 </div>

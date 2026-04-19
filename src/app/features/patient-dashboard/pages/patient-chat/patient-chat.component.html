@@ -1,42 +1,38 @@
-<!-- patient-chat.component.html -->
+<!-- patient-chat.component.html - Version corrigée sans doublons -->
 <div class="chat-wrapper">
 
-  <!-- ── Header ─────────────────────────────────────────── -->
+  <!-- Header avec badge de notification -->
   <div class="chat-header">
-    <div class="chat-header-info">
-      <div class="avatar nutri-avatar">
-        <i class="bi bi-person-badge-fill"></i>
-      </div>
-      <div>
-        <h2>Mon Nutritionniste</h2>
-        <span class="status-dot"></span>
-        <span class="status-text">Disponible pour vos questions</span>
+    <button class="back-btn" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i>
+    </button>
+    <div class="nutritionist-info">
+      <div class="avatar">{{ nutritionistName.charAt(0) }}</div>
+      <div class="info">
+        <h3>{{ nutritionistName }}</h3>
+        <p>Nutritionniste</p>
       </div>
     </div>
-    <div class="header-badge" *ngIf="unreadCount > 0">
-      <i class="bi bi-bell-fill"></i>
-      {{ unreadCount }} nouveau{{ unreadCount > 1 ? 'x' : '' }} message
+    <div class="notification-badge" *ngIf="unreadCount > 0">
+      <span class="badge">{{ unreadCount }}</span>
     </div>
   </div>
 
-  <!-- ── Suggestions rapides ────────────────────────────── -->
-  <div class="quick-replies">
+  <!-- Réponses rapides (une seule fois) -->
+  <div class="quick-replies" *ngIf="messages.length <= 2">
     <span class="quick-label">Réponses rapides :</span>
-    <button class="quick-btn"
-            *ngFor="let reply of quickReplies"
-            (click)="useQuickReply(reply)">
+    <button class="quick-reply-btn" *ngFor="let reply of quickReplies" (click)="useQuickReply(reply)">
       {{ reply }}
     </button>
   </div>
 
-  <!-- ── Messages ───────────────────────────────────────── -->
-  <!-- ← #messagesContainer sur le DIV qui scroll, PAS sur l'ancre -->
+  <!-- Messages container -->
   <div class="messages-container" #messagesContainer>
 
     <!-- Loading -->
     <div class="empty-chat" *ngIf="isLoading">
-      <div class="spinner-border text-success"></div>
-      <p>Chargement...</p>
+      <div class="spinner-border text-primary"></div>
+      <p>Chargement des messages...</p>
     </div>
 
     <!-- Empty -->
@@ -54,9 +50,7 @@
           <span>{{ formatDate(msg.createdAt!) }}</span>
         </div>
 
-        <div class="message-row"
-             [class.own]="isOwn(msg)"
-             [class.other]="!isOwn(msg)">
+        <div class="message-row" [class.own]="isOwn(msg)" [class.other]="!isOwn(msg)">
 
           <!-- Avatar nutritionniste -->
           <div class="msg-avatar" *ngIf="!isOwn(msg)">
@@ -69,7 +63,7 @@
             <div class="bubble-meta">
               <span class="bubble-time">{{ formatTime(msg.createdAt!) }}</span>
               <i class="bi bi-check2-all read-icon" *ngIf="isOwn(msg) && msg.isRead"></i>
-              <i class="bi bi-check2 sent-icon"     *ngIf="isOwn(msg) && !msg.isRead"></i>
+              <i class="bi bi-check2 sent-icon" *ngIf="isOwn(msg) && !msg.isRead"></i>
             </div>
           </div>
 
@@ -84,17 +78,16 @@
 
   </div>
 
-  <!-- ── Input ──────────────────────────────────────────── -->
+  <!-- Input area -->
   <div class="chat-input-area">
     <textarea
       [(ngModel)]="newMessage"
       (keydown)="onKeydown($event)"
       placeholder="Posez une question ou partagez vos progrès... (Entrée pour envoyer)"
       class="chat-input"
-      rows="2">
+      rows="1">
     </textarea>
-    <button class="btn-send" (click)="send()"
-            [disabled]="!newMessage.trim() || isSending">
+    <button class="btn-send" (click)="send()" [disabled]="!newMessage.trim() || isSending">
       <span *ngIf="!isSending"><i class="bi bi-send-fill"></i></span>
       <span *ngIf="isSending">
         <span class="spinner-border spinner-border-sm"></span>

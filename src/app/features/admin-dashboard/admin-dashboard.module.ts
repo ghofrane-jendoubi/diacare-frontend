@@ -11,13 +11,17 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { DoctorsListComponent } from './doctors-list/doctors-list.component';
 import { NutritionistsListComponent } from './nutritionists-list/nutritionists-list.component';
 import { PatientsListComponent } from './patients-list/patients-list.component';
+import { AdminGeolocalisationComponent } from './admin-geolocalisation/admin-geolocalisation.component';
+import { AdminReclamationsComponent } from './admin-reclamations/admin-reclamations.component';
 
 @NgModule({
   declarations: [
     DashboardComponent,
     DoctorsListComponent,
     NutritionistsListComponent,
-    PatientsListComponent
+    PatientsListComponent,
+    AdminGeolocalisationComponent,
+    AdminReclamationsComponent
   ],
   imports: [
     CommonModule,

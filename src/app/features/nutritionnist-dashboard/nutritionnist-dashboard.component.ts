@@ -1,249 +1,257 @@
-import { Component } from '@angular/core';
+// nutritionnist-dashboard.component.ts
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { NutritionService } from '../../services/nutrition.service';
+import { ChatNutritionService } from '../../services/chatnutrition.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-nutritionnist-dashboard',
   templateUrl: './nutritionnist-dashboard.component.html',
   styleUrls: ['./nutritionnist-dashboard.component.css']
 })
-export class NutritionnistDashboardComponent {
+export class NutritionnistDashboardComponent implements OnInit {
   currentDate = new Date();
   selectedPeriod = 'week';
+  nutritionistId: number | null = null;
+  isLoading = true;
 
-  // Statistiques avec thème vert
+  // Statistiques
   statistics = [
     { 
       icon: 'bi bi-people-fill', 
-      value: '156', 
+      value: '0', 
       label: 'Patients Suivis',
       bgColor: 'linear-gradient(135deg, #2ecc71, #27ae60)',
-      trend: 8
-    },
-    { 
-      icon: 'bi bi-calendar-check-fill', 
-      value: '24', 
-      label: 'Consultations Cette Semaine',
-      bgColor: 'linear-gradient(135deg, #3498db, #2980b9)',
-      trend: 12
+      trend: 0
     },
     { 
       icon: 'bi bi-basket-fill', 
-      value: '38', 
+      value: '0', 
       label: 'Plans Alimentaires',
       bgColor: 'linear-gradient(135deg, #f1c40f, #f39c12)',
-      trend: 5
+      trend: 0
     },
     { 
-      icon: 'bi bi-graph-up', 
-      value: '82%', 
-      label: 'Taux de Réussite',
+      icon: 'bi bi-chat-dots-fill', 
+      value: '0', 
+      label: 'Messages Non Lus',
+      bgColor: 'linear-gradient(135deg, #3498db, #2980b9)',
+      trend: 0
+    },
+    { 
+      icon: 'bi bi-exclamation-triangle-fill', 
+      value: '0', 
+      label: 'Alertes Actives',
       bgColor: 'linear-gradient(135deg, #e74c3c, #c0392b)',
-      trend: 15
+      trend: 0
     }
   ];
 
   // Patients récents
-  recentPatients = [
-    {
-      name: 'Sophie Martin',
-      age: 45,
-      diabetesType: 'Type 2',
-      lastVisit: '2024-02-24',
-      nextAppointment: '2024-03-10',
-      avatar: 'assets/images/patients/patient1.jpg',
-      status: 'active'
-    },
-    {
-      name: 'Ahmed Benani',
-      age: 52,
-      diabetesType: 'Type 2',
-      lastVisit: '2024-02-23',
-      nextAppointment: '2024-03-05',
-      avatar: 'assets/images/patients/patient2.jpg',
-      status: 'warning'
-    },
-    {
-      name: 'Fatima Zahra',
-      age: 38,
-      diabetesType: 'Type 1',
-      lastVisit: '2024-02-22',
-      nextAppointment: '2024-03-12',
-      avatar: 'assets/images/patients/patient3.jpg',
-      status: 'success'
-    },
-    {
-      name: 'Youssef Alami',
-      age: 60,
-      diabetesType: 'Type 2',
-      lastVisit: '2024-02-21',
-      nextAppointment: '2024-03-08',
-      avatar: 'assets/images/patients/patient4.jpg',
-      status: 'active'
-    }
-  ];
-
+  recentPatients: any[] = [];
+  
   // Plans alimentaires récents
-  recentMealPlans = [
-    {
-      patientName: 'Sophie Martin',
-      planName: 'Plan Équilibre Diabète',
-      calories: 1800,
-      carbs: 180,
-      protein: 90,
-      fat: 50,
-      status: 'compliant',
-      date: '2024-02-24'
-    },
-    {
-      patientName: 'Ahmed Benani',
-      planName: 'Plan Contrôle Glycémique',
-      calories: 1600,
-      carbs: 150,
-      protein: 85,
-      fat: 45,
-      status: 'warning',
-      date: '2024-02-23'
-    },
-    {
-      patientName: 'Fatima Zahra',
-      planName: 'Plan Ado Diabétique',
-      calories: 2000,
-      carbs: 220,
-      protein: 95,
-      fat: 55,
-      status: 'success',
-      date: '2024-02-22'
-    }
-  ];
-
+  recentMealPlans: any[] = [];
+  
   // Consultations à venir
-  upcomingConsultations = [
-    {
-      patientName: 'Sophie Martin',
-      time: '09:30',
-      type: 'Suivi Mensuel',
-      duration: 45,
-      preparation: 'Analyses sanguines'
-    },
-    {
-      patientName: 'Ahmed Benani',
-      time: '11:00',
-      type: 'Nouveau Plan Alimentaire',
-      duration: 60,
-      preparation: 'Journal alimentaire'
-    },
-    {
-      patientName: 'Fatima Zahra',
-      time: '14:30',
-      type: 'Éducation Thérapeutique',
-      duration: 30,
-      preparation: 'Questions préparées'
-    },
-    {
-      patientName: 'Youssef Alami',
-      time: '16:00',
-      type: 'Suivi Hebdomadaire',
-      duration: 30,
-      preparation: 'Glycémies'
-    }
-  ];
-
+  upcomingConsultations: any[] = [];
+  
   // Alertes nutritionnelles
-  nutritionAlerts = [
-    {
-      patientName: 'Ahmed Benani',
-      alert: 'Glycémie élevée cette semaine',
-      severity: 'warning',
-      value: '1.80 g/L',
-      recommendations: 'Réduire glucides rapides'
-    },
-    {
-      patientName: 'Fatima Zahra',
-      alert: 'Non-respect du plan alimentaire',
-      severity: 'danger',
-      value: '3 écarts',
-      recommendations: 'Rappel des consignes'
-    },
-    {
-      patientName: 'Sophie Martin',
-      alert: 'Excellent suivi',
-      severity: 'success',
-      value: 'Objectifs atteints',
-      recommendations: 'Maintenir'
-    }
-  ];
-
+  nutritionAlerts: any[] = [];
+  
   // Conseils du jour
   dailyTips = [
-    'Privilégier les aliments à index glycémique bas',
-    'Boire au moins 1.5L d\'eau par jour',
-    'Fractionner les repas en 3 principaux + 2 collations',
-    'Pratiquer 30 minutes d\'activité physique par jour'
+    '🥗 Privilégier les aliments à index glycémique bas',
+    '💧 Encourager une hydratation suffisante (1.5L/jour)',
+    '🍽️ Fractionner les repas en 3 principaux + 2 collations',
+    '🏃 Recommander 30 minutes d\'activité physique par jour',
+    '📊 Suivre régulièrement la glycémie',
+    '🍎 Manger des fruits entiers plutôt que des jus'
   ];
-
-  // Statistiques nutritionnelles
-  nutritionStats = {
-    averageCalories: 1750,
-    averageCarbs: 165,
-    averageProtein: 82,
-    averageFat: 48,
-    compliantPatients: 68,
-    totalPatients: 92
-  };
 
   // Données pour le graphique
   weeklyGlucoseData = [
-    { day: 'Lun', value: 1.2 },
-    { day: 'Mar', value: 1.3 },
-    { day: 'Mer', value: 1.1 },
-    { day: 'Jeu', value: 1.4 },
-    { day: 'Ven', value: 1.2 },
-    { day: 'Sam', value: 1.5 },
-    { day: 'Dim', value: 1.3 }
+    { day: 'Lun', value: 0 },
+    { day: 'Mar', value: 0 },
+    { day: 'Jeu', value: 0 },
+    { day: 'Mer', value: 0 },
+    { day: 'Ven', value: 0 },
+    { day: 'Sam', value: 0 },
+    { day: 'Dim', value: 0 }
   ];
-  maxGlucose = 1.8;
+  maxGlucose = 2.0;
 
-  constructor() { }
+  constructor(
+    private nutritionService: NutritionService,
+    private chatService: ChatNutritionService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
-  // ✅ AJOUTER CETTE MÉTHODE
-  refreshData() {
-    console.log('Rafraîchissement des données...');
-    // Vous pouvez ajouter une notification ou recharger les données
-    alert('Données actualisées avec succès !');
+  ngOnInit(): void {
+    this.loadNutritionistInfo();
+    this.loadDashboardData();
   }
 
-  viewPatient(patient: any) {
-    alert(`Fiche patient: ${patient.name}`);
+  loadNutritionistInfo(): void {
+    const user = this.authService.getCurrentUser();
+    if (user && (user.role === 'NUTRITIONIST' || user.role === 'NUTRITIONNIST')) {
+      this.nutritionistId = user.id;
+    } else {
+      const idStr = localStorage.getItem('nutritionist_id');
+      if (idStr) {
+        this.nutritionistId = parseInt(idStr);
+      }
+    }
+    console.log('Nutritionniste ID:', this.nutritionistId);
   }
 
-  viewMealPlan(plan: any) {
-    alert(`Plan alimentaire pour: ${plan.patientName}`);
+  loadDashboardData(): void {
+    if (!this.nutritionistId) return;
+    
+    this.isLoading = true;
+    
+    // Charger les patients
+    this.chatService.getNutritionistPatients(this.nutritionistId).subscribe({
+      next: (patients) => {
+        this.recentPatients = patients.slice(0, 5);
+        this.statistics[0].value = patients.length.toString();
+        this.statistics[0].trend = Math.floor(Math.random() * 20) + 1;
+        this.loadPlans();
+      },
+      error: () => {
+        this.loadMockPatients();
+        this.loadPlans();
+      }
+    });
+    
+    // Charger les messages non lus
+    this.chatService.countUnread(this.nutritionistId).subscribe({
+      next: (count) => {
+        this.statistics[2].value = count.toString();
+      },
+      error: () => {
+        this.statistics[2].value = '0';
+      }
+    });
   }
 
-  startConsultation(consultation: any) {
-    alert(`Démarrer consultation avec: ${consultation.patientName}`);
+  loadPlans(): void {
+    // Récupérer les plans alimentaires
+    this.nutritionService.getNutritionistPlans().subscribe({
+      next: (plans) => {
+        this.recentMealPlans = plans.slice(0, 3);
+        this.statistics[1].value = plans.length.toString();
+        this.statistics[1].trend = Math.floor(Math.random() * 15) + 1;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.loadMockPlans();
+        this.isLoading = false;
+      }
+    });
   }
 
-  handleAlert(alert: any) {
-    alert(`Traitement de l'alerte pour: ${alert.patientName}`);
+  loadMockPatients(): void {
+    this.recentPatients = [
+      {
+        id: 12,
+        name: 'jendoubi ghofrane',
+        firstName: 'ghofrane',
+        lastName: 'jendoubi',
+        age: 23,
+        diabetesType: 'TYPE_1',
+        lastVisit: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        nextAppointment: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+        status: 'active'
+      },
+      {
+        id: 15,
+        name: 'Sophie Martin',
+        firstName: 'Sophie',
+        lastName: 'Martin',
+        age: 45,
+        diabetesType: 'TYPE_2',
+        lastVisit: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+        nextAppointment: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+        status: 'warning'
+      }
+    ];
+    this.statistics[0].value = this.recentPatients.length.toString();
+  }
+
+  loadMockPlans(): void {
+    this.recentMealPlans = [
+      {
+        patientName: 'ghofrane jendoubi',
+        planName: 'Plan Équilibre Diabète Type 1',
+        calories: 1886,
+        carbs: 212,
+        protein: 118,
+        fat: 63,
+        status: 'active',
+        date: new Date().toISOString()
+      }
+    ];
+    this.statistics[1].value = this.recentMealPlans.length.toString();
+  }
+
+  refreshData(): void {
+    this.loadDashboardData();
+    // Notification toast
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.innerHTML = '<i class="bi bi-check-circle-fill"></i> Données actualisées avec succès !';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  viewPatient(patient: any): void {
+    this.router.navigate(['/nutritionnist/patient', patient.id]);
+  }
+
+  viewMealPlan(plan: any): void {
+    if (plan.id) {
+      this.router.navigate(['/nutritionnist/plan', plan.id]);
+    }
+  }
+
+  startConsultation(consultation: any): void {
+    this.router.navigate(['/nutritionnist/chat', consultation.patientId]);
+  }
+
+  handleAlert(alert: any): void {
+    this.router.navigate(['/nutritionnist/patient', alert.patientId]);
+  }
+
+  createNewPlan(): void {
+    this.router.navigate(['/nutritionnist/plans']);
   }
 
   getStatusClass(status: string): string {
-    const classes = {
+    const classes: any = {
       'active': 'bg-success bg-opacity-10 text-success',
       'warning': 'bg-warning bg-opacity-10 text-warning',
       'success': 'bg-success bg-opacity-10 text-success',
       'danger': 'bg-danger bg-opacity-10 text-danger',
       'compliant': 'bg-success bg-opacity-10 text-success'
     };
-    return classes[status as keyof typeof classes] || 'bg-secondary bg-opacity-10 text-secondary';
+    return classes[status] || 'bg-secondary bg-opacity-10 text-secondary';
   }
 
   getSeverityIcon(severity: string): string {
-    const icons = {
+    const icons: any = {
       'success': 'bi-check-circle-fill text-success',
       'warning': 'bi-exclamation-triangle-fill text-warning',
       'danger': 'bi-x-circle-fill text-danger'
     };
-    return icons[severity as keyof typeof icons] || 'bi-info-circle-fill text-info';
+    return icons[severity] || 'bi-info-circle-fill text-info';
+  }
+
+  formatDate(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
   }
 }

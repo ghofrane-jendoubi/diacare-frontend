@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { PaymentService } from '../../../../services/payment.service';
 import { AppointmentService } from '../../../../services/appointment.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-notification-detail-modal',
@@ -24,9 +25,10 @@ export class NotificationDetailModalComponent implements OnInit {
   changesList: string[] = [];
 
   constructor(
-    private paymentService: PaymentService,
-    private appointmentService: AppointmentService
-  ) {}
+  private paymentService: PaymentService,
+  private appointmentService: AppointmentService,
+  private authService: AuthService
+) {}
 
   ngOnInit() {
     console.log('=== NOTIFICATION DETAIL MODAL INIT ===');
@@ -36,14 +38,8 @@ export class NotificationDetailModalComponent implements OnInit {
     
     // Récupérer l'ID du patient depuis localStorage si non fourni
     if (!this.patientId) {
-      const patientIdStr = localStorage.getItem('patient_id');
-      if (patientIdStr) {
-        this.patientId = parseInt(patientIdStr);
-        console.log('✅ Patient ID récupéré depuis localStorage:', this.patientId);
-      } else {
-        console.warn('⚠️ Patient ID non trouvé dans localStorage');
-      }
-    }
+    this.patientId = this.authService.getUserId() || null;
+  }
     
     // Extraire les modifications du message
     this.extractChangesFromMessage();
@@ -86,56 +82,71 @@ export class NotificationDetailModalComponent implements OnInit {
     console.log('Modifications extraites:', this.changesList);
   }
 
-  loadAppointmentDetails(appointmentId: number) {
-    console.log('🔍 Chargement rendez-vous ID:', appointmentId);
-    this.isLoading = true;
-    
-    this.appointmentService.getAppointmentById(appointmentId).subscribe({
-      next: (appointment: any) => {
-        console.log('✅ Rendez-vous chargé depuis API:', appointment);
-        console.log('📅 startTime:', appointment.startTime);
-        console.log('🆔 doctorId:', appointment.doctorId);
-        console.log('🆔 patientId:', appointment.patientId);
-        
-        this.appointment = appointment;
-        this.appointmentFee = appointment.fee || 50;
-        
-        // Charger les informations du médecin
-        if (appointment.doctorId) {
-          this.loadDoctorInfo(appointment.doctorId);
-        } else {
-          console.warn('⚠️ Pas de doctorId dans le rendez-vous');
-          this.doctorName = 'Médecin';
-        }
-        
-        this.checkPaymentStatus();
-        this.checkDateExpired();
-        this.isLoading = false;
-      },
-      error: (err: any) => {
-        console.error('❌ Erreur chargement rendez-vous:', err);
-        this.isLoading = false;
-        this.appointment = null;
-        this.doctorName = 'Médecin non trouvé';
-      }
-    });
-  }
-
-  loadDoctorInfo(doctorId: number) {
-    console.log('🔍 Chargement médecin ID:', doctorId);
-    
-    this.appointmentService.getDoctorById(doctorId).subscribe({
-      next: (doctor: any) => {
-        console.log('✅ Médecin chargé:', doctor);
-        this.doctorName = `Dr. ${doctor.firstName} ${doctor.lastName}`;
-      },
-      error: (err: any) => {
-        console.error('❌ Erreur chargement médecin:', err);
+  // notification-detail-modal.component.ts
+loadAppointmentDetails(appointmentId: number) {
+  console.log('🔍 Chargement rendez-vous ID:', appointmentId);
+  this.isLoading = true;
+  
+  this.appointmentService.getAppointmentById(appointmentId).subscribe({
+    next: (appointment: any) => {
+      console.log('✅ Rendez-vous chargé depuis API:', appointment);
+      
+      this.appointment = appointment;
+      this.appointmentFee = appointment.fee || 50;
+      
+      // ✅ Récupérer doctorId depuis l'objet doctor
+      const doctorId = appointment.doctor?.id || appointment.doctorId;
+      const patientId = appointment.patient?.id || appointment.patientId;
+      
+      console.log('📅 startTime:', appointment.startTime);
+      console.log('🆔 doctorId extrait:', doctorId);
+      console.log('🆔 patientId extrait:', patientId);
+      
+      // Stocker les IDs dans l'objet appointment pour les utiliser plus tard
+      this.appointment.doctorId = doctorId;
+      this.appointment.patientId = patientId;
+      
+      // Charger les informations du médecin
+      if (doctorId) {
+        this.loadDoctorInfo(doctorId);
+      } else if (appointment.doctor) {
+        // Si le médecin est déjà dans l'objet
+        this.doctorName = `Dr. ${appointment.doctor.firstName} ${appointment.doctor.lastName}`;
+        console.log('✅ Médecin déjà présent:', this.doctorName);
+      } else {
+        console.warn('⚠️ Pas de doctorId dans le rendez-vous');
         this.doctorName = 'Médecin';
       }
-    });
-  }
+      
+      this.checkPaymentStatus();
+      this.checkDateExpired();
+      this.isLoading = false;
+    },
+    error: (err: any) => {
+      console.error('❌ Erreur chargement rendez-vous:', err);
+      this.isLoading = false;
+      this.appointment = null;
+      this.doctorName = 'Médecin non trouvé';
+    }
+  });
+}
 
+loadDoctorInfo(doctorId: number) {
+  console.log('🔍 Chargement médecin ID:', doctorId);
+  
+  this.appointmentService.getDoctorById(doctorId).subscribe({
+    next: (doctor: any) => {
+      console.log('✅ Médecin chargé:', doctor);
+      this.doctorName = `Dr. ${doctor.firstName} ${doctor.lastName}`;
+    },
+    error: (err: any) => {
+      console.error('❌ Erreur chargement médecin:', err);
+      this.doctorName = 'Médecin';
+    }
+  });
+}
+
+  
   checkPaymentStatus() {
     console.log('🔍 Vérification paiement pour appointment:', this.appointment?.id);
     
@@ -199,17 +210,17 @@ export class NotificationDetailModalComponent implements OnInit {
   }
 
   openPaymentModal() {
-    console.log('Ouverture du modal de paiement');
-    console.log('Appointment:', this.appointment);
-    
-    if (!this.appointment) {
-      console.error('❌ Appointment non défini');
-      this.showToast('Erreur: Informations du rendez-vous non disponibles', 'error');
-      return;
-    }
-    
-    this.showPaymentModal = true;
+  console.log('Ouverture du modal de paiement');
+  console.log('Appointment:', this.appointment);
+  console.log('Patient ID actuel:', this.patientId);
+  
+  
+  if (!this.patientId) {
+    this.patientId = this.authService.getUserId() || null;
   }
+  
+  this.showPaymentModal = true;
+}
 
   closePaymentModal() {
     this.showPaymentModal = false;
@@ -334,4 +345,35 @@ export class NotificationDetailModalComponent implements OnInit {
   close() {
     this.closeModal.emit();
   }
+  getHeaderIconClass(title: string): string {
+  if (!title) return '';
+  if (title.includes('Rendez-vous')) return 'appointment';
+  if (title.includes('Résultat')) return 'result';
+  if (title.includes('Rappel')) return 'reminder';
+  return '';
+}
+
+getTypeClass(title: string): string {
+  if (!title) return 'default';
+  if (title.includes('Rendez-vous')) return 'appointment';
+  if (title.includes('Résultat')) return 'result';
+  if (title.includes('Rappel')) return 'reminder';
+  return 'default';
+}
+
+getTypeIcon(title: string): string {
+  if (!title) return 'bi-bell';
+  if (title.includes('Rendez-vous')) return 'bi-calendar-heart';
+  if (title.includes('Résultat')) return 'bi-clipboard2-pulse';
+  if (title.includes('Rappel')) return 'bi-alarm';
+  return 'bi-bell';
+}
+
+getTypeLabel(title: string): string {
+  if (!title) return 'Information';
+  if (title.includes('Rendez-vous')) return 'Rendez-vous';
+  if (title.includes('Résultat')) return 'Résultat médical';
+  if (title.includes('Rappel')) return 'Rappel';
+  return 'Notification';
+}
 }

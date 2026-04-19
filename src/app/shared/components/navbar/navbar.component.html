@@ -147,6 +147,13 @@
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h12l-1.5 9H5.5L4 4z"/><circle cx="8" cy="17" r="1"/><circle cx="13" cy="17" r="1"/></svg>
                 Mes commandes
               </a>
+              <a routerLink="/patient/geolocalisation" class="dropdown-link" (click)="isUserMenuOpen = false">
+  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M10 2v2M10 16v2M2 10h2M16 10h2M5.05 5.05l1.06 1.06M13.89 13.89l1.06 1.06M5.05 14.95l1.06-1.06M13.89 6.11l1.06-1.06"/>
+    <circle cx="10" cy="10" r="4"/>
+  </svg>
+  Géolocalisation
+</a>
               <a routerLink="/settings" class="dropdown-link" (click)="isUserMenuOpen = false">
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="2.5"/><path d="M10 3v1.5M10 15.5V17M3 10h1.5M15.5 10H17M5.05 5.05l1.06 1.06M13.89 13.89l1.06 1.06M5.05 14.95l1.06-1.06M13.89 6.11l1.06-1.06"/></svg>
                 Paramètres

@@ -1,9 +1,15 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ViewChild, ElementRef } from '@angular/core';
+// patient-chat.component.ts
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { interval, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { ChatNutritionService } from '../../../../services/chatnutrition.service';
-import { ChatMessage } from '../../../../models/diet-plan.model';
+// ✅ Importer depuis chatnutrition.service uniquement
+import { ChatNutritionService, ChatMessage } from '../../../../services/chatnutrition.service';
+import { AuthService } from '../../../../core/services/auth.service';
+
+// ✅ Ne pas importer ChatMessage depuis diet-plan.model
+// Supprimer: import { ChatMessage } from '../../../../models/diet-plan.model';
 
 @Component({
   selector: 'app-patient-chat',
@@ -14,93 +20,160 @@ export class PatientChatComponent implements OnInit, OnDestroy {
 
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
 
-  // Phase 1 : hardcodé — Phase 2 : depuis AuthService collègue
-  patientId:      number = 1;
-  nutritionistId: number = 1;
+  patientId: number | null = null;
+  nutritionistId: number | null = null;
+  nutritionistName: string = '';
+  unreadCount: number = 0;
 
-  messages:   ChatMessage[] = [];
-  newMessage  = '';
-  isSending   = false;
-  isLoading   = true;
-  unreadCount = 0;
+  messages: ChatMessage[] = [];
+  newMessage = '';
+  isSending = false;
+  isLoading = true;
+  errorMessage = '';
 
   quickReplies = [
-    '👍 Merci pour le conseil !',
-    '❓ J\'ai une question sur mon plan.',
-    '😔 J\'ai du mal à respecter le régime.',
-    '✅ J\'ai suivi le plan aujourd\'hui.',
-    '📸 Je vais envoyer une photo de mon repas.',
+    'Bonjour, j\'ai une question sur mon alimentation',
+    'Quels aliments éviter ?',
+    'Puis-je manger des fruits ?',
+    'Comment équilibrer mes repas ?',
+    'Merci pour votre aide !'
   ];
 
   private pollSub?: Subscription;
 
   constructor(
     private chatService: ChatNutritionService,
+    private authService: AuthService,
+    private route: ActivatedRoute,
+    private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
-    this.loadMessages();
-    this.startPolling();
+
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      this.patientId = user.id;
+    } else {
+      this.router.navigate(['/auth/patient']);
+      return;
+    }
+
+    this.route.params.subscribe(params => {
+      this.nutritionistId = +params['id'];
+
+      if (!this.nutritionistId) {
+        this.errorMessage = 'Nutritionniste non trouvé';
+        this.isLoading = false;
+        return;
+      }
+
+      localStorage.setItem('selected_nutritionist_id', this.nutritionistId.toString());
+
+      this.loadNutritionistInfo();
+      this.loadMessages();
+      this.startPolling();
+      this.loadUnreadCount();
+    });
   }
 
   ngOnDestroy(): void {
     this.pollSub?.unsubscribe();
   }
 
-  loadMessages(): void {
-    this.isLoading = true;
-    this.chatService.getConversation(this.patientId).subscribe({
-      next: (msgs) => {
-        this.messages    = msgs;
-        this.unreadCount = msgs.filter(m => m.senderRole === 'nutritionist' && !m.isRead).length;
-        this.isLoading   = false;
-        this.scrollToBottom();
-        this.chatService.markAsRead(this.patientId, this.patientId).subscribe();
-      },
-      error: () => { this.isLoading = false; }
-    });
+  loadNutritionistInfo(): void {
+    const name = localStorage.getItem('selected_nutritionist_name');
+    this.nutritionistName = name || `Nutritionniste #${this.nutritionistId}`;
   }
 
-  startPolling(): void {
-    this.pollSub = interval(5000).pipe(
-      switchMap(() => this.chatService.getConversation(this.patientId))
-    ).subscribe({
+  loadMessages(): void {
+    if (!this.patientId || !this.nutritionistId) return;
+
+    this.isLoading = true;
+    this.chatService.getMessagesWithNutritionist(this.patientId, this.nutritionistId).subscribe({
       next: (msgs) => {
-        if (msgs.length !== this.messages.length) {
-          this.messages    = msgs;
-          this.unreadCount = msgs.filter(m => m.senderRole === 'nutritionist' && !m.isRead).length;
-          this.scrollToBottom();
-          this.chatService.markAsRead(this.patientId, this.patientId).subscribe();
-        }
+        this.messages = msgs;
+        this.isLoading = false;
+        this.scrollToBottom();
+        this.markAsRead();
+      },
+      error: (err) => {
+        console.error('Erreur chargement messages:', err);
+        this.isLoading = false;
+        this.errorMessage = 'Erreur de chargement des messages';
       }
     });
   }
 
-  send(): void {
-    if (!this.newMessage.trim() || this.isSending) return;
-    this.isSending = true;
-
-    this.chatService.sendMessage({
-      content:      this.newMessage.trim(),
-      senderId:     this.patientId,
-      senderRole:   'patient',
-      receiverId:   this.nutritionistId,
-      receiverRole: 'nutritionist',
-      patientId:    this.patientId
-    }).subscribe({
-      next: (msg) => {
-        this.messages.push(msg);
-        this.newMessage = '';
-        this.isSending  = false;
-        this.scrollToBottom();
-      },
-      error: () => { this.isSending = false; }
+  loadUnreadCount(): void {
+    if (!this.patientId) return;
+    this.chatService.countUnread(this.patientId).subscribe({
+      next: (count) => this.unreadCount = count,
+      error: () => this.unreadCount = 0
     });
   }
 
-  useQuickReply(reply: string): void { this.newMessage = reply; }
+  startPolling(): void {
+    if (!this.patientId || !this.nutritionistId) return;
+
+    this.pollSub = interval(5000).pipe(
+      switchMap(() => this.chatService.getMessagesWithNutritionist(this.patientId!, this.nutritionistId!))
+    ).subscribe({
+      next: (msgs) => {
+        if (msgs.length !== this.messages.length) {
+          this.messages = msgs;
+          this.scrollToBottom();
+          this.markAsRead();
+          this.loadUnreadCount();
+        }
+      },
+      error: (err) => console.error('Erreur polling:', err)
+    });
+  }
+
+  markAsRead(): void {
+    if (!this.patientId || !this.nutritionistId) return;
+    this.chatService.markAsRead(this.patientId, this.nutritionistId).subscribe();
+  }
+
+  send(): void {
+  if (!this.newMessage.trim() || this.isSending) return;
+  if (!this.patientId || !this.nutritionistId) return;
+
+  this.isSending = true;
+
+  console.log('📤 Envoi message - Patient:', this.patientId, 'Nutritionniste:', this.nutritionistId);
+
+  this.chatService.sendMessage({
+    content: this.newMessage.trim(),
+    senderId: this.patientId,        
+    senderRole: 'patient',
+    receiverId: this.nutritionistId, 
+    receiverRole: 'nutritionist',
+    patientId: this.patientId        
+  }).subscribe({
+    next: (msg) => {
+      this.messages.push(msg);
+      this.newMessage = '';
+      this.isSending = false;
+      this.scrollToBottom();
+    },
+    error: (err) => {
+      console.error('Erreur envoi:', err);
+      this.isSending = false;
+    }
+  });
+}
+
+  useQuickReply(reply: string): void {
+    this.newMessage = reply;
+    this.send();
+  }
+
+  isOwn(msg: ChatMessage): boolean {
+    return msg.senderRole === 'patient';
+  }
 
   onKeydown(event: KeyboardEvent): void {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -116,24 +189,25 @@ export class PatientChatComponent implements OnInit, OnDestroy {
     }, 100);
   }
 
-  isOwn(msg: ChatMessage): boolean {
-    return msg.senderRole === 'patient';
+  formatTime(dateStr: string): string {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   }
 
-  formatTime(d: string): string {
-    if (!d) return '';
-    return new Date(d).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  }
-
-  formatDate(d: string): string {
-    if (!d) return '';
-    return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long' });
+  formatDate(dateStr: string): string {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long' });
   }
 
   showDateSeparator(i: number): boolean {
     if (i === 0) return true;
-    const curr = new Date(this.messages[i].createdAt     || '').toDateString();
-    const prev = new Date(this.messages[i - 1].createdAt || '').toDateString();
-    return curr !== prev;
+    const currentDate = this.messages[i]?.createdAt;
+    const previousDate = this.messages[i-1]?.createdAt;
+    if (!currentDate || !previousDate) return false;
+    return new Date(currentDate).toDateString() !== new Date(previousDate).toDateString();
+  }
+
+  goBack(): void {
+    this.router.navigate(['/patient/nutritionists']);
   }
 }

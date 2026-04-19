@@ -9,6 +9,10 @@ import { PlanCreateComponent } from './pages/plan-create/plan-create.component';
 import { PatientListComponent } from './pages/patient-list/patient-list.component';
 import { PatientDetailComponent } from './pages/patient-detail/patient-detail.component';
 import { NutriChatComponent } from './pages/nutri-chat/nutri-chat.component';
+import { NutritionnistGeolocalisationComponent } from './nutritionnist-geolocalisation/nutritionnist-geolocalisation.component';
+import { NutritionnistSendReclamationComponent } from './nutritionnist-send-reclamation/nutritionnist-send-reclamation.component';
+import { NutritionnistReclamationsComponent } from './nutritionnist-reclamations/nutritionnist-reclamations.component';
+import { NutritionistPatientsComponent } from './pages/nutritionist-patients/nutritionist-patients.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +20,12 @@ import { NutriChatComponent } from './pages/nutri-chat/nutri-chat.component';
     PlanCreateComponent,
     PatientListComponent,
     PatientDetailComponent,
-    NutriChatComponent
+    NutriChatComponent,
+    NutritionnistGeolocalisationComponent,
+    NutritionnistSendReclamationComponent,
+    NutritionnistReclamationsComponent,
+    NutritionistPatientsComponent,
+    NutritionistPatientsComponent
   ],
   imports: [
     CommonModule,

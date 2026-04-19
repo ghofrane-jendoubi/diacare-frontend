@@ -30,19 +30,34 @@ export class NotificationsComponent implements OnInit {
     this.loadAllNotifications();
   }
 
-  // ✅ Nouvelle méthode pour charger les infos du patient
-  loadPatientInfo(): void {
-    const patientIdStr = localStorage.getItem('patient_id');
-    if (patientIdStr) {
-      this.patientId = parseInt(patientIdStr);
-      console.log('✅ Patient ID chargé:', this.patientId);
-    } else {
-      console.warn('⚠️ Patient ID non trouvé dans localStorage');
-      // Rediriger vers login si pas de patient connecté
-      this.router.navigate(['/login']);
+
+loadPatientInfo(): void {
+  //  Essayer plusieurs sources possibles
+  let patientIdStr = localStorage.getItem('patient_id');
+  
+  if (!patientIdStr) {
+    // Essayer depuis l'objet 'user'
+    const user = localStorage.getItem('user');
+    if (user) {
+      const userObj = JSON.parse(user);
+      patientIdStr = userObj.id?.toString();
     }
   }
-
+  
+  if (!patientIdStr) {
+    // Essayer depuis 'userId'
+    patientIdStr = localStorage.getItem('userId');
+  }
+  
+  if (patientIdStr) {
+    this.patientId = parseInt(patientIdStr);
+    console.log('✅ Patient ID chargé:', this.patientId);
+  } else {
+    console.error('❌ Patient ID non trouvé');
+    console.log('📦 Contenu localStorage:', { ...localStorage });
+    this.router.navigate(['/login']);
+  }
+}
   loadAllNotifications(): void {
     // ✅ Vérifier que patientId existe
     if (!this.patientId) {
@@ -214,4 +229,7 @@ export class NotificationsComponent implements OnInit {
   refreshNotifications(): void {
     this.loadAllNotifications();
   }
+  getUnreadCount(): number {
+  return this.notifications.filter(n => !n.read).length;
+}
 }

@@ -19,6 +19,9 @@ import { DietPlanViewComponent } from './pages/diet-plan-view/diet-plan-view.com
 import { PatientChatComponent } from './pages/patient-chat/patient-chat.component';
 import { ProgressComponent } from './pages/progress/progress.component';
 import { PatientProfileComponent } from './pages/patient-profile/patient-profile.component';
+import { PatientReclamationsComponent } from './patient-reclamations/patient-reclamations.component';
+import { PatientGeolocalisationComponent } from './patient-geolocalisation/patient-geolocalisation.component';
+import { PatientNutritionistsComponent } from './pages/patient-nutritionists/patient-nutritionists.component';
 
 @NgModule({
   declarations: [
@@ -35,7 +38,10 @@ import { PatientProfileComponent } from './pages/patient-profile/patient-profile
     DietPlanViewComponent,
     PatientProfileComponent,
     PatientChatComponent,
-    ProgressComponent
+    ProgressComponent,
+    PatientReclamationsComponent,
+    PatientGeolocalisationComponent,
+    PatientNutritionistsComponent
     
   ],
   imports: [

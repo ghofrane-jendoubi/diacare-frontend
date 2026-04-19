@@ -1,63 +1,114 @@
-<div class="modal-overlay" (click)="close()">
-  <div class="modal-container" (click)="$event.stopPropagation()">
-    <!-- En-tête -->
+<div class="send-modal" (click)="close()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    
+    <!-- Header Élégant -->
     <div class="modal-header">
-      <h2>
-        <i class="bi bi-send"></i>
-        Envoyer le résultat au patient
-      </h2>
-      <button class="close-btn" (click)="close()">
-        <i class="bi bi-x-lg"></i>
-      </button>
+      <div class="header-decoration"></div>
+      <div class="header-content">
+        <div class="header-icon">
+          <i class="bi bi-envelope-paper-fill"></i>
+        </div>
+        <div class="header-text">
+          <h2>Transmission des résultats</h2>
+          <p>Communiquez le diagnostic à votre patient</p>
+        </div>
+        <button class="close-button" (click)="close()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
     </div>
 
-    <!-- Corps -->
+    <!-- Body -->
     <div class="modal-body">
+      
       <!-- Résumé de l'analyse -->
-      <div class="analysis-summary">
-        <div class="result-badge" [class.diabetes]="analysisData.result.prediction === 'Diabetes'"
-                                    [class.non-diabetes]="analysisData.result.prediction === 'NonDiabetes'">
-          <div class="result-icon">
-            <i class="bi" [ngClass]="analysisData.result.prediction === 'Diabetes' ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'"></i>
+      <div class="analysis-card">
+        <div class="analysis-header">
+          <span class="analysis-label">Résultat de l'analyse</span>
+          <div class="analysis-badge" 
+               [class.diabetes-badge]="analysisData.result.prediction === 'Diabetes'"
+               [class.non-diabetes-badge]="analysisData.result.prediction === 'NonDiabetes'">
+            <i class="bi" 
+               [ngClass]="analysisData.result.prediction === 'Diabetes' ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'"></i>
+            <span>{{ analysisData.result.prediction === 'Diabetes' ? 'Diabète détecté' : 'État normal' }}</span>
           </div>
-          <div>
-            <h4>{{ analysisData.result.prediction === 'Diabetes' ? 'Diabète détecté' : 'Non diabétique' }}</h4>
-            <p>Confiance: <strong>{{ analysisData.result.confidence }}%</strong></p>
+        </div>
+        
+        <div class="confidence-meter">
+          <div class="meter-info">
+            <span class="meter-label">Niveau de confiance</span>
+            <span class="meter-value">{{ analysisData.result.confidence }}%</span>
+          </div>
+          <div class="meter-track">
+            <div class="meter-fill" 
+                 [style.width.%]="analysisData.result.confidence"
+                 [class.diabetes-fill]="analysisData.result.prediction === 'Diabetes'"
+                 [class.non-diabetes-fill]="analysisData.result.prediction === 'NonDiabetes'">
+              <div class="fill-glow"></div>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Formulaire -->
-      <form>
-        <div class="form-group">
-          <label>Message au patient</label>
-          <textarea [(ngModel)]="responseData.message" name="message" rows="3"
-                    placeholder="Expliquez le résultat au patient..."></textarea>
+      <form class="message-form">
+        <!-- Message Field -->
+        <div class="form-field">
+          <label class="field-label">
+            <i class="bi bi-chat-text"></i>
+            Message au patient
+          </label>
+          <textarea [(ngModel)]="responseData.message" 
+                    name="message" 
+                    class="field-textarea elegant-textarea"
+                    rows="3"
+                    placeholder="Expliquez le résultat de l'analyse à votre patient..."></textarea>
+          <span class="field-hint">Ajoutez un message personnel pour accompagner les résultats</span>
         </div>
 
-        <div class="form-group">
-          <label>Recommandations / Ordonnance</label>
-          <textarea [(ngModel)]="responseData.prescription" name="prescription" rows="4"
-                    placeholder="Prescriptions, conseils, suivi..."></textarea>
+        <!-- Prescription Field -->
+        <div class="form-field">
+          <label class="field-label">
+            <i class="bi bi-file-medical"></i>
+            Recommandations / Ordonnance
+          </label>
+          <textarea [(ngModel)]="responseData.prescription" 
+                    name="prescription" 
+                    class="field-textarea elegant-textarea"
+                    rows="4"
+                    placeholder="Prescriptions médicales, conseils, traitements à suivre..."></textarea>
+          <span class="field-hint">Prescriptions, conseils ou plan de suivi</span>
         </div>
 
-        <div class="form-group checkbox">
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="responseData.includeImage" name="includeImage">
-            <span>Inclure l'image analysée dans le message</span>
+        <!-- Image Option -->
+        <div class="form-field toggle-field">
+          <label class="toggle-label">
+            <div class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="responseData.includeImage" name="includeImage">
+              <span class="toggle-slider"></span>
+            </div>
+            <div class="toggle-text">
+              <i class="bi bi-image"></i>
+              <span>Inclure l'image analysée</span>
+              <small>Le patient pourra visualiser l'image dans la conversation</small>
+            </div>
           </label>
         </div>
       </form>
     </div>
 
-    <!-- Pied -->
+    <!-- Footer -->
     <div class="modal-footer">
-      <button type="button" class="btn-cancel" (click)="close()">
+      <button class="footer-btn secondary" (click)="close()">
+        <i class="bi bi-x-circle"></i>
         Annuler
       </button>
-      <button type="button" class="btn-send" (click)="sendResponse()" [disabled]="isSending">
-        <i class="bi" [ngClass]="isSending ? 'bi-hourglass-split' : 'bi-send'"></i>
-        {{ isSending ? 'Envoi...' : 'Envoyer au patient' }}
+      <button class="footer-btn primary" (click)="sendResponse()" [disabled]="isSending">
+        <div class="btn-content">
+          <i class="bi" [ngClass]="isSending ? 'bi-hourglass-split' : 'bi-send-fill'"></i>
+          <span>{{ isSending ? 'Envoi en cours...' : 'Envoyer au patient' }}</span>
+          <div class="btn-shine" *ngIf="!isSending"></div>
+        </div>
       </button>
     </div>
   </div>

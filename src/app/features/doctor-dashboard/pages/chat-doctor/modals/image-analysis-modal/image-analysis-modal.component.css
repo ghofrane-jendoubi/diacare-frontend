@@ -1,291 +1,682 @@
-.modal-overlay {
+/* Modal Overlay */
+.analysis-modal {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(5px);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  animation: fadeIn 0.3s ease;
+  animation: fadeInModal 0.3s ease;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes fadeInModal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-.modal-container {
-  background: white;
-  border-radius: 24px;
+/* Modal Card */
+.modal-card {
+  background: #ffffff;
+  border-radius: 32px;
   width: 90%;
-  max-width: 700px;
+  max-width: 650px;
   max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  animation: slideUp 0.3s ease;
+  overflow: hidden;
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.2);
+  animation: slideUpModal 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes slideUp {
-  from { transform: translateY(50px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+@keyframes slideUpModal {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
+/* Header */
 .modal-header {
-  padding: 20px 24px;
-  border-bottom: 1px solid #e2e8f0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: white;
-  border-radius: 24px 24px 0 0;
+  position: relative;
+  background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+  padding: 28px 32px;
+  overflow: hidden;
 }
 
-.modal-header h2 {
-  font-size: 1.3rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-}
-
-.modal-header h2 i {
-  font-size: 1.5rem;
-}
-
-.close-btn {
-  width: 36px;
-  height: 36px;
+.header-glow {
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent);
   border-radius: 50%;
-  border: none;
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  z-index: 2;
+}
+
+.header-icon {
+  width: 56px;
+  height: 56px;
   background: rgba(255, 255, 255, 0.2);
-  color: white;
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.close-btn:hover {
+.header-icon i {
+  font-size: 28px;
+  color: #ffffff;
+  animation: rotateIcon 4s linear infinite;
+}
+
+@keyframes rotateIcon {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.header-text {
+  flex: 1;
+}
+
+.header-text h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.02em;
+}
+
+.header-text p {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+}
+
+.close-modal {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.close-modal:hover {
   background: rgba(255, 255, 255, 0.3);
   transform: rotate(90deg);
 }
 
+/* Body */
 .modal-body {
-  padding: 24px;
+  padding: 32px;
+  max-height: calc(90vh - 180px);
+  overflow-y: auto;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
 }
 
-.image-section {
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+/* Image Preview */
+.image-preview {
+  margin-bottom: 32px;
+}
+
+.image-wrapper {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.medical-image {
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.image-wrapper:hover .medical-image {
+  transform: scale(1.05);
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
+  align-items: center;
   justify-content: center;
-  margin-bottom: 24px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-.analyze-image {
-  max-width: 100%;
-  max-height: 300px;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border: 2px solid #e2e8f0;
+.image-wrapper:hover .image-overlay {
+  opacity: 1;
 }
 
-.loading-section {
+.image-overlay i {
+  font-size: 48px;
+  color: #ffffff;
+}
+
+/* Loading State */
+.loading-state {
   text-align: center;
-  padding: 30px;
+  padding: 40px 20px;
 }
 
-.spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #2563eb;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 20px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.small {
-  font-size: 0.8rem;
-  color: #94a3b8;
-  margin-top: 10px;
-}
-
-.result-section {
-  background: #f8fafc;
-  border-radius: 16px;
-  padding: 20px;
-}
-
-.result-badge {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-}
-
-.result-badge.diabetes {
-  background: linear-gradient(135deg, #fee2e2, #fecaca);
-  border-left: 6px solid #dc2626;
-}
-
-.result-badge.non-diabetes {
-  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-  border-left: 6px solid #16a34a;
-}
-
-.result-icon {
-  width: 60px;
-  height: 60px;
+.ai-brain {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 30px;
 }
 
-.result-badge.diabetes .result-icon {
-  background: #dc2626;
-  color: white;
+.ai-brain i {
+  font-size: 40px;
+  color: #3b82f6;
+  animation: pulseBrain 1.5s ease-in-out infinite;
 }
 
-.result-badge.non-diabetes .result-icon {
-  background: #16a34a;
-  color: white;
+@keyframes pulseBrain {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }
 
-.result-text h3 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 5px;
+.brain-wave {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  border-radius: 50%;
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  animation: waveExpand 1.5s ease-out infinite;
 }
 
-.result-badge.diabetes .result-text h3 {
-  color: #991b1b;
+@keyframes waveExpand {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
 }
 
-.result-badge.non-diabetes .result-text h3 {
-  color: #166534;
-}
-
-.result-text p {
-  font-size: 1rem;
-  opacity: 0.8;
-}
-
-.confidence-bar {
-  margin-top: 20px;
-}
-
-.bar-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-  color: #64748b;
+.loading-text h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #0f172a;
   margin-bottom: 8px;
 }
 
-.bar-container {
-  height: 12px;
+.loading-text p {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 24px;
+}
+
+.loading-progress {
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.progress-bar {
+  height: 6px;
   background: #e2e8f0;
-  border-radius: 6px;
+  border-radius: 3px;
   overflow: hidden;
+  margin-bottom: 8px;
 }
 
-.bar-fill {
+.progress-fill {
   height: 100%;
-  transition: width 0.5s ease;
+  width: 100%;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  border-radius: 3px;
+  animation: loadingProgress 2s ease-in-out infinite;
+  transform-origin: left;
 }
 
-.bar-fill.diabetes-bar {
-  background: linear-gradient(90deg, #f87171, #dc2626);
+@keyframes loadingProgress {
+  0% {
+    transform: scaleX(0);
+  }
+  50% {
+    transform: scaleX(0.7);
+  }
+  100% {
+    transform: scaleX(1);
+  }
 }
 
-.bar-fill.non-diabetes-bar {
-  background: linear-gradient(90deg, #4ade80, #16a34a);
+.progress-text {
+  font-size: 0.7rem;
+  color: #94a3b8;
 }
 
-.error-section {
-  text-align: center;
-  padding: 30px;
+/* Result Container */
+.result-container {
+  animation: fadeInResult 0.5s ease;
+}
+
+@keyframes fadeInResult {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-card {
+  border-radius: 24px;
+  padding: 24px;
+  transition: all 0.3s ease;
+}
+
+.diabetes-result {
+  background: linear-gradient(135deg, #fef2f2, #fee2e2);
+  border-left: 4px solid #dc2626;
+}
+
+.non-diabetes-result {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border-left: 4px solid #16a34a;
+}
+
+.result-status {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.status-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.diabetes-result .status-icon {
+  background: #dc2626;
+  box-shadow: 0 8px 16px rgba(220, 38, 38, 0.2);
+}
+
+.non-diabetes-result .status-icon {
+  background: #16a34a;
+  box-shadow: 0 8px 16px rgba(22, 163, 74, 0.2);
+}
+
+.status-icon i {
+  font-size: 32px;
+  color: #ffffff;
+}
+
+.status-info h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.diabetes-result .status-info h3 {
+  color: #991b1b;
+}
+
+.non-diabetes-result .status-info h3 {
+  color: #166534;
+}
+
+.status-info p {
+  font-size: 0.8rem;
+  margin: 0;
+  opacity: 0.7;
+}
+
+/* Confidence Section */
+.confidence-section {
+  margin-bottom: 24px;
+}
+
+.confidence-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.confidence-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.confidence-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.diabetes-result .confidence-value {
   color: #dc2626;
 }
 
-.error-section i {
-  font-size: 3rem;
-  margin-bottom: 15px;
+.non-diabetes-result .confidence-value {
+  color: #16a34a;
 }
 
-.btn-retry {
-  margin-top: 15px;
-  padding: 10px 25px;
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s;
+.confidence-track {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
 }
 
-.btn-retry:hover {
-  background: #1d4ed8;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+.confidence-fill {
+  height: 100%;
+  position: relative;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.modal-footer {
-  padding: 20px 24px;
-  border-top: 1px solid #e2e8f0;
+.diabetes-fill {
+  background: linear-gradient(90deg, #f87171, #dc2626);
+}
+
+.non-diabetes-fill {
+  background: linear-gradient(90deg, #4ade80, #16a34a);
+}
+
+.fill-glow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
+  animation: shine 2s infinite;
+}
+
+@keyframes shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.confidence-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  color: #94a3b8;
+}
+
+/* Recommendation Box */
+.recommendation-box {
   display: flex;
   gap: 12px;
-  justify-content: flex-end;
+  padding: 16px;
+  border-radius: 16px;
+  margin-top: 20px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
 }
 
-.btn-send-result {
-  padding: 12px 24px;
-  background: #10b981;
-  color: white;
+.recommendation-box i {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.diabetes-result .recommendation-box i {
+  color: #dc2626;
+}
+
+.non-diabetes-result .recommendation-box i {
+  color: #16a34a;
+}
+
+.recommendation-text strong {
+  display: block;
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+  color: #0f172a;
+}
+
+.recommendation-text p {
+  font-size: 0.8rem;
+  color: #475569;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Error State */
+.error-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.error-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-icon i {
+  font-size: 40px;
+  color: #dc2626;
+}
+
+.error-state h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.error-state p {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 24px;
+}
+
+.retry-button {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: #ffffff;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   font-weight: 500;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
-.btn-send-result:hover {
-  background: #059669;
+.retry-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
 }
 
-.btn-close {
+/* Footer */
+.modal-footer {
+  padding: 20px 32px;
+  border-top: 1px solid #f0f2f5;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  background: #ffffff;
+}
+
+.footer-btn {
   padding: 12px 24px;
+  border: none;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-btn.primary {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
+.footer-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+}
+
+.footer-btn.secondary {
   background: #f1f5f9;
   color: #475569;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
 }
 
-.btn-close:hover {
+.footer-btn.secondary:hover {
   background: #e2e8f0;
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal-card {
+    width: 95%;
+    max-height: 95vh;
+  }
+  
+  .modal-header {
+    padding: 20px 24px;
+  }
+  
+  .header-icon {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .header-icon i {
+    font-size: 22px;
+  }
+  
+  .header-text h2 {
+    font-size: 1.2rem;
+  }
+  
+  .modal-body {
+    padding: 24px;
+  }
+  
+  .result-status {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .status-icon {
+    width: 56px;
+    height: 56px;
+  }
+  
+  .status-info h3 {
+    font-size: 1.1rem;
+  }
+  
+  .recommendation-box {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .modal-footer {
+    padding: 16px 24px;
+    flex-direction: column;
+  }
+  
+  .footer-btn {
+    justify-content: center;
+  }
 }

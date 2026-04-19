@@ -119,7 +119,57 @@
         </a>
       </li>
 
+      <!-- Espace Éducatif -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/education')" routerLinkActive="active">
+          <i class="bi bi-book"></i>
+          <span>Espace éducatif</span>
+        </a>
+      </li>
+
+      <!-- Documents -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/documents')" routerLinkActive="active">
+          <i class="bi bi-file-earmark-text"></i>
+          <span>Documents</span>
+        </a>
+      </li>
+
       <li class="nav-divider"></li>
+
+      <!-- Réclamations - NOUVEAU -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/reclamations')" routerLinkActive="active">
+          <i class="bi bi-exclamation-triangle"></i>
+          <span>Réclamations reçues</span>
+        </a>
+      </li>
+
+      <!-- Envoyer une réclamation - NOUVEAU -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/send-reclamations')" routerLinkActive="active">
+          <i class="bi bi-envelope-paper"></i>
+          <span>Envoyer réclamation</span>
+        </a>
+      </li>
+
+      <!-- Géolocalisation - NOUVEAU -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/geo')" routerLinkActive="active">
+          <i class="bi bi-geo-alt"></i>
+          <span>Géolocalisation</span>
+        </a>
+      </li>
+
+      <li class="nav-divider"></li>
+
+      <!-- Feedbacks -->
+      <li class="nav-item">
+        <a class="nav-link" (click)="navigateTo('/doctor/feedbacks')" routerLinkActive="active">
+          <i class="bi bi-chat-heart"></i>
+          <span>Feedbacks patients</span>
+        </a>
+      </li>
 
       <!-- Paramètres -->
       <li class="nav-item">

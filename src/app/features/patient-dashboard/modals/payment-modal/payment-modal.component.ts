@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { PaymentService } from '../../../../services/payment.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 declare var Stripe: any;
 
@@ -23,10 +24,14 @@ export class PaymentModalComponent implements AfterViewInit {
   stripe: any = null;
   cardElement: any = null;
 
-  constructor(private paymentService: PaymentService) {}
-
-  async ngAfterViewInit() {
-    await this.initStripe();
+constructor(
+  private paymentService: PaymentService,
+  private authService: AuthService
+) {}
+  
+  ngAfterViewInit() {
+    // Initialiser Stripe quand le composant se charge
+    this.initStripe();
   }
 
   async initStripe() {
@@ -62,20 +67,14 @@ export class PaymentModalComponent implements AfterViewInit {
   }
 
   async pay() {
-    if (!this.appointment) return;
-    
-    // ✅ Vérifier que patientId existe
-    if (!this.patientId) {
-      // Récupérer l'ID du patient depuis localStorage
-      const patientIdStr = localStorage.getItem('patient_id');
-      if (patientIdStr) {
-        this.patientId = parseInt(patientIdStr);
-        console.log('✅ Patient ID récupéré depuis localStorage:', this.patientId);
-      } else {
-        this.errorMessage = 'Erreur: Patient non identifié';
-        return;
-      }
-    }
+  if (!this.patientId) {
+    this.patientId = this.authService.getUserId() || null;
+  }
+  
+  if (!this.patientId) {
+    this.errorMessage = 'Erreur: Patient non identifié';
+    return;
+  }
     
     this.loading = true;
     this.errorMessage = '';

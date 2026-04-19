@@ -1,166 +1,223 @@
-<div class="modal-overlay" (click)="close()">
-  <div class="modal-container" (click)="$event.stopPropagation()">
-
-    <!-- En-tête -->
+<div class="detail-modal" (click)="close()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    
+    <!-- Header Élégant -->
     <div class="modal-header">
-      <h2>
-        <i class="bi" [ngClass]="getIcon(notification.title)"></i>
-        Détails de la notification
-      </h2>
-      <button class="close-btn" (click)="close()">
-        <i class="bi bi-x-lg"></i>
-      </button>
-    </div>
-
-    <!-- Corps -->
-    <div class="modal-body">
-      <div class="notification-detail">
-
-        <div class="detail-header">
-          <span class="badge" [ngClass]="{
-            'badge-info': notification.title.toLowerCase().includes('rendez-vous'),
-            'badge-success': notification.title.toLowerCase().includes('résultat'),
-            'badge-warning': notification.title.toLowerCase().includes('rappel')
-          }">
-            {{ notification.title }}
-          </span>
-          <span class="date">{{ formatFullDate(notification.createdAt) }}</span>
+      <div class="header-glow"></div>
+      <div class="header-content">
+        <div class="header-icon" [class]="getHeaderIconClass(notification?.title)">
+          <i class="bi" [ngClass]="getIcon(notification?.title)"></i>
         </div>
-
-      
-
-        <!-- Informations du rendez-vous -->
-        <div class="appointment-info" *ngIf="notification.title.toLowerCase().includes('rendez-vous')">
-          <h3>Informations du rendez-vous</h3>
-
-          <!-- Chargement -->
-          <div *ngIf="isLoading" class="loading-spinner">
-            <div class="spinner-border spinner-border-sm" role="status"></div>
-            <span>Chargement des informations...</span>
-          </div>
-
-          <!-- Affichage des données -->
-          <div *ngIf="!isLoading">
-            <div class="info-grid">
-              <div class="info-item">
-                <i class="bi bi-calendar"></i>
-                <div>
-                  <small>Date</small>
-                  <strong>{{ getAppointmentDate() }}</strong>
-                </div>
-              </div>
-              <div class="info-item">
-                <i class="bi bi-clock"></i>
-                <div>
-                  <small>Heure</small>
-                  <strong>{{ getAppointmentTime() }}</strong>
-                </div>
-              </div>
-              <div class="info-item">
-                <i class="bi bi-tag"></i>
-                <div>
-                  <small>Titre</small>
-                  <strong>{{ getAppointmentTitle() }}</strong>
-                </div>
-              </div>
-              <div class="info-item">
-                <i class="bi bi-currency-dollar"></i>
-                <div>
-                  <small>Tarif</small>
-                  <strong>{{ getAppointmentFee() }} TND</strong>
-                </div>
-              </div>
-            </div>
-
-            <div class="info-grid-second">
-              <div class="info-item">
-                <i class="bi bi-person"></i>
-                <div>
-                  <small>Médecin</small>
-                  <strong>{{ doctorName }}</strong>
-                </div>
-              </div>
-              <div class="info-item">
-                <i class="bi bi-camera-video"></i>
-                <div>
-                  <small>Type</small>
-                  <strong>Consultation en ligne</strong>
-                </div>
-              </div>
-            </div>
-
-            <!-- Statut du paiement -->
-            <div class="payment-status" *ngIf="appointment">
-              <!-- Expiré -->
-              <div *ngIf="isDateExpired" class="status-expired">
-                <i class="bi bi-calendar-x" style="font-size:2rem; color:#ef4444"></i>
-                <div class="status-content">
-                  <span class="status-title">Consultation expirée</span>
-                  <span class="status-message">
-                    Cette consultation a déjà eu lieu, vous ne pouvez plus payer ni accéder au lien.
-                  </span>
-                </div>
-              </div>
-
-              <ng-container *ngIf="!isDateExpired">
-                <!-- Payé → lien Meet visible -->
-                <div *ngIf="isPaid" class="status-paid">
-                  <i class="bi bi-check-circle-fill" style="font-size:2rem; color:#10b981"></i>
-                  <div class="status-content">
-                    <span class="status-title">Consultation payée ✓</span>
-                    <a *ngIf="getAppointmentMeetLink() !== '#'"
-                       [href]="getAppointmentMeetLink()"
-                       target="_blank"
-                       class="meet-link-btn">
-                      <i class="bi bi-camera-video"></i> Rejoindre la consultation
-                    </a>
-                    <span *ngIf="getAppointmentMeetLink() === '#'" class="status-message">
-                      Le lien sera disponible prochainement.
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Non payé → bouton payer, lien caché -->
-                <div *ngIf="!isPaid" class="status-unpaid">
-                  <i class="bi bi-credit-card" style="font-size:2rem; color:#f59e0b"></i>
-                  <div class="status-content">
-                    <span class="status-title">Paiement requis</span>
-                    <span class="status-amount"
-                          style="font-size:1.4rem; font-weight:700; color:#f59e0b">
-                      {{ getAppointmentFee() }} TND
-                    </span>
-                    <p class="status-message">
-                      Vous devez payer pour accéder au lien de la consultation.
-                    </p>
-                    <button class="btn-pay" (click)="openPaymentModal()">
-                      <i class="bi bi-lock"></i> Payer maintenant
-                    </button>
-                  </div>
-                </div>
-              </ng-container>
-            </div>
-          </div>
+        <div class="header-text">
+          <h2>Détail de la notification</h2>
+          <p>{{ notification?.title || 'Information importante' }}</p>
         </div>
-
+        <button class="close-button" (click)="close()">
+          <i class="bi bi-x-lg"></i>
+        </button>
       </div>
     </div>
 
-    <!-- Pied -->
+    <!-- Body -->
+    <div class="modal-body">
+      <!-- Métadonnées -->
+      <div class="metadata-bar">
+        <div class="date-chip">
+          <i class="bi bi-clock-history"></i>
+          <span>{{ formatFullDate(notification?.createdAt) }}</span>
+        </div>
+        <div class="type-badge" [class]="getTypeClass(notification?.title)">
+          <i class="bi" [ngClass]="getTypeIcon(notification?.title)"></i>
+          <span>{{ getTypeLabel(notification?.title) }}</span>
+        </div>
+      </div>
+
+      <!-- Message -->
+      <div class="message-card">
+        <div class="message-icon">
+          <i class="bi bi-chat-quote-fill"></i>
+        </div>
+        <div class="message-content">
+          <p>{{ notification?.message }}</p>
+        </div>
+      </div>
+
+      <!-- Modifications (si présentes) -->
+      <div class="changes-card" *ngIf="changesList.length > 0">
+        <div class="changes-header">
+          <i class="bi bi-pencil-square"></i>
+          <span>Modifications effectuées</span>
+        </div>
+        <div class="changes-list">
+          <div class="change-item" *ngFor="let change of changesList">
+            <i class="bi bi-arrow-right-short"></i>
+            <span>{{ change }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Informations Rendez-vous -->
+      <div class="appointment-card" *ngIf="notification?.title?.toLowerCase().includes('rendez-vous')">
+        
+        <!-- Loading State -->
+        <div class="loading-container" *ngIf="isLoading">
+          <div class="loading-spinner">
+            <div class="spinner-ring"></div>
+          </div>
+          <p>Chargement des informations...</p>
+        </div>
+
+        <!-- Appointment Details -->
+        <div class="appointment-details" *ngIf="!isLoading && appointment">
+          
+          <!-- Doctor Info -->
+          <div class="doctor-section">
+            <div class="doctor-avatar">
+              <i class="bi bi-person-circle"></i>
+            </div>
+            <div class="doctor-info">
+              <span class="doctor-label">Médecin traitant</span>
+              <h4>{{ doctorName }}</h4>
+            </div>
+          </div>
+
+          <!-- Info Grid -->
+          <div class="info-grid">
+            <div class="info-cell">
+              <div class="cell-icon">
+                <i class="bi bi-calendar-heart"></i>
+              </div>
+              <div class="cell-data">
+                <span class="data-label">Date</span>
+                <strong class="data-value">{{ getAppointmentDate() }}</strong>
+              </div>
+            </div>
+            <div class="info-cell">
+              <div class="cell-icon">
+                <i class="bi bi-clock"></i>
+              </div>
+              <div class="cell-data">
+                <span class="data-label">Horaire</span>
+                <strong class="data-value">{{ getAppointmentTime() }}</strong>
+              </div>
+            </div>
+            <div class="info-cell">
+              <div class="cell-icon">
+                <i class="bi bi-tag"></i>
+              </div>
+              <div class="cell-data">
+                <span class="data-label">Consultation</span>
+                <strong class="data-value">{{ getAppointmentTitle() }}</strong>
+              </div>
+            </div>
+            <div class="info-cell">
+              <div class="cell-icon">
+                <i class="bi bi-cash-stack"></i>
+              </div>
+              <div class="cell-data">
+                <span class="data-label">Tarif</span>
+                <strong class="data-value">{{ getAppointmentFee() }} TND</strong>
+              </div>
+            </div>
+            <div class="info-cell">
+              <div class="cell-icon">
+                <i class="bi bi-camera-video-fill"></i>
+              </div>
+              <div class="cell-data">
+                <span class="data-label">Type</span>
+                <strong class="data-value">Consultation en ligne</strong>
+              </div>
+            </div>
+            <div class="info-cell" *ngIf="getAppointmentMeetLink() !== '#'">
+              <div class="cell-icon">
+                <i class="bi bi-link-45deg"></i>
+              </div>
+              <div class="cell-data">
+                <span class="data-label">Lien de visio</span>
+                <a [href]="getAppointmentMeetLink()" target="_blank" class="meet-link">
+                  Rejoindre <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Status -->
+          <div class="payment-section">
+            <!-- Expired -->
+            <div class="status-card expired" *ngIf="isDateExpired">
+              <div class="status-icon">
+                <i class="bi bi-calendar-x-fill"></i>
+              </div>
+              <div class="status-info">
+                <h5>Consultation expirée</h5>
+                <p>Cette consultation a déjà eu lieu. Vous ne pouvez plus y accéder.</p>
+              </div>
+            </div>
+
+            <!-- Paid -->
+            <div class="status-card success" *ngIf="!isDateExpired && isPaid">
+              <div class="status-icon">
+                <i class="bi bi-check-circle-fill"></i>
+              </div>
+              <div class="status-info">
+                <h5>Consultation payée</h5>
+                <p>Votre paiement a été confirmé. Vous pouvez accéder à la consultation.</p>
+                <a *ngIf="getAppointmentMeetLink() !== '#'" 
+                   [href]="getAppointmentMeetLink()" 
+                   target="_blank" 
+                   class="join-button">
+                  <i class="bi bi-camera-video-fill"></i>
+                  Rejoindre la consultation
+                </a>
+              </div>
+            </div>
+
+            <!-- Unpaid -->
+            <div class="status-card warning" *ngIf="!isDateExpired && !isPaid">
+              <div class="status-icon">
+                <i class="bi bi-credit-card"></i>
+              </div>
+              <div class="status-info">
+                <h5>Paiement requis</h5>
+                <div class="amount-highlight">{{ getAppointmentFee() }} TND</div>
+                <p>Le paiement est nécessaire pour accéder à la consultation en ligne.</p>
+                <button class="pay-button" (click)="openPaymentModal()">
+                  <i class="bi bi-lock-fill"></i>
+                  Payer maintenant
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error State -->
+        <div class="error-container" *ngIf="!isLoading && !appointment">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <p>Impossible de charger les informations du rendez-vous</p>
+          <button class="retry-button" (click)="loadAppointmentDetails(extractAppointmentId(notification?.message)!)">
+  <i class="bi bi-arrow-repeat"></i>
+  Réessayer
+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
     <div class="modal-footer">
-      <button class="btn-secondary" (click)="close()">
+      <button class="footer-button secondary" (click)="close()">
+        <i class="bi bi-x-circle"></i>
         Fermer
       </button>
     </div>
-
   </div>
 </div>
 
-<!-- Modal de paiement -->
+<!-- Payment Modal -->
 <app-payment-modal
   *ngIf="showPaymentModal"
   [show]="showPaymentModal"
   [appointment]="appointment"
-  [patientId]="patientId ?? 0"
+  [patientId]="patientId"
   (closeModal)="closePaymentModal()"
   (paymentSuccess)="onPaymentSuccess($event)">
 </app-payment-modal>

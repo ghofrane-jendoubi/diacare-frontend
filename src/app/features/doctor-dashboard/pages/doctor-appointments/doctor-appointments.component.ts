@@ -462,4 +462,15 @@ cancelAppointment(appointment: any) {
   goBack() {
     this.router.navigate(['/doctor/dashboard']);
   }
+  getAvatarGradient(patientName: string): string {
+  const gradients = [
+    'linear-gradient(135deg, #3b82f6, #2563eb)',
+    'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+    'linear-gradient(135deg, #ec4899, #be185d)',
+    'linear-gradient(135deg, #f59e0b, #d97706)',
+    'linear-gradient(135deg, #10b981, #059669)'
+  ];
+  const index = (patientName?.length || 0) % gradients.length;
+  return gradients[index];
+}
 }

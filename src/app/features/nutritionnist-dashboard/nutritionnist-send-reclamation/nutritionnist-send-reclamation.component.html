@@ -1,0 +1,70 @@
+<div class="mb-3">
+  <a routerLink="/nutritionnist" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>
+    Retour au dashboard
+  </a>
+</div>
+
+<section class="send-reclamation-page">
+  <div class="page-header">
+    <h2>Envoyer une réclamation à l’admin</h2>
+    <p>Déclarez un problème technique, administratif ou interne.</p>
+  </div>
+
+  <div *ngIf="successMessage" class="alert success">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert error">{{ errorMessage }}</div>
+
+  <div class="layout">
+    <div class="form-card">
+      <div class="form-group">
+        <label>Titre</label>
+        <input [(ngModel)]="reclamationForm.title" class="custom-input" placeholder="Titre de la réclamation">
+      </div>
+
+      <div class="form-group">
+        <label>Catégorie</label>
+        <select [(ngModel)]="reclamationForm.category" class="custom-input">
+          <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Priorité</label>
+        <select [(ngModel)]="reclamationForm.priority" class="custom-input">
+          <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea [(ngModel)]="reclamationForm.description" class="custom-input textarea" rows="6"></textarea>
+      </div>
+
+      <button class="submit-btn" (click)="submitReclamation()" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Envoi...' : 'Envoyer à l’admin' }}
+      </button>
+    </div>
+
+    <div class="list-card">
+      <h3>Mes réclamations envoyées</h3>
+
+      <div *ngFor="let r of reclamations" class="ticket">
+        <div class="ticket-top">
+          <div>
+            <h4>{{ r.title }}</h4>
+            <p>{{ r.category }} • {{ r.createdAt | date:'short' }}</p>
+          </div>
+          <span class="status-pill" [ngClass]="getStatusClass(r.status)">
+            {{ getStatusLabel(r.status) }}
+          </span>
+        </div>
+
+        <p>{{ r.description }}</p>
+
+        <div *ngIf="r.adminResponse" class="response-box">
+          <strong>Réponse admin :</strong> {{ r.adminResponse }}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

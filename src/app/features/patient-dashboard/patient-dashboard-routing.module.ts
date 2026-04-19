@@ -12,21 +12,27 @@ import { DietPlanViewComponent } from './pages/diet-plan-view/diet-plan-view.com
 import { PatientChatComponent } from './pages/patient-chat/patient-chat.component';
 import { ProgressComponent } from './pages/progress/progress.component';
 import { PatientProfileComponent } from './pages/patient-profile/patient-profile.component';
+import { PatientReclamationsComponent } from './patient-reclamations/patient-reclamations.component';
+import { PatientGeolocalisationComponent } from './patient-geolocalisation/patient-geolocalisation.component';
+import { NutritionistPatientsComponent } from '../nutritionnist-dashboard/pages/nutritionist-patients/nutritionist-patients.component';
+import { PatientNutritionistsComponent } from './pages/patient-nutritionists/patient-nutritionists.component';
 
 const routes: Routes = [
   { path: '', component: PatientHomeComponent },
   { path: 'choices', component: PatientChoicesComponent },
   { path: 'doctors', component: DoctorsListComponent },
+  { path: 'nutritionists', component: PatientNutritionistsComponent },
   { path: 'chat/:doctorId', component: ChatComponent },
   { path: 'chat', component: ChatComponent },
   { path: 'notifications', component: NotificationsComponent },
   { path: 'prediction', component: DiabetesPredictionComponent },
   { path: 'diabete-prediction', component: PredictionComponent },
-  
+  { path: 'reclamation', component: PatientReclamationsComponent },
+  { path: 'geolocalisation', component: PatientGeolocalisationComponent },
   { path: 'nutrition', component: FoodChatComponent },
   { path: 'my-plans', component: DietPlanViewComponent },
   { path: 'profile', component: PatientProfileComponent },
-  { path: 'nutrition-chat', component: PatientChatComponent },
+  { path: 'nutrition-chat/:id', component: PatientChatComponent },
   { path: 'progress', component: ProgressComponent },
   { path: 'education', loadChildren: () => import('../education/education.module').then(m => m.EducationModule) }  
 ];

@@ -16,6 +16,9 @@ import { EducationManagerComponent } from './pages/education-manager/education-m
 import { PatientFeedbacksComponent } from './pages/patient-feedbacks/patient-feedbacks.component';
 import { SafePipe } from '../../shared/pipes/safe.pipe';
 import { SharedModule } from '../../shared/shared.module';
+import { DoctorSendReclamationComponent } from './doctor-send-reclamation/doctor-send-reclamation.component';
+import { DoctorGeolocalisationComponent } from './doctor-geolocalisation/doctor-geolocalisation.component';
+import { DoctorReclamationsComponent } from './doctor-reclamations/doctor-reclamations.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +32,10 @@ import { SharedModule } from '../../shared/shared.module';
     CommentsManagerComponent,
     EducationManagerComponent,
     PatientFeedbacksComponent,
-  
+    DoctorSendReclamationComponent,
+    DoctorGeolocalisationComponent,
+    DoctorReclamationsComponent
+
 
   ],
   imports: [
