@@ -1,27 +1,48 @@
-# DiacareFrontend
+# 🩺 DiaCare Frontend
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.21.
+Interface utilisateur de la plateforme **DiaCare**, une solution intelligente de suivi du diabète basée sur l’IA.
 
-## Development server
+---
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## 🚀 Description
 
-## Code scaffolding
+Ce projet représente le frontend de DiaCare développé avec Angular.  
+Il permet aux patients, médecins et nutritionnistes d’interagir avec la plateforme via une interface intuitive et moderne.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+---
 
-## Build
+## 🎯 Fonctionnalités principales
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+- 🔐 Authentification (JWT)
+- 👤 Gestion des profils (patient, médecin, nutritionniste)
+- 📊 Dashboard personnalisé
+- 💬 Chat en temps réel
+- 📅 Gestion des rendez-vous (FullCalendar)
+- 🧠 Upload d’images médicales (analyse IA)
+- 🥗 Espace nutrition (plans alimentaires, calories)
+- 🛒 Parapharmacie en ligne
+- 📚 Espace éducatif (vidéos, documents)
+- 📍 Géolocalisation (médecins, pharmacies)
+- 🔔 Notifications
 
-## Running unit tests
+---
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## 🛠️ Technologies utilisées
 
-## Running end-to-end tests
+- Angular
+- TypeScript
+- HTML / CSS / SCSS
+- Bootstrap / Angular Material
+- RxJS
+- FullCalendar
+- Google Maps API
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+---
 
-## Further help
+## 📦 Installation
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+```bash
+git clone https://github.com/your-repo/diacare-frontend.git
+cd diacare-frontend
+npm install
+ng serve
