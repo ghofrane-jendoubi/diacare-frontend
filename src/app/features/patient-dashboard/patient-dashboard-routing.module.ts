@@ -16,6 +16,10 @@ import { PatientReclamationsComponent } from './patient-reclamations/patient-rec
 import { PatientGeolocalisationComponent } from './patient-geolocalisation/patient-geolocalisation.component';
 import { NutritionistPatientsComponent } from '../nutritionnist-dashboard/pages/nutritionist-patients/nutritionist-patients.component';
 import { PatientNutritionistsComponent } from './pages/patient-nutritionists/patient-nutritionists.component';
+import { MarketplacePatientComponent } from './pages/marketplace-patient/marketplace-patient.component';
+import { CartComponent } from './pages/cart/cart.component';
+import { OrdersComponent } from './pages/orders/orders.component';
+import { PaiementComponent } from './pages/paiement/paiement.component';
 
 const routes: Routes = [
   { path: '', component: PatientHomeComponent },
@@ -34,6 +38,13 @@ const routes: Routes = [
   { path: 'profile', component: PatientProfileComponent },
   { path: 'nutrition-chat/:id', component: PatientChatComponent },
   { path: 'progress', component: ProgressComponent },
+  { path: 'marketplace', component: MarketplacePatientComponent },
+  { path: 'cart', component: CartComponent },
+  { path: 'orders', component: OrdersComponent },
+  {
+  path: 'paiement',
+  component: PaiementComponent
+},
   { path: 'education', loadChildren: () => import('../education/education.module').then(m => m.EducationModule) }  
 ];
 

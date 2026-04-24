@@ -1,0 +1,395 @@
+/* Dashboard Container */
+.dashboard-container {
+  padding: 24px 32px;
+  background: #f8f9fc;
+  min-height: 100vh;
+}
+
+/* Statistics Cards */
+.stat-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.stat-icon.bg-primary {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
+
+.stat-icon.bg-success {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.stat-icon.bg-danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.stat-icon.bg-warning {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.stat-icon.bg-info {
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-info h3 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.stat-info p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Stats Cards for visualization */
+.stats-card {
+  background: #f8fafc;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.stats-icon-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.stats-count {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* Progress Bars */
+.progress-custom {
+  background: #e2e8f0;
+  border-radius: 20px;
+  height: 32px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-custom {
+  height: 100%;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 12px;
+  transition: width 0.5s ease;
+}
+
+.progress-label {
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.bg-success {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.bg-danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.bg-warning {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.bg-info {
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+}
+
+.stock-summary {
+  margin-top: 0.5rem;
+}
+
+/* Card styling */
+.card {
+  border-radius: 1rem;
+  overflow: hidden;
+  border: none;
+  background: white;
+}
+
+/* Table styling */
+.table {
+  margin-bottom: 0;
+}
+
+.table thead th {
+  background-color: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Product image */
+.product-img {
+  width: 55px;
+  height: 55px;
+  object-fit: cover;
+  border: 1px solid #e2e8f0;
+}
+
+.product-placeholder {
+  width: 55px;
+  height: 55px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+}
+
+/* Stock badge */
+.stock-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.stock-badge.low-stock {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+/* Type badge */
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.type-badge.type-medical {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.type-badge.type-alimentaire {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+/* Action buttons */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn-action {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-edit {
+  background: #e0e7ff;
+  color: #4f46e5;
+}
+
+.btn-edit:hover {
+  background: #c7d2fe;
+  transform: scale(1.05);
+}
+
+.btn-delete {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.btn-delete:hover {
+  background: #fecaca;
+  transform: scale(1.05);
+}
+
+/* Primary button */
+.btn-primary {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border: none;
+  padding: 8px 20px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  border: none;
+  color: #475569;
+  font-weight: 500;
+}
+
+.btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+/* Modal styling */
+.modal-content {
+  border-radius: 1rem;
+  border: none;
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  border-radius: 1rem 1rem 0 0;
+}
+
+.modal-header .btn-close {
+  filter: brightness(0) invert(1);
+}
+
+.modal-title {
+  font-weight: 600;
+}
+
+/* Form controls */
+.form-control, .form-select {
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  padding: 0.6rem 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-label {
+  font-weight: 500;
+  color: #334155;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+}
+
+/* Invalid feedback */
+.invalid-feedback {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .dashboard-container {
+    padding: 20px;
+  }
+  
+  .stat-card {
+    padding: 1rem;
+  }
+  
+  .stat-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 1.25rem;
+  }
+  
+  .stat-info h3 {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 16px;
+  }
+  
+  .table-responsive {
+    font-size: 0.85rem;
+  }
+  
+  .product-img, .product-placeholder {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .btn-action {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .stats-count {
+    font-size: 1.2rem;
+  }
+}

@@ -1,0 +1,182 @@
+<div class="container py-5" style="margin-top: 80px;">
+  <!-- EMAIL ACTION MODE -->
+  <div *ngIf="action">
+    <div *ngIf="emailActionProcessing" class="text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-2">
+        {{ action === 'confirm' ? 'Confirmation en cours...' : 'Annulation en cours...' }}
+      </p>
+    </div>
+    <div *ngIf="emailActionError" class="alert alert-danger text-center">{{ emailActionError }}</div>
+    <div *ngIf="emailActionSuccess && action === 'confirm'" class="text-center">
+      <i class="bi bi-check-circle-fill fs-1 text-success"></i>
+      <h2>Commande confirmée !</h2>
+      <p>Votre commande n°{{ emailActionOrder?.id }} a été confirmée.</p>
+      <a routerLink="/orders" class="btn btn-primary rounded-pill px-4">Voir mes commandes</a>
+    </div>
+    <div *ngIf="emailActionSuccess && action === 'cancel'" class="text-center">
+      <i class="bi bi-x-circle-fill fs-1 text-danger"></i>
+      <h2>Commande annulée</h2>
+      <p>Votre commande a bien été annulée.</p>
+      <a routerLink="/orders" class="btn btn-primary rounded-pill px-4">Voir mes commandes</a>
+    </div>
+  </div>
+
+  <!-- NORMAL PAYMENT MODE -->
+  <div *ngIf="!action">
+    <div class="row g-4">
+      <!-- Cart section -->
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+          <div class="card-body p-4">
+            <h2 class="h4 mb-4 fw-bold">
+              <i class="bi bi-cart3 me-2 text-primary"></i> 
+              Récapitulatif
+            </h2>
+            
+            <div *ngIf="cart?.items?.length > 0; else emptyCart">
+              <!-- Items list -->
+              <div class="cart-items mb-4">
+                <div *ngFor="let item of cart.items" class="cart-item d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+                  <!-- Product image -->
+                  <div class="product-image bg-light rounded-3 p-2" style="width: 80px; height: 80px; flex-shrink: 0;">
+                    <img [src]="getImageUrl(item.product.image)"
+                         class="img-fluid rounded-3 w-100 h-100"
+                         style="object-fit: contain;"
+                         [alt]="item.product.name"
+                         (error)="item.product.image = 'default-product.png'">
+                  </div>
+                  
+                  <!-- Product info -->
+                  <div class="flex-grow-1">
+                    <h5 class="mb-1 fw-semibold">{{ item.product.name }}</h5>
+                    <p class="text-muted mb-0 small">{{ item.quantity }} x {{ item.product.price }} DT</p>
+                  </div>
+                  
+                  <!-- Price -->
+                  <div class="fw-bold text-primary fs-5">
+                    {{ item.product.price * item.quantity }} DT
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Total -->
+              <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                <span class="fs-5 fw-semibold">Total à payer</span>
+                <span class="fs-4 fw-bold text-primary">{{ total }} DT</span>
+              </div>
+            </div>
+            
+            <ng-template #emptyCart>
+              <div class="text-center py-5">
+                <i class="bi bi-cart-x fs-1 text-muted"></i>
+                <p class="mt-3 text-muted">Votre panier est vide.</p>
+                <a routerLink="/products" class="btn btn-outline-primary rounded-pill px-4">
+                  <i class="bi bi-arrow-left me-2"></i> Retour aux produits
+                </a>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment form -->
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+          <div class="card-body p-4">
+            <h2 class="h4 mb-4 fw-bold">
+              <i class="bi bi-credit-card me-2 text-primary"></i> 
+              Paiement sécurisé
+            </h2>
+            
+            <form (ngSubmit)="payer()" #paymentForm="ngForm">
+              <!-- Card holder name -->
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Nom du titulaire</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0">
+                    <i class="bi bi-person text-primary"></i>
+                  </span>
+                  <input type="text" 
+                         class="form-control bg-light border-start-0" 
+                         [(ngModel)]="nom" 
+                         name="nom" 
+                         placeholder="Jean Dupont" 
+                         required>
+                </div>
+              </div>
+              
+              <!-- Card number -->
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Numéro de carte</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0">
+                    <i class="bi bi-credit-card text-primary"></i>
+                  </span>
+                  <input type="text" 
+                         class="form-control bg-light border-start-0" 
+                         [(ngModel)]="numero" 
+                         name="numero" 
+                         placeholder="1234 5678 9012 3456" 
+                         required>
+                </div>
+              </div>
+              
+              <!-- Expiry & CVC -->
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Date d'expiration</label>
+                  <input type="text" 
+                         class="form-control bg-light" 
+                         [(ngModel)]="date" 
+                         name="date" 
+                         placeholder="MM/YY" 
+                         required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">CVC</label>
+                  <input type="text" 
+                         class="form-control bg-light" 
+                         [(ngModel)]="cvc" 
+                         name="cvc" 
+                         placeholder="123" 
+                         required>
+                </div>
+              </div>
+              
+              <!-- Email -->
+              <div class="mb-4">
+                <label class="form-label fw-semibold">Email de confirmation</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0">
+                    <i class="bi bi-envelope text-primary"></i>
+                  </span>
+                  <input type="email" 
+                         class="form-control bg-light border-start-0" 
+                         [(ngModel)]="email" 
+                         name="email" 
+                         placeholder="votre@email.com" 
+                         required>
+                </div>
+              </div>
+              
+              <!-- Payment button -->
+              <button type="submit" 
+                      class="btn btn-primary w-100 rounded-pill py-3 fw-semibold"
+                      [disabled]="!cart?.items?.length || loading">
+                <i class="bi bi-lock me-2"></i> 
+                {{ loading ? 'Traitement en cours...' : 'Payer ' + total + ' DT' }}
+              </button>
+              
+              <p class="text-center text-muted small mt-3">
+                <i class="bi bi-shield-check me-1"></i> Paiement 100% sécurisé
+              </p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

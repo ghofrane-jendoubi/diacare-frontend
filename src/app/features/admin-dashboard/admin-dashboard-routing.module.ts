@@ -8,6 +8,7 @@ import { PatientsListComponent } from './patients-list/patients-list.component';
 import { UserListComponent } from '../user-list/user-list.component';
 import { AdminGeolocalisationComponent } from './admin-geolocalisation/admin-geolocalisation.component';
 import { AdminReclamationsComponent } from './admin-reclamations/admin-reclamations.component';
+import { DeliveryManagementComponent } from './delivery-management/delivery-management.component';
 
 const routes: Routes = [
   {
@@ -21,6 +22,10 @@ const routes: Routes = [
       { path: 'patients', component: PatientsListComponent, title: 'Patients' },
       { path: 'geo', component: AdminGeolocalisationComponent, title: 'geo' },
       { path: 'reclamations', component: AdminReclamationsComponent, title: 'reclamations' },
+      {
+  path: 'delivery',
+  component: DeliveryManagementComponent
+}
     ]
   }
 ];

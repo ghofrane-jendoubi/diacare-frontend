@@ -3,7 +3,6 @@
   background: #f8fafc;
   min-height: 100vh;
   padding: 24px 32px;
-  margin-left: 40px;
   width: calc(100% - 80px);
   box-sizing: border-box;
   transition: all 0.3s ease;

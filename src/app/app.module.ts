@@ -21,11 +21,11 @@ import { HomeComponent } from './features/home/home.component';
 
 import { ForgotPasswordComponent } from './features/auth/forgotpassword/forgotpassword.component';
 import { HcaptchaComponent, } from './features/auth/recaptcha/hcaptcha.component';
+import { MarketplacePatientComponent } from './features/patient-dashboard/pages/marketplace-patient/marketplace-patient.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-
      ChooseRoleComponent,
     ChooseRoleComponent,
     AdminAuthComponent,

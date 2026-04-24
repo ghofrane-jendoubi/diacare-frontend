@@ -16,6 +16,8 @@ export class SidebarComponent implements OnInit {
   nutritionistsCount = 0;
   patientsCount = 0;
   reclamationsCount = 0;
+  pendingOrdersCount = 0;
+  pendingDeliveriesCount = 0;
 
   private baseUrl = 'http://localhost:8081/api';
 
@@ -27,6 +29,8 @@ export class SidebarComponent implements OnInit {
   ngOnInit(): void {
     this.loadCounts();
     this.loadReclamationsCount();
+    this.loadPendingOrdersCount();
+    this.loadPendingDeliveriesCount();
   }
 
   onToggleSidebar(): void {
@@ -55,6 +59,28 @@ export class SidebarComponent implements OnInit {
     this.http.get<any[]>(`${this.baseUrl}/reclamations`).subscribe({
       next: (data) => {
         this.reclamationsCount = data.filter(r => r.status === 'OPEN' || r.status === 'IN_PROGRESS').length;
+      },
+      error: () => {}
+    });
+  }
+
+  loadPendingOrdersCount(): void {
+    this.http.get<any[]>(`${this.baseUrl}/orders/admin/paid-orders`).subscribe({
+      next: (orders) => {
+        // Compter les commandes en attente de livraison (non livrées)
+        this.pendingOrdersCount = orders.filter(o => o.status !== 'DELIVERED' && o.status !== 'CANCELLED').length;
+      },
+      error: () => {}
+    });
+  }
+
+  loadPendingDeliveriesCount(): void {
+    this.http.get<any[]>(`${this.baseUrl}/delivery/admin/all`).subscribe({
+      next: (deliveries) => {
+        // Compter les livraisons en cours
+        this.pendingDeliveriesCount = deliveries.filter(d => 
+          d.status !== 'DELIVERED' && d.status !== 'CANCELLED'
+        ).length;
       },
       error: () => {}
     });

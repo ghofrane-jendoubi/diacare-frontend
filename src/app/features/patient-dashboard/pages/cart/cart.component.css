@@ -1,0 +1,32 @@
+/* Cart items */
+.list-group-item {
+  transition: all 0.2s ease;
+}
+.list-group-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.08) !important;
+}
+
+/* Quantity input */
+input[type="number"] {
+  text-align: center;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 0.5;
+}
+
+/* Remove button */
+.btn-outline-danger {
+  border-color: #dee2e6;
+}
+.btn-outline-danger:hover {
+  background-color: #fee2e2;
+  border-color: #ffb3b3;
+  color: #dc3545;
+}
+
+/* Summary card sticky offset */
+.sticky-top {
+  z-index: 1020;
+}

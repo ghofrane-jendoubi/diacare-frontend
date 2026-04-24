@@ -1,9 +1,48 @@
-/* patient-nutritionists.component.css */
-.nutritionists-page {
-  min-height: calc(100vh - 72px);
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+:host {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
+.nutritionists-page {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  min-height: calc(100vh - 70px);
+}
+
+/* Container interne pour centrer le contenu */
+.page-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* Hero Banner - pleine largeur */
+.hero-banner {
+  width: 100%;
+  border-radius: 0;
+  margin: 0;
+}
+
+/* Stats Banner */
+.stats-banner {
+  margin: -30px auto 40px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 0 16px;
+  }
+  
+  .nutritionists-page {
+    min-height: calc(100vh - 60px);
+  }
+}
 /* Hero Banner */
 .hero-banner {
   background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);

@@ -48,7 +48,11 @@ const routes: Routes = [
     path: 'admin', 
     component: AdminLayoutComponent,
     children: [
-      { path: '', loadChildren: () => import('./features/admin-dashboard/admin-dashboard.module').then(m => m.AdminDashboardModule) }
+      { path: '', loadChildren: () => import('./features/admin-dashboard/admin-dashboard.module').then(m => m.AdminDashboardModule) },
+      {
+      path: 'marketplace',
+      loadChildren: () => import('./features/admin-dashboard/marketplace/marketplace.module').then(m => m.MarketplaceModule)
+    }
     ]
   },
   

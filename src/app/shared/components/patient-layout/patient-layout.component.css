@@ -3,42 +3,56 @@
 /* Conteneur principal qui contient la sidebar + contenu */
 .main-container {
   display: flex;
-  min-height: calc(100vh - 70px - 300px); /* Hauteur totale moins navbar et footer */
-  margin-top: 70px; /* Espace pour la navbar */
+  min-height: calc(100vh - 70px - 300px);
+  margin-top: 70px;
 }
 
-/* Quand la sidebar nutrition est affichée */
+/* ✅ Quand la sidebar nutrition est affichée */
 .main-container.with-nutrition-sidebar {
   display: flex;
-  flex-direction: row; /* Sidebar à gauche, contenu à droite */
+  flex-direction: row;
 }
 
-/* Sidebar nutrition */
+/* ✅ Sidebar nutrition - seulement quand elle est affichée */
 .main-container.with-nutrition-sidebar app-nutrition-tabs {
-  width: 260px;
+  width: 280px;
   flex-shrink: 0;
   position: sticky;
-  top: 70px; /* Reste visible pendant le scroll */
+  top: 70px;
   height: calc(100vh - 70px);
   background: white;
-  border-right: 1px solid #dbeafe;
+  border-right: 1px solid #e2e8f0;
+  overflow-y: auto;
 }
 
-/* Zone de contenu principal */
+/* ✅ Zone de contenu principal - TOUJOURS flexible */
 .content-area {
   flex: 1;
-  padding: 20px;
-  overflow-x: auto;
+  min-width: 0; /* Évite le débordement */
   background: #f8fafc;
 }
 
-/* Quand la sidebar est affichée, ajuster le contenu */
+/* ✅ Quand la sidebar EST affichée */
 .main-container.with-nutrition-sidebar .content-area {
   padding: 0;
-  background: #f0f4fa;
 }
 
-/* Pour food-chat.component, supprimer les marges internes */
+/* ✅ Quand la sidebar N'EST PAS affichée - pas de padding spécial */
+.main-container:not(.with-nutrition-sidebar) .content-area {
+  padding: 0;
+  width: 100%;
+}
+
+/* ✅ Force la page nutritionnistes à prendre toute la largeur */
+.main-container:not(.with-nutrition-sidebar) .content-area app-patient-nutritionists {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Pour food-chat.component */
 .main-container.with-nutrition-sidebar .content-area app-food-chat {
   display: block;
   width: 100%;
@@ -50,8 +64,27 @@ app-footer {
   margin-top: auto;
 }
 
+/* ✅ Scrollbar de la sidebar */
+.main-container.with-nutrition-sidebar app-nutrition-tabs::-webkit-scrollbar {
+  width: 4px;
+}
+
+.main-container.with-nutrition-sidebar app-nutrition-tabs::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.main-container.with-nutrition-sidebar app-nutrition-tabs::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
 /* Responsive mobile */
 @media (max-width: 768px) {
+  .main-container {
+    margin-top: 60px;
+    min-height: calc(100vh - 60px - 250px);
+  }
+  
   .main-container.with-nutrition-sidebar {
     flex-direction: column;
   }
@@ -61,10 +94,15 @@ app-footer {
     position: static;
     height: auto;
     border-right: none;
-    border-bottom: 1px solid #dbeafe;
+    border-bottom: 1px solid #e2e8f0;
   }
   
-  .main-container.with-nutrition-sidebar .content-area {
-    padding: 16px;
-  }
+  .main-container:not(.with-nutrition-sidebar) {
+  display: block; /* ← remplace flex, élimine l'espace réservé */
+}
+
+.main-container:not(.with-nutrition-sidebar) .content-area {
+  width: 100%;
+  padding: 0;
+}
 }

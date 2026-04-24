@@ -13,6 +13,7 @@ import { NutritionistsListComponent } from './nutritionists-list/nutritionists-l
 import { PatientsListComponent } from './patients-list/patients-list.component';
 import { AdminGeolocalisationComponent } from './admin-geolocalisation/admin-geolocalisation.component';
 import { AdminReclamationsComponent } from './admin-reclamations/admin-reclamations.component';
+import { DeliveryManagementComponent } from './delivery-management/delivery-management.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { AdminReclamationsComponent } from './admin-reclamations/admin-reclamati
     NutritionistsListComponent,
     PatientsListComponent,
     AdminGeolocalisationComponent,
-    AdminReclamationsComponent
+    AdminReclamationsComponent,
+    DeliveryManagementComponent
   ],
   imports: [
     CommonModule,

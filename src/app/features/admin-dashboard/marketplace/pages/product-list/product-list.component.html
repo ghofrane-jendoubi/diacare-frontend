@@ -1,0 +1,493 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1 fw-bold">
+        <i class="bi bi-box-seam me-2 text-primary"></i>
+        Gestion des produits
+      </h2>
+      <p class="text-muted">Gérez votre catalogue de produits alimentaires et médicaux</p>
+    </div>
+    <button class="btn btn-primary rounded-pill px-4" (click)="openAddModal()">
+      <i class="bi bi-plus-lg me-2"></i>Ajouter un produit
+    </button>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-2 col-sm-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-primary">
+          <i class="bi bi-box-seam"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ totalProducts }}</h3>
+          <p>Total produits</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-sm-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-success">
+          <i class="bi bi-apple"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ alimentaireCount }}</h3>
+          <p>Alimentaires</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-sm-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-danger">
+          <i class="bi bi-capsule"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ medicalCount }}</h3>
+          <p>Médicaux</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-sm-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-warning">
+          <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ lowStockCount }}</h3>
+          <p>Stock bas (&lt; 10)</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-sm-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-info">
+          <i class="bi bi-bar-chart-line"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ totalStock }}</h3>
+          <p>Total stock</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Visualization with Progress Bars -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+          <h5 class="card-title mb-4">
+            <i class="bi bi-pie-chart me-2 text-primary"></i>
+            Répartition des produits
+          </h5>
+          <div class="row g-4">
+            <!-- Alimentaires -->
+            <div class="col-md-6">
+              <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="stats-icon-sm bg-success">
+                      <i class="bi bi-apple text-white"></i>
+                    </div>
+                    <span class="fw-semibold">Produits Alimentaires</span>
+                  </div>
+                  <span class="stats-count">{{ alimentaireCount }}</span>
+                </div>
+                <div class="progress-custom">
+                  <div class="progress-bar-custom bg-success" 
+                       [style.width.%]="getAlimentairePercentage()">
+                    <span class="progress-label">{{ getAlimentairePercentage().toFixed(1) }}%</span>
+                  </div>
+                </div>
+                <div class="mt-2 text-muted small">
+                  {{ alimentaireCount }} sur {{ totalProducts }} produits
+                </div>
+              </div>
+            </div>
+
+            <!-- Médicaux -->
+            <div class="col-md-6">
+              <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="stats-icon-sm bg-danger">
+                      <i class="bi bi-capsule text-white"></i>
+                    </div>
+                    <span class="fw-semibold">Produits Médicaux</span>
+                  </div>
+                  <span class="stats-count">{{ medicalCount }}</span>
+                </div>
+                <div class="progress-custom">
+                  <div class="progress-bar-custom bg-danger" 
+                       [style.width.%]="getMedicalPercentage()">
+                    <span class="progress-label">{{ getMedicalPercentage().toFixed(1) }}%</span>
+                  </div>
+                </div>
+                <div class="mt-2 text-muted small">
+                  {{ medicalCount }} sur {{ totalProducts }} produits
+                </div>
+              </div>
+            </div>
+
+            <!-- Stock bas -->
+            <div class="col-md-6">
+              <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="stats-icon-sm bg-warning">
+                      <i class="bi bi-exclamation-triangle text-white"></i>
+                    </div>
+                    <span class="fw-semibold">Stock bas (&lt; 10 unités)</span>
+                  </div>
+                  <span class="stats-count">{{ lowStockCount }}</span>
+                </div>
+                <div class="progress-custom">
+                  <div class="progress-bar-custom bg-warning" 
+                       [style.width.%]="getLowStockPercentage()">
+                    <span class="progress-label">{{ getLowStockPercentage().toFixed(1) }}%</span>
+                  </div>
+                </div>
+                <div class="mt-2 text-muted small">
+                  {{ lowStockCount }} produits nécessitent un réapprovisionnement
+                </div>
+              </div>
+            </div>
+
+            <!-- Stock total -->
+            <div class="col-md-6">
+              <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="stats-icon-sm bg-info">
+                      <i class="bi bi-boxes text-white"></i>
+                    </div>
+                    <span class="fw-semibold">Stock total</span>
+                  </div>
+                  <span class="stats-count">{{ totalStock }}</span>
+                </div>
+                <div class="stock-summary">
+                  <div class="d-flex justify-content-between small text-muted">
+                    <span>Unités en inventaire</span>
+                    <span>Moyenne: {{ totalProducts > 0 ? (totalStock / totalProducts).toFixed(1) : 0 }} / produit</span>
+                  </div>
+                  <div class="mt-2 progress-custom">
+                    <div class="progress-bar-custom bg-info" 
+                         [style.width.%]="(totalStock / (totalProducts * 100)) * 100">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products Table Card -->
+  <div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body p-0">
+      <!-- Loading -->
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="mt-3 text-muted">Chargement des produits...</p>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="errorMessage && !isLoading" class="alert alert-danger alert-dismissible fade show m-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+      <!-- Table -->
+      <div *ngIf="!isLoading && products.length > 0" class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="py-3">ID</th>
+              <th class="py-3">Image</th>
+              <th class="py-3">Nom</th>
+              <th class="py-3">Description</th>
+              <th class="py-3">Code‑barres</th>
+              <th class="py-3">Prix (DT)</th>
+              <th class="py-3">Stock</th>
+              <th class="py-3">Sucre (g/100ml)</th>
+              <th class="py-3">Type</th>
+              <th class="py-3 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let product of products">
+              <td class="fw-semibold">#{{ product.id }}</td>
+              <td style="width: 80px;">
+                <img *ngIf="product.image && !imageErrorMap[product.id!]" 
+                     [src]="getImageUrl(product.image)" 
+                     alt="{{ product.name }}" 
+                     class="product-img rounded-3"
+                     (error)="onImageError(product)">
+                <div *ngIf="!product.image || imageErrorMap[product.id!]" 
+                     class="product-placeholder rounded-3">
+                  <i class="bi bi-image text-muted fs-4"></i>
+                </div>
+              </td>
+              <td class="fw-semibold">{{ product.name }}</td>
+              <td class="text-muted small">{{ product.description ? (product.description | slice:0:40) + '...' : '-' }}</td>
+              <td><code>{{ product.barcode || '-' }}</code></td>
+              <td class="fw-bold text-primary">{{ product.price | number:'1.2-2' }} DT</td>
+              <td>
+                <span class="stock-badge" [class.low-stock]="product.stock < 10">
+                  {{ product.stock }} unités
+                </span>
+              </td>
+              <td>{{ product.sugarLevel ? product.sugarLevel + 'g' : '-' }}</td>
+              <td>
+                <span class="type-badge" [class.type-medical]="product.type === 'MEDICAL'" [class.type-alimentaire]="product.type === 'ALIMENTAIRE'">
+                  <i class="bi" [class.bi-capsule]="product.type === 'MEDICAL'" [class.bi-apple]="product.type === 'ALIMENTAIRE'"></i>
+                  {{ product.type === 'MEDICAL' ? 'Médical' : 'Alimentaire' }}
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn-action btn-edit" (click)="openEditModal(product)" title="Modifier">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn-action btn-delete" (click)="deleteProduct(product.id!)" title="Supprimer">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty state -->
+      <div *ngIf="!isLoading && products.length === 0" class="text-center py-5">
+        <i class="bi bi-inbox fs-1 text-muted"></i>
+        <p class="mt-3 text-muted">Aucun produit trouvé. Cliquez sur "Ajouter un produit" pour commencer.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD MODAL (same as before) -->
+<div class="modal fade show" [class.show]="showAddModal" [style.display]="showAddModal ? 'block' : 'none'" style="background: rgba(0,0,0,0.5);" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content rounded-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">
+          <i class="bi bi-plus-circle me-2"></i>Ajouter un produit
+        </h5>
+        <button type="button" class="btn-close" (click)="closeAddModal()"></button>
+      </div>
+      <div class="modal-body">
+        <form #addForm="ngForm" (ngSubmit)="saveNewProduct(addForm)" novalidate>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Nom *</label>
+              <input type="text" class="form-control" [(ngModel)]="newProduct.name" name="name"
+                     required minlength="3" #name="ngModel"
+                     [ngClass]="{'is-invalid': name.invalid && name.touched}">
+              <div class="invalid-feedback" *ngIf="name.invalid && name.touched">
+                <div *ngIf="name.errors?.['required']">Le nom est obligatoire.</div>
+                <div *ngIf="name.errors?.['minlength']">Minimum 3 caractères.</div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Code‑barres</label>
+              <input type="text" class="form-control" [(ngModel)]="newProduct.barcode" name="barcode"
+                     pattern="^[0-9]{8,13}$" #barcode="ngModel"
+                     [ngClass]="{'is-invalid': barcode.invalid && barcode.touched}">
+              <div class="invalid-feedback" *ngIf="barcode.invalid && barcode.touched">
+                Doit contenir 8 à 13 chiffres.
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Prix (DT) *</label>
+              <input type="number" class="form-control" [(ngModel)]="newProduct.price" name="price"
+                     required min="0.1" step="0.01" #price="ngModel"
+                     [ngClass]="{'is-invalid': price.invalid && price.touched}">
+              <div class="invalid-feedback" *ngIf="price.invalid && price.touched">
+                <div *ngIf="price.errors?.['required']">Le prix est obligatoire.</div>
+                <div *ngIf="price.errors?.['min']">Doit être supérieur à 0.</div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Stock</label>
+              <input type="number" class="form-control" [(ngModel)]="newProduct.stock" name="stock"
+                     min="0" #stock="ngModel"
+                     [ngClass]="{'is-invalid': stock.invalid && stock.touched}">
+              <div class="invalid-feedback" *ngIf="stock.invalid && stock.touched">
+                Ne peut pas être négatif.
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Type *</label>
+              <select class="form-select" [(ngModel)]="newProduct.type" name="type" required #type="ngModel"
+                      [ngClass]="{'is-invalid': type.invalid && type.touched}">
+                <option value="" disabled>Sélectionnez un type</option>
+                <option value="ALIMENTAIRE">Alimentaire</option>
+                <option value="MEDICAL">Médical</option>
+              </select>
+              <div class="invalid-feedback" *ngIf="type.invalid && type.touched">
+                Le type est obligatoire.
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Niveau de sucre (g/100ml)</label>
+              <input type="number" class="form-control" [(ngModel)]="newProduct.sugarLevel" name="sugarLevel"
+                     min="0" step="0.1" #sugar="ngModel"
+                     [ngClass]="{'is-invalid': sugar.invalid && sugar.touched}">
+              <div class="invalid-feedback" *ngIf="sugar.invalid && sugar.touched">
+                Doit être positif.
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" [(ngModel)]="newProduct.description" name="description"
+                        rows="3" maxlength="255" #desc="ngModel"
+                        [ngClass]="{'is-invalid': desc.invalid && desc.touched}"></textarea>
+              <div class="invalid-feedback" *ngIf="desc.invalid && desc.touched">
+                Maximum 255 caractères.
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Image</label>
+              <input type="file" class="form-control" accept="image/*" (change)="onNewFileSelected($event)">
+              <div *ngIf="newImagePreview" class="mt-2">
+                <img [src]="newImagePreview" class="img-thumbnail rounded-3" style="max-width: 150px;">
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-secondary rounded-pill px-4" (click)="closeAddModal()">Annuler</button>
+            <button type="submit" class="btn btn-primary rounded-pill px-4" [disabled]="addForm.invalid">Enregistrer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal fade show" [class.show]="showEditModal" [style.display]="showEditModal ? 'block' : 'none'" style="background: rgba(0,0,0,0.5);" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content rounded-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">
+          <i class="bi bi-pencil-square me-2"></i>Modifier le produit
+        </h5>
+        <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+      </div>
+      <div class="modal-body">
+        <form #editForm="ngForm" novalidate>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Nom *</label>
+              <input type="text" class="form-control" [(ngModel)]="selectedProduct.name" name="name"
+                     required minlength="3" #name="ngModel"
+                     [ngClass]="{'is-invalid': name.invalid && name.touched}">
+              <div class="invalid-feedback" *ngIf="name.invalid && name.touched">
+                <div *ngIf="name.errors?.['required']">Le nom est obligatoire.</div>
+                <div *ngIf="name.errors?.['minlength']">Minimum 3 caractères.</div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Code‑barres</label>
+              <input type="text" class="form-control" [(ngModel)]="selectedProduct.barcode" name="barcode"
+                     pattern="^[0-9]{8,13}$" #barcode="ngModel"
+                     [ngClass]="{'is-invalid': barcode.invalid && barcode.touched}">
+              <div class="invalid-feedback" *ngIf="barcode.invalid && barcode.touched">
+                Doit contenir 8 à 13 chiffres.
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Prix (DT) *</label>
+              <input type="number" class="form-control" [(ngModel)]="selectedProduct.price" name="price"
+                     required min="0.1" step="0.01" #price="ngModel"
+                     [ngClass]="{'is-invalid': price.invalid && price.touched}">
+              <div class="invalid-feedback" *ngIf="price.invalid && price.touched">
+                <div *ngIf="price.errors?.['required']">Le prix est obligatoire.</div>
+                <div *ngIf="price.errors?.['min']">Doit être supérieur à 0.</div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Stock</label>
+              <input type="number" class="form-control" [(ngModel)]="selectedProduct.stock" name="stock"
+                     min="0" #stock="ngModel"
+                     [ngClass]="{'is-invalid': stock.invalid && stock.touched}">
+              <div class="invalid-feedback" *ngIf="stock.invalid && stock.touched">
+                Ne peut pas être négatif.
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Type *</label>
+              <select class="form-select" [(ngModel)]="selectedProduct.type" name="type" required #type="ngModel"
+                      [ngClass]="{'is-invalid': type.invalid && type.touched}">
+                <option value="" disabled>Sélectionnez un type</option>
+                <option value="ALIMENTAIRE">Alimentaire</option>
+                <option value="MEDICAL">Médical</option>
+              </select>
+              <div class="invalid-feedback" *ngIf="type.invalid && type.touched">
+                Le type est obligatoire.
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Niveau de sucre (g/100ml)</label>
+              <input type="number" class="form-control" [(ngModel)]="selectedProduct.sugarLevel" name="sugarLevel"
+                     min="0" step="0.1" #sugar="ngModel"
+                     [ngClass]="{'is-invalid': sugar.invalid && sugar.touched}">
+              <div class="invalid-feedback" *ngIf="sugar.invalid && sugar.touched">
+                Doit être positif.
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" [(ngModel)]="selectedProduct.description" name="description"
+                        rows="3" maxlength="255" #desc="ngModel"
+                        [ngClass]="{'is-invalid': desc.invalid && desc.touched}"></textarea>
+              <div class="invalid-feedback" *ngIf="desc.invalid && desc.touched">
+                Maximum 255 caractères.
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Image</label>
+              <div *ngIf="selectedProduct.image && !imagePreview" class="mb-2">
+                <img [src]="getImageUrl(selectedProduct.image)" alt="Image actuelle" class="img-thumbnail rounded-3" style="max-width: 150px;">
+                <button type="button" class="btn btn-link btn-sm text-danger" (click)="clearImage()">Supprimer</button>
+              </div>
+              <input type="file" class="form-control" accept="image/*" (change)="onFileSelected($event)">
+              <div *ngIf="imagePreview" class="mt-2 position-relative d-inline-block">
+                <img [src]="imagePreview" class="img-thumbnail rounded-3" style="max-width: 150px;">
+                <button type="button" class="btn btn-sm btn-danger rounded-circle position-absolute top-0 end-0 translate-middle" (click)="clearImage()">✖</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-secondary rounded-pill px-4" (click)="closeEditModal()">Annuler</button>
+            <button type="button" class="btn btn-primary rounded-pill px-4" (click)="updateProduct()" [disabled]="editForm.invalid">Mettre à jour</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

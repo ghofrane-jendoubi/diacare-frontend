@@ -1,0 +1,173 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1 fw-bold">
+        <i class="bi bi-truck me-2 text-primary"></i>
+        Gestion des livraisons
+      </h2>
+      <p class="text-muted">Suivez et gérez toutes les livraisons des commandes</p>
+    </div>
+    <button class="btn btn-outline-primary rounded-pill" (click)="refresh()">
+      <i class="bi bi-arrow-repeat me-2"></i> Rafraîchir
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="card shadow-sm mb-4 border-0">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-5">
+          <label class="form-label fw-semibold">
+            <i class="bi bi-search me-1"></i> Rechercher
+          </label>
+          <input type="text" 
+                 class="form-control" 
+                 [(ngModel)]="searchTerm" 
+                 (input)="onSearch()"
+                 placeholder="Rechercher par #commande, nom, prénom ou email...">
+        </div>
+        <div class="col-md-5">
+          <label class="form-label fw-semibold">
+            <i class="bi bi-funnel me-1"></i> Filtrer par statut
+          </label>
+          <select class="form-select" [(ngModel)]="filterStatus" (change)="onFilterChange()">
+            <option value="">Tous les statuts</option>
+            <option *ngFor="let status of statuses" [value]="status">
+              {{ getStatusLabel(status) }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label fw-semibold">&nbsp;</label>
+          <div class="text-muted small">
+            <i class="bi bi-info-circle me-1"></i>
+            {{ filteredOrders.length }} commande(s)
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading spinner -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="mt-3 text-muted">Chargement des commandes...</p>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error && !loading" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    {{ error }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+
+  <!-- Orders table -->
+  <div *ngIf="!loading && !error" class="card shadow-sm border-0">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="py-3"># Commande</th>
+              <th class="py-3">Client</th>
+              <th class="py-3">Email</th>
+              <th class="py-3">Téléphone</th>
+              <th class="py-3">Montant</th>
+              <th class="py-3">Date</th>
+              <th class="py-3">Statut</th>
+              <th class="py-3">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of filteredOrders" class="align-middle">
+              <td class="fw-bold">#{{ order.id }}</td>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="avatar-circle me-2">
+                    {{ getInitials(order) }}
+                  </div>
+                  <div>
+                    <div class="fw-semibold">{{ getFullName(order) }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="text-truncate d-inline-block" style="max-width: 200px;" title="{{ getEmail(order) }}">
+                  {{ getEmail(order) }}
+                </span>
+              </td>
+              
+              <td class="fw-bold text-primary">{{ order.totalPrice }} DT</td>
+              <td>{{ formatDate(order.createdAt) }}</td>
+              <td>
+                <span class="badge px-3 py-2" [class]="getBadgeClass(order.deliveryStatus)">
+                  <i class="bi {{ getStatusIcon(order.deliveryStatus) }} me-1"></i>
+                  {{ getStatusLabel(order.deliveryStatus) }}
+                </span>
+              </td>
+              <td style="min-width: 200px;">
+                <select class="form-select form-select-sm" 
+                        (change)="updateStatus(order.id, $event)"
+                        [value]="order.deliveryStatus">
+                  <option *ngFor="let s of statuses" [value]="s">
+                    {{ getStatusLabel(s) }}
+                  </option>
+                </select>
+              </td>
+            </tr>
+            <tr *ngIf="filteredOrders.length === 0">
+              <td colspan="8" class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                Aucune commande trouvée
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .avatar-circle {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  .table > :not(caption) > * > * {
+    padding: 1rem 0.75rem;
+  }
+  
+  .badge {
+    font-weight: 500;
+    font-size: 0.85rem;
+  }
+  
+  .text-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>

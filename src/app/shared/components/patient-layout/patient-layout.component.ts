@@ -13,9 +13,9 @@ export class PatientLayoutComponent implements OnInit {
     { id: 'nutrition',    label: 'Nutrition',      link: '/patient/nutritionists' },
     { id: 'education',    label: 'Éducation',      link: '/patient/education' },
     { id: 'messagerie',   label: 'Messagerie',     link: '/patient/chat' },
-    { id: 'pharmacy',     label: 'Parapharmacie',  link: '/patient/pharmacy' },
+    { id: 'pharmacy',     label: 'Parapharmacie',  link: '/patient/marketplace' },
     { id: 'geolocalisation', label: 'Géolocalisation', link: '/patient/geolocalisation', icon: 'bi-geo-alt-fill' },
-    { id: 'chatbot',      label: 'Chatbot',        link: '/patient/chatbot' },
+    { id: 'commandes',      label: 'commandes',        link: '/patient/orders' },
     { id: 'reclamations', label: 'Support',        link: '/patient/reclamation' }
   ];
 
@@ -50,8 +50,10 @@ export class PatientLayoutComponent implements OnInit {
   }
 
   checkRoute(url: string): void {
-    this.showNutritionTabs = this.nutritionRoutes.some(route => url.includes(route));
-  }
+  const isNutritionRoute = this.nutritionRoutes.some(route => url.includes(route));
+  const isNutritionistsPage = url.includes('/patient/nutritionists');
+  this.showNutritionTabs = isNutritionRoute && !isNutritionistsPage;
+}
 
   loadPatientInfo(): void {
     const patientIdStr = localStorage.getItem('patient_id');

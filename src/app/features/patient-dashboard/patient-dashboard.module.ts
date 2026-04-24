@@ -22,6 +22,10 @@ import { PatientProfileComponent } from './pages/patient-profile/patient-profile
 import { PatientReclamationsComponent } from './patient-reclamations/patient-reclamations.component';
 import { PatientGeolocalisationComponent } from './patient-geolocalisation/patient-geolocalisation.component';
 import { PatientNutritionistsComponent } from './pages/patient-nutritionists/patient-nutritionists.component';
+import { PaiementComponent } from './pages/paiement/paiement.component';
+import { OrdersComponent } from './pages/orders/orders.component';
+import { CartComponent } from './pages/cart/cart.component';
+import { MarketplacePatientComponent } from './pages/marketplace-patient/marketplace-patient.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +45,11 @@ import { PatientNutritionistsComponent } from './pages/patient-nutritionists/pat
     ProgressComponent,
     PatientReclamationsComponent,
     PatientGeolocalisationComponent,
-    PatientNutritionistsComponent
+    PatientNutritionistsComponent,
+    MarketplacePatientComponent,
+    CartComponent,
+    OrdersComponent,
+    PaiementComponent
     
   ],
   imports: [

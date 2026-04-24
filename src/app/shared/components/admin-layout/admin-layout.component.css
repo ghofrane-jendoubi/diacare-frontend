@@ -32,9 +32,14 @@ app-sidebar {
 }
 
 .main-content {
-  margin-left: 130px;
+  margin-left: 280px;  /* ← était 130px, doit correspondre à la largeur réelle de la sidebar */
   min-height: 100vh;
-  padding: 24px 32px;   /* ← plus propre */
+  padding: 0;  /* ← retirez le padding ici, il est déjà dans dashboard-container */
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-content.sidebar-collapsed {
+  margin-left: 80px;  /* ← quand sidebar rétractée */
 }
 /* Topbar - pleine largeur */
 app-topbar {

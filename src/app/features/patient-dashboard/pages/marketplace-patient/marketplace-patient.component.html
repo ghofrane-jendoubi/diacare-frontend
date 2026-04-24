@@ -1,0 +1,415 @@
+<div class="marketplace-container">
+  <!-- Header Section -->
+  <div class="marketplace-header">
+    <div class="header-content">
+      <h1 class="header-title">
+        <i class="bi bi-shop me-3 text-primary"></i>
+        Marketplace Diacare
+      </h1>
+      <p class="header-subtitle">Découvrez notre sélection de produits adaptés à vos besoins</p>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-section">
+    <div class="filter-card">
+      <div class="row g-3 align-items-center">
+        <div class="col-md-5">
+          <div class="search-wrapper">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text"
+                   class="search-input"
+                   placeholder="Rechercher un produit..."
+                   [(ngModel)]="searchTerm"
+                   (input)="onSearchChange()">
+          </div>
+        </div>
+
+        <div class="col-md-auto">
+          <div class="filter-buttons">
+            <button type="button"
+                    class="filter-btn"
+                    [class.active]="selectedType === 'all'"
+                    (click)="selectedType = 'all'; onTypeChange()">
+              <i class="bi bi-grid-3x3-gap-fill me-2"></i>Tous
+            </button>
+            <button type="button"
+                    class="filter-btn"
+                    [class.active]="selectedType === 'ALIMENTAIRE'"
+                    (click)="selectedType = 'ALIMENTAIRE'; onTypeChange()">
+              <i class="bi bi-apple me-2"></i>Alimentaire
+            </button>
+            <button type="button"
+                    class="filter-btn"
+                    [class.active]="selectedType === 'MEDICAL'"
+                    (click)="selectedType = 'MEDICAL'; onTypeChange()">
+              <i class="bi bi-capsule me-2"></i>Médical
+            </button>
+          </div>
+        </div>
+
+        <div class="col-md-auto ms-md-auto">
+          <div class="action-buttons">
+            <button class="action-btn analyze-btn" (click)="openAnalyzerModal()">
+              <i class="bi bi-microscope me-2"></i>Analyser
+            </button>
+            
+            <button class="action-btn cart-btn" (click)="goToCart()">
+              <i class="bi bi-cart3 me-2"></i>
+              Panier
+              <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="mt-3 text-muted">Chargement des produits...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !isLoading" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ error }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+
+  <!-- Products Grid -->
+  <div *ngIf="!isLoading && !error && filteredProducts.length > 0" class="products-grid">
+    <div class="product-card" *ngFor="let product of filteredProducts">
+      <!-- Product Image -->
+      <div class="product-image">
+        <img *ngIf="product.image && !imageErrorMap[product.id!]"
+             [src]="getImageUrl(product.image)"
+             [alt]="product.name"
+             (error)="onImageError(product)">
+        <div *ngIf="!product.image || imageErrorMap[product.id!]" class="image-placeholder">
+          <i class="bi bi-image"></i>
+        </div>
+        <div class="product-badge" [class.medical]="product.type === 'MEDICAL'">
+          {{ product.type === 'MEDICAL' ? 'Médical' : 'Alimentaire' }}
+        </div>
+      </div>
+
+      <!-- Product Info -->
+      <div class="product-info">
+        <h5 class="product-title">{{ product.name }}</h5>
+        <p class="product-description">{{ (product.description || '') | slice:0:80 }}{{ (product.description || '').length > 80 ? '...' : '' }}</p>
+        
+        <div class="product-footer">
+          <div class="product-price">
+            <span class="price-current">{{ product.price | number:'1.2-2' }} DT</span>
+            <span class="price-old" *ngIf="product.sugarLevel > 20">
+              {{ (product.price + 20) | number:'1.2-2' }} DT
+            </span>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="product-actions">
+            <button class="btn-details" (click)="openDetailsModal(product)">
+              <i class="bi bi-info-circle"></i>
+            </button>
+            
+            <div class="quantity-control" *ngIf="(productQuantities[product.id!] || 0) > 0; else buyBtn">
+              <button class="qty-btn" (click)="decrementAndUpdate(product)">
+                <i class="bi bi-dash"></i>
+              </button>
+              <span class="qty-value">{{ productQuantities[product.id!] }}</span>
+              <button class="qty-btn" (click)="incrementAndUpdate(product)">
+                <i class="bi bi-plus"></i>
+              </button>
+            </div>
+            <ng-template #buyBtn>
+              <button class="btn-buy" (click)="buyProduct(product)">
+                <i class="bi bi-cart-plus me-2"></i>Acheter
+              </button>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !error && filteredProducts.length === 0" class="empty-state">
+    <i class="bi bi-box-seam"></i>
+    <p>Aucun produit ne correspond à votre recherche.</p>
+  </div>
+</div>
+
+<!-- Include your analyzer and details modals here (same as before but with updated styles) -->
+
+<!-- ==================== ANALYZER MODAL ==================== -->
+<div class="modal-overlay" *ngIf="showAnalyzerModal" (click)="closeAnalyzerModal()">
+  <div class="modal-container analyzer-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="bi bi-microscope"></i> Analyseur de produits</h3>
+      <button class="close-btn" (click)="closeAnalyzerModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <!-- Mode selection tabs -->
+      <div class="analyzer-tabs">
+        <button class="tab-btn" [class.active]="analyzerMode === 'barcode'" (click)="analyzerMode = 'barcode'">
+          <i class="bi bi-upc-scan"></i> Code-barres
+        </button>
+        <button class="tab-btn" [class.active]="analyzerMode === 'name'" (click)="analyzerMode = 'name'">
+          <i class="bi bi-search"></i> Par nom
+        </button>
+        <button class="tab-btn" [class.active]="analyzerMode === 'image'" (click)="analyzerMode = 'image'">
+          <i class="bi bi-camera"></i> Par photo
+        </button>
+      </div>
+
+      <!-- Barcode mode -->
+      <div class="analyzer-input" *ngIf="analyzerMode === 'barcode'">
+        <label>Code-barres</label>
+        <input type="text" 
+               [(ngModel)]="barcode" 
+               placeholder="Ex: 3017620422003 (Nutella)"
+               (keyup.enter)="analyzeProduct()">
+        <div class="alert alert-info mt-2 small">
+          <i class="bi bi-info-circle"></i>
+          Le scan de code-barres est la méthode la plus fiable.
+        </div>
+      </div>
+
+      <!-- Name mode -->
+      <div class="analyzer-input" *ngIf="analyzerMode === 'name'">
+        <label>Nom du produit</label>
+        <input type="text" 
+               [(ngModel)]="productName" 
+               placeholder="Ex: Nutella, Coca-Cola..."
+               (keyup.enter)="analyzeProduct()">
+        <div class="alert alert-warning mt-2 small">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          La recherche par nom peut être temporairement limitée. 
+          Utilisez le <strong>scan de code-barres</strong> pour une analyse instantanée.
+        </div>
+      </div>
+
+      <!-- Image mode -->
+      <div class="analyzer-input" *ngIf="analyzerMode === 'image'">
+        <label>Photo du produit</label>
+        <div class="file-upload-area" (click)="fileInput.click()">
+          <input type="file" #fileInput accept="image/*" style="display: none" (change)="onFileSelected($event)">
+          <div *ngIf="!selectedFile" class="upload-placeholder">
+            <i class="bi bi-cloud-upload"></i>
+            <p>Cliquez pour télécharger une photo</p>
+            <span>PNG, JPG, JPEG</span>
+          </div>
+          <div *ngIf="selectedFile" class="file-preview">
+            <i class="bi bi-check-circle-fill text-success"></i>
+            <span>{{ selectedFile.name }}</span>
+            <button type="button" (click)="selectedFile = null; $event.stopPropagation()">✖</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analyze button -->
+      <button class="analyze-submit-btn" (click)="analyzeProduct()" [disabled]="isAnalyzing">
+        <i class="bi" [class.bi-hourglass-split]="isAnalyzing" [class.bi-flask]="!isAnalyzing"></i>
+        {{ isAnalyzing ? 'Analyse en cours...' : 'Analyser le produit' }}
+      </button>
+
+      <!-- Error message -->
+      <div *ngIf="analyzerError" class="analyzer-error">
+        <i class="bi bi-exclamation-triangle-fill"></i> {{ analyzerError }}
+      </div>
+
+      <!-- Results -->
+      <div *ngIf="analysisResult" class="analyzer-results">
+        <div class="result-header">
+          <h4>{{ analysisResult.productName || analysisResult.foodName }}</h4>
+          <div *ngIf="analysisResult.brand" class="brand">{{ analysisResult.brand }}</div>
+        </div>
+
+        <div class="result-section" *ngIf="analysisResult.ingredients">
+          <strong><i class="bi bi-list-ul"></i> Ingrédients:</strong>
+          <p>{{ analysisResult.ingredients }}</p>
+        </div>
+
+        <div class="result-section">
+          <strong><i class="bi bi-bar-chart-line"></i> Valeurs nutritionnelles (pour 100g):</strong>
+          <div class="nutrition-grid">
+            <div class="nutrition-item">
+              <span class="label">Lipides:</span>
+              <span class="value">{{ analysisResult.nutrition?.fat_100g || 0 }}g</span>
+            </div>
+            <div class="nutrition-item">
+              <span class="label">Glucides:</span>
+              <span class="value">{{ analysisResult.nutrition?.carbohydrates_100g || 0 }}g</span>
+            </div>
+            <div class="nutrition-item">
+              <span class="label">Sucres:</span>
+              <span class="value">{{ analysisResult.nutrition?.sugars_100g || 0 }}g</span>
+            </div>
+            <div class="nutrition-item">
+              <span class="label">Protéines:</span>
+              <span class="value">{{ analysisResult.nutrition?.proteins_100g || 0 }}g</span>
+            </div>
+            <div class="nutrition-item">
+              <span class="label">Fibres:</span>
+              <span class="value">{{ analysisResult.nutrition?.fiber_100g || 0 }}g</span>
+            </div>
+            <div class="nutrition-item">
+              <span class="label">Sodium:</span>
+              <span class="value">{{ analysisResult.nutrition?.sodium_100g || 0 }}mg</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="recommendation-box" 
+             [class.recommended]="analysisResult.recommendation?.is_recommended === true" 
+             [class.not-recommended]="analysisResult.recommendation?.is_recommended === false">
+          
+          <div class="recommendation-icon">
+            <i class="bi" [class.bi-check-circle-fill]="analysisResult.recommendation?.is_recommended === true" 
+                          [class.bi-x-circle-fill]="analysisResult.recommendation?.is_recommended === false"></i>
+          </div>
+          
+          <div class="recommendation-content">
+            
+            <div class="verdict">
+              <h2 *ngIf="analysisResult.recommendation?.is_recommended === true" class="verdict-approved">
+                ✅ PRODUIT RECOMMANDÉ
+              </h2>
+              <h2 *ngIf="analysisResult.recommendation?.is_recommended === false" class="verdict-denied">
+                ❌ PRODUIT NON RECOMMANDÉ
+              </h2>
+              <h2 *ngIf="analysisResult.recommendation?.is_recommended === undefined && analysisResult.nutrition?.sugars_100g < 15" class="verdict-approved">
+                ✅ PRODUIT RECOMMANDÉ
+              </h2>
+              <h2 *ngIf="analysisResult.recommendation?.is_recommended === undefined && analysisResult.nutrition?.sugars_100g >= 15" class="verdict-denied">
+                ❌ PRODUIT NON RECOMMANDÉ
+              </h2>
+            </div>
+
+            <div class="alert-summary">
+              <strong>🔍 Analyse nutritionnelle (pour 100g) :</strong>
+              <ul>
+                <li>🍬 Sucres : <strong [class.high-sugar]="analysisResult.nutrition?.sugars_100g > 15">
+                  {{ analysisResult.nutrition?.sugars_100g || 0 }}g
+                </strong> (seuil recommandé : &lt; 15g)</li>
+                <li>🍔 Lipides : {{ analysisResult.nutrition?.fat_100g || 0 }}g</li>
+                <li>🌾 Fibres : {{ analysisResult.nutrition?.fiber_100g || 0 }}g</li>
+                <li>🧂 Sodium : {{ analysisResult.nutrition?.sodium_100g || 0 }}mg</li>
+              </ul>
+            </div>
+            
+            <div class="confidence-section">
+              <span>📊 Confiance du modèle :</span>
+              <div class="bar">
+                <div class="bar-fill" [style.width.%]="(analysisResult.recommendation?.confidence || 0) * 100"
+                     [class]="getConfidenceClass(analysisResult.recommendation?.confidence || 0)"></div>
+              </div>
+              <span>{{ (analysisResult.recommendation?.confidence || 0) * 100 | number:'1.0-0' }}%</span>
+            </div>
+            
+            <div class="medical-warning">
+              <small>
+                <i class="bi bi-info-circle"></i>
+                Cette analyse est basée sur les valeurs nutritionnelles du produit. 
+                Consultez toujours votre médecin pour un avis personnalisé.
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DETAILS MODAL ==================== -->
+<!-- ==================== DETAILS MODAL AMÉLIORÉ ==================== -->
+<div class="modal-overlay" *ngIf="showDetailsModal" (click)="closeDetailsModal()">
+  <div class="modal-container details-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="bi bi-box-seam me-2"></i> {{ selectedProductForDetails?.name }}</h3>
+      <button class="close-btn" (click)="closeDetailsModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-md-5 text-center">
+          <div class="product-image-container">
+            <img [src]="getImageUrl(selectedProductForDetails?.image)" 
+                 class="img-fluid rounded-3 product-detail-image"
+                 [alt]="selectedProductForDetails?.name"
+                 onerror="this.src='assets/placeholder.png'">
+          </div>
+        </div>
+        <div class="col-md-7">
+          <div class="product-info-detail">
+            <p><strong><i class="bi bi-tag"></i> Marque:</strong> {{ selectedProductForDetails?.seller || 'Non spécifié' }}</p>
+            <p><strong><i class="bi bi-coin"></i> Prix:</strong> <span class="text-primary fw-bold">{{ selectedProductForDetails?.price | number:'1.2-2' }} DT</span></p>
+            <p><strong><i class="bi bi bi-cpu"></i> Type:</strong> 
+              <span class="badge" [class.bg-danger]="selectedProductForDetails?.type === 'MEDICAL'" [class.bg-success]="selectedProductForDetails?.type !== 'MEDICAL'">
+                {{ selectedProductForDetails?.type === 'MEDICAL' ? 'Médical' : 'Alimentaire' }}
+              </span>
+            </p>
+            <p><strong><i class="bi bi-upc-scan"></i> Code-barres:</strong> {{ selectedProductForDetails?.barcode || 'Non spécifié' }}</p>
+            <p><strong><i class="bi bi-boxes"></i> Stock:</strong> {{ selectedProductForDetails?.stock || 0 }} unités</p>
+            <p><strong><i class="bi bi-droplet"></i> Niveau de sucre:</strong> 
+              <span [class.text-danger]="selectedProductForDetails?.sugarLevel > 15" [class.text-success]="selectedProductForDetails?.sugarLevel <= 15">
+                {{ selectedProductForDetails?.sugarLevel || 0 }}g / 100g
+              </span>
+            </p>
+            <p><strong><i class="bi bi-file-text"></i> Description:</strong></p>
+            <p class="text-muted small">{{ selectedProductForDetails?.description || 'Aucune description disponible.' }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Section YouTube améliorée -->
+      <div *ngIf="selectedProductForDetails?.type === 'MEDICAL'" class="youtube-section">
+        <hr class="my-4">
+        <h5 class="youtube-title">
+          <i class="bi bi-youtube text-danger me-2"></i> Vidéos tutorielles
+          <span class="badge bg-danger ms-2">Recommandé</span>
+        </h5>
+        
+        <div *ngIf="isLoadingVideos" class="text-center py-4 loading-videos">
+          <div class="spinner-border text-danger" role="status">
+            <span class="visually-hidden">Chargement...</span>
+          </div>
+          <p class="mt-2 text-muted">Recherche des meilleures vidéos...</p>
+        </div>
+        
+        <div *ngIf="!isLoadingVideos && productVideos.length > 0" class="row g-3 mt-2">
+          <div class="col-md-6" *ngFor="let video of productVideos">
+            <div class="video-card" (click)="playVideo(video.videoId)">
+              <img [src]="video.thumbnailUrl || 'https://via.placeholder.com/320x180'" 
+                   class="card-img-top" 
+                   [alt]="video.title">
+              <div class="card-body">
+                <h6 class="card-title mb-1">{{ video.title | slice:0:60 }}{{ video.title.length > 60 ? '...' : '' }}</h6>
+                <small class="text-muted">
+                  <i class="bi bi-play-circle"></i> Cliquez pour regarder
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div *ngIf="!isLoadingVideos && productVideos.length === 0" class="alert alert-info text-center">
+          <i class="bi bi-info-circle me-2"></i>
+          Aucune vidéo trouvée pour ce produit.
+        </div>
+      </div>
+      
+      <div *ngIf="selectedProductForDetails?.type !== 'MEDICAL'" class="alert alert-secondary text-center mt-3">
+        <i class="bi bi-info-circle me-2"></i>
+        Des vidéos tutorielles sont disponibles uniquement pour les produits médicaux.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary rounded-pill px-4" (click)="closeDetailsModal()">
+        <i class="bi bi-x-circle me-2"></i> Fermer
+      </button>
+    </div>
+  </div>
+</div>

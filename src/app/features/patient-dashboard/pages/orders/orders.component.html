@@ -1,0 +1,222 @@
+<div class="orders-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <i class="bi bi-box-seam me-3 text-primary"></i>
+        Mes commandes
+      </h1>
+      <p class="page-subtitle">Suivez l'état de vos commandes et leur livraison</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="mt-3 text-muted">Chargement de vos commandes...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-state">
+    <div class="error-icon">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+    </div>
+    <h3>Erreur de chargement</h3>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !error && orders.length === 0" class="empty-state">
+    <div class="empty-icon">
+      <i class="bi bi-inbox"></i>
+    </div>
+    <h3>Aucune commande</h3>
+    <p>Vous n'avez pas encore passé de commande</p>
+    <button class="btn-shop" routerLink="/patient/marketplace">
+      <i class="bi bi-cart3 me-2"></i>Commencer vos achats
+    </button>
+  </div>
+
+  <!-- Orders List -->
+  <div *ngIf="!loading && !error && orders.length > 0" class="orders-list">
+    <div *ngFor="let order of orders" class="order-card">
+      <!-- Order Header -->
+      <div class="order-header">
+        <div class="order-info">
+          <div class="order-badge">
+            <i class="bi bi-receipt"></i>
+            <span>Commande #{{ order.id }}</span>
+          </div>
+          <div class="order-date">
+            <i class="bi bi-calendar3"></i>
+            <span>{{ formatDate(order.createdAt) }}</span>
+          </div>
+        </div>
+        <div class="order-status">
+          <span class="status-badge" [class]="'status-' + (order.status | lowercase)">
+            <i class="bi" [ngClass]="getStatusIcon(order.status)"></i>
+            {{ getStatusLabel(order.status) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Order Body -->
+      <div class="order-body">
+        <div class="order-items">
+          <!-- No items message -->
+          <div *ngIf="order.items.length === 0" class="no-items">
+            <i class="bi bi-box"></i>
+            <p>Aucun produit dans cette commande</p>
+          </div>
+          
+          <!-- Order Items -->
+          <div *ngFor="let item of order.items" class="order-item">
+            <div class="item-image">
+              <img [src]="getImageUrl(item.product?.image || '')" 
+                   [alt]="item.product?.name || 'Produit'"
+                   onerror="this.src='assets/placeholder.png'">
+            </div>
+            <div class="item-details">
+              <h6 class="item-name">{{ item.product?.name || 'Produit' }}</h6>
+              <p class="item-price">{{ item.price }} TND x {{ item.quantity }}</p>
+            </div>
+            <div class="item-total">
+              <span class="total-label">Total</span>
+              <strong>{{ (item.price || 0) * (item.quantity || 0) }} TND</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Footer -->
+        <div class="order-footer">
+          <div class="order-total">
+            <span>Total de la commande</span>
+            <strong>{{ order.totalPrice || 0 }} TND</strong>
+          </div>
+          <div class="order-actions">
+            <button *ngIf="order.status === 'PENDING'" 
+                    class="btn-pay" 
+                    (click)="goToPayment(order)">
+              <i class="bi bi-credit-card me-2"></i>Payer
+            </button>
+            <button class="btn-track" 
+                    (click)="openTrackingModal(order.id)">
+              <i class="bi bi-truck me-2"></i>Suivi
+            </button>
+            <button *ngIf="order.status === 'CANCELLED' || order.status === 'PENDING'" 
+                    class="btn-delete" 
+                    (click)="deleteOrder(order.id)">
+              <i class="bi bi-trash3 me-2"></i>Supprimer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tracking Modal -->
+<div class="modal fade" id="trackingModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-truck me-2"></i>Suivi de livraison
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="loadingDelivery" class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Chargement...</span>
+          </div>
+          <p class="mt-2">Chargement du suivi...</p>
+        </div>
+        
+        <div *ngIf="!loadingDelivery && delivery" class="tracking-info">
+          <div class="tracking-code">
+            <i class="bi bi-upc-scan"></i>
+            <span>{{ delivery.trackingCode }}</span>
+          </div>
+          
+          <div class="tracking-steps">
+            <div class="step" [class.completed]="isStatus('CONFIRMED') || isStatus('PREPARING') || isStatus('SHIPPED') || isStatus('OUT_FOR_DELIVERY') || isStatus('DELIVERED')">
+              <div class="step-icon">
+                <i class="bi bi-check2-circle"></i>
+              </div>
+              <div class="step-info">
+                <strong>Commande confirmée</strong>
+                <small>Votre commande a été confirmée</small>
+              </div>
+            </div>
+            
+            <div class="step" [class.completed]="isStatus('PREPARING') || isStatus('SHIPPED') || isStatus('OUT_FOR_DELIVERY') || isStatus('DELIVERED')">
+              <div class="step-icon">
+                <i class="bi bi-box-seam"></i>
+              </div>
+              <div class="step-info">
+                <strong>Préparation</strong>
+                <small>Votre commande est en cours de préparation</small>
+              </div>
+            </div>
+            
+            <div class="step" [class.completed]="isStatus('SHIPPED') || isStatus('OUT_FOR_DELIVERY') || isStatus('DELIVERED')">
+              <div class="step-icon">
+                <i class="bi bi-truck"></i>
+              </div>
+              <div class="step-info">
+                <strong>Expédition</strong>
+                <small>Votre commande a été expédiée</small>
+              </div>
+            </div>
+            
+            <div class="step" [class.completed]="isStatus('OUT_FOR_DELIVERY') || isStatus('DELIVERED')">
+              <div class="step-icon">
+                <i class="bi bi-bicycle"></i>
+              </div>
+              <div class="step-info">
+                <strong>En livraison</strong>
+                <small>Votre commande est en cours de livraison</small>
+              </div>
+            </div>
+            
+            <div class="step" [class.completed]="isStatus('DELIVERED')">
+              <div class="step-icon">
+                <i class="bi bi-check2-all"></i>
+              </div>
+              <div class="step-info">
+                <strong>Livrée</strong>
+                <small>Votre commande a été livrée</small>
+              </div>
+            </div>
+          </div>
+          
+          <div class="delivery-details" *ngIf="delivery.carrier">
+            <div class="detail-row">
+              <i class="bi bi-building"></i>
+              <span>Transporteur: {{ delivery.carrier }}</span>
+            </div>
+            <div class="detail-row" *ngIf="delivery.estimatedArrival">
+              <i class="bi bi-calendar-check"></i>
+              <span>Livraison estimée: {{ formatDate(delivery.estimatedArrival) }}</span>
+            </div>
+            <div class="detail-row" *ngIf="delivery.notes">
+              <i class="bi bi-info-circle"></i>
+              <span>Notes: {{ delivery.notes }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div *ngIf="!loadingDelivery && !delivery" class="text-center py-4">
+          <i class="bi bi-question-circle fs-1 text-muted"></i>
+          <p class="mt-2">Aucune information de livraison disponible</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-close-modal" data-bs-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
