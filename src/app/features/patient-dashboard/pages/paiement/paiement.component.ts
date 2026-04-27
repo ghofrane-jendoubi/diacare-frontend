@@ -26,6 +26,7 @@ export class PaiementComponent implements OnInit {
   error = '';
   success = false;
   patientId: number | null = null;
+  emailSent = false; // Add this flag
 
   action: string | null = null;
   emailActionOrderId: number | null = null;
@@ -86,7 +87,8 @@ export class PaiementComponent implements OnInit {
           this.emailActionOrder = order;
           this.emailActionProcessing = false;
           this.emailActionSuccess = true;
-          this.triggerSuccess(order);
+          // Show email confirmation before PDF
+          this.showEmailConfirmationAndGeneratePDF(order);
           this.router.navigate([], { queryParams: { action: null, orderId: null }, queryParamsHandling: 'merge' });
         },
         error: (err) => {
@@ -153,7 +155,6 @@ export class PaiementComponent implements OnInit {
     });
   }
 
-  // ✅ Méthode corrigée pour l'URL des images
   getImageUrl(imageName: string): string {
     if (!imageName) {
       return 'assets/default-product.png';
@@ -161,7 +162,6 @@ export class PaiementComponent implements OnInit {
     if (imageName.startsWith('http')) {
       return imageName;
     }
-    // Utilise le bon port (8081 au lieu de 8080)
     return `http://localhost:8081/api/products/images/${imageName}`;
   }
 
@@ -177,18 +177,21 @@ export class PaiementComponent implements OnInit {
     }
 
     this.loading = true;
+    this.emailSent = false;
 
     if (this.order) {
       this.orderService.markOrderAsPaid(this.order.id, this.email).subscribe({
         next: (updatedOrder) => {
           this.loading = false;
           this.success = true;
-          this.triggerSuccess(updatedOrder);
+          this.emailSent = true;
+          // Show email confirmation message BEFORE generating PDF
+          this.showEmailConfirmationAndGeneratePDF(updatedOrder);
         },
         error: (err) => {
           console.error(err);
           this.loading = false;
-          alert('Erreur lors du paiement');
+          alert('Erreur lors du paiement. Veuillez réessayer.');
         }
       });
     } else {
@@ -196,25 +199,36 @@ export class PaiementComponent implements OnInit {
         next: (newOrder) => {
           this.loading = false;
           this.success = true;
-          this.triggerSuccess(newOrder);
+          this.emailSent = true;
+          // Show email confirmation message BEFORE generating PDF
+          this.showEmailConfirmationAndGeneratePDF(newOrder);
         },
         error: (err) => {
           console.error('Erreur checkout:', err);
           this.loading = false;
-          alert('Erreur lors du paiement');
+          alert('Erreur lors du paiement. Veuillez réessayer.');
         }
       });
     }
   }
 
-  private triggerSuccess(order: any): void {
+  // New method to show email was sent before generating PDF
+  private showEmailConfirmationAndGeneratePDF(order: any): void {
     if (isPlatformBrowser(this.platformId)) {
-      confetti({
-        particleCount: 200,
-        spread: 100,
-        origin: { y: 0.6 }
-      });
-      this.generatePDF(order);
+      // First alert to confirm email was sent
+      alert(`✅ Email envoyé !\n\nUn email de confirmation a été envoyé à :\n${this.email}\n\nLa facture va maintenant être téléchargée.`);
+      
+      // Generate PDF after alert
+      setTimeout(() => {
+        this.generatePDF(order);
+        
+        // Trigger confetti after PDF
+        confetti({
+          particleCount: 200,
+          spread: 100,
+          origin: { y: 0.6 }
+        });
+      }, 500);
     }
   }
 
@@ -224,8 +238,9 @@ export class PaiementComponent implements OnInit {
     doc.text('Facture Diacare', 20, 20);
     doc.setFontSize(12);
     doc.text('Client: ' + (order.user?.name || 'Client'), 20, 30);
-    doc.text('Date: ' + new Date().toLocaleDateString(), 20, 40);
-    let y = 60;
+    doc.text('Email: ' + this.email, 20, 40);
+    doc.text('Date: ' + new Date().toLocaleDateString(), 20, 50);
+    let y = 70;
     const items = order.orderItems || order.items;
     if (items && items.length) {
       items.forEach((item: any) => {

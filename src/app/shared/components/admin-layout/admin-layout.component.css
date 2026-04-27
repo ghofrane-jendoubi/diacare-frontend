@@ -1,76 +1,26 @@
-/* shared/components/admin-layout/admin-layout.component.css */
-
-/* Reset global */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html, body {
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100% !important;
-  overflow-x: hidden;
-}
-
-body {
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow-x: hidden;
-}
-
 .layout-wrapper {
   min-height: 100vh;
-  width: 100%;
-}
-
-app-sidebar {
-  width: 260px !important;
-  flex-shrink: 0 !important;
-  position: relative !important;
+  display: flex;
 }
 
 .main-content {
-  margin-left: 280px;  /* ← était 130px, doit correspondre à la largeur réelle de la sidebar */
-  min-height: 100vh;
-  padding: 0;  /* ← retirez le padding ici, il est déjà dans dashboard-container */
+  flex: 1;
+  margin-left: 150px; /* largeur du sidebar expanded */
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 100vh;
+  background: #f8fafc;
 }
 
-.main-content.sidebar-collapsed {
-  margin-left: 80px;  /* ← quand sidebar rétractée */
-}
-/* Topbar - pleine largeur */
-app-topbar {
-  width: 100% !important;
-  display: block !important;
-  flex-shrink: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
+.main-content.collapsed {
+  margin-left: 80px; /* largeur du sidebar collapsed */
 }
 
 .content-area {
-  flex: 1;
   padding: 24px;
-  background: #f8fafc;
-  width: 100%;
-  max-width: 100%;
-  margin: 0;   
 }
 
-/* Dashboard */
-::ng-deep .admin-dashboard {
-  width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-::ng-deep .dashboard-header {
-  margin-bottom: 24px !important;
-}
-
-::ng-deep .stats-grid {
-  margin-bottom: 24px !important;
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 80px;
+  }
 }

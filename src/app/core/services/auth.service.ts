@@ -7,12 +7,11 @@ export interface PatientUser {
   firstName: string;
   lastName: string;
   email: string;
-  role?: string;  // ✅ AJOUT : rôle de l'utilisateur (PATIENT, DOCTOR, NUTRITIONNIST, ADMIN)
+  role?: string;  
   profilePicture?: string;
   diabetesType?: string;
   bloodType?: string;
-  // ✅ AJOUT : champs pour les autres types d'utilisateurs
-  specialty?: string;  // Pour les médecins
+  specialty?: string;  
   phone?: string;
   address?: string;
   city?: string;

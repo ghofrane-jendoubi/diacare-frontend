@@ -158,66 +158,82 @@ export class PatientReclamationsComponent implements OnInit {
     }
   }
 
-  submitReclamation(): void {
-    this.successMessage = '';
-    this.errorMessage = '';
+  // patient-reclamations.component.ts - Modifiez submitReclamation()
 
-    if (!this.reclamationForm.title.trim()) {
-      this.errorMessage = 'Le titre est obligatoire.';
-      return;
-    }
+submitReclamation(): void {
+  this.successMessage = '';
+  this.errorMessage = '';
 
-    if (!this.reclamationForm.description.trim()) {
-      this.errorMessage = 'La description est obligatoire.';
-      return;
-    }
+  if (!this.reclamationForm.title.trim()) {
+    this.errorMessage = 'Le titre est obligatoire.';
+    return;
+  }
 
-    // ✅ S'assurer que l'ID est correct avant l'envoi
-    this.reclamationForm.createdById = this.patientId;
+  if (!this.reclamationForm.description.trim()) {
+    this.errorMessage = 'La description est obligatoire.';
+    return;
+  }
 
-    this.isSubmitting = true;
+  this.isSubmitting = true;
 
-    if (this.editingId) {
-      const updatedPayload: Reclamation = {
-        ...this.reclamationForm,
-        id: this.editingId
-      };
+  // ✅ Construire le payload selon ce que le backend attend
+  // Le backend veut peut-être un objet "patient" avec "id"
+  const payload: any = {
+    title: this.reclamationForm.title,
+    description: this.reclamationForm.description,
+    category: this.reclamationForm.category,
+    priority: this.reclamationForm.priority,
+    createdByRole: 'PATIENT',
+    targetRole: this.reclamationForm.targetRole,
+    // Option 1: Si le backend attend createdById
+    createdById: this.patientId,
+    // Option 2: Si le backend attend un objet patient
+    patient: { id: this.patientId }
+  };
 
-      this.reclamationService.create(updatedPayload).subscribe({
-        next: () => {
-          this.successMessage = 'Réclamation modifiée avec succès.';
-          this.isSubmitting = false;
-          this.cancelEdit();
-          this.loadReclamations();
-          setTimeout(() => this.successMessage = '', 3000);
-        },
-        error: (err) => {
-          console.error('Erreur modification:', err);
-          this.isSubmitting = false;
-          this.errorMessage = 'Erreur lors de la modification.';
-          setTimeout(() => this.errorMessage = '', 3000);
-        }
-      });
+  console.log('📤 Envoi payload:', JSON.stringify(payload, null, 2));
 
-      return;
-    }
-
-    this.reclamationService.create(this.reclamationForm).subscribe({
+  if (this.editingId) {
+    payload.id = this.editingId;
+    this.reclamationService.update(this.editingId, payload).subscribe({
       next: () => {
-        this.successMessage = 'Réclamation envoyée avec succès.';
+        this.successMessage = 'Réclamation modifiée avec succès.';
         this.isSubmitting = false;
-        this.resetForm();
+        this.cancelEdit();
         this.loadReclamations();
         setTimeout(() => this.successMessage = '', 3000);
       },
       error: (err) => {
-        console.error('Erreur envoi:', err);
+        console.error('Erreur modification:', err);
         this.isSubmitting = false;
-        this.errorMessage = 'Erreur lors de l’envoi de la réclamation.';
+        this.errorMessage = 'Erreur lors de la modification.';
         setTimeout(() => this.errorMessage = '', 3000);
       }
     });
+    return;
   }
+
+  // Création
+  this.reclamationService.create(payload).subscribe({
+    next: (response) => {
+      console.log('✅ Réponse:', response);
+      this.successMessage = 'Réclamation envoyée avec succès.';
+      this.isSubmitting = false;
+      this.resetForm();
+      this.loadReclamations();
+      setTimeout(() => this.successMessage = '', 3000);
+    },
+    error: (err) => {
+      console.error('❌ Erreur envoi:', err);
+      if (err.error && typeof err.error === 'object') {
+        console.error('Détails erreur backend:', err.error);
+      }
+      this.isSubmitting = false;
+      this.errorMessage = err.error?.message || 'Erreur lors de l’envoi de la réclamation.';
+      setTimeout(() => this.errorMessage = '', 3000);
+    }
+  });
+}
 
   startEdit(r: Reclamation): void {
     if (r.status !== 'OPEN') {

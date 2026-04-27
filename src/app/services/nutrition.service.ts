@@ -41,7 +41,14 @@ export class NutritionService {
       { headers: this.getHeaders() }
     );
   }
-
+// ✅ Nouvelle méthode pour l'analyse d'image avec Imagga + ML
+analyzeFoodImageWithML(base64: string, patientId: number): Observable<any> {
+  return this.http.post<any>(
+    `${this.apiUrl}/foods/analyze-image-ml`,
+    { image: base64, patientId },
+    { headers: this.getHeaders() }
+  );
+}
   /**
    * Analyse une image via le backend Spring
    * Retourne soit:

@@ -91,6 +91,13 @@
               Paiement sécurisé
             </h2>
             
+            <!-- Email status message - appears after payment success -->
+            <div *ngIf="emailSent" class="alert alert-success mb-3 alert-dismissible fade show" role="alert">
+              <i class="bi bi-envelope-check-fill me-2"></i>
+              <strong>Email envoyé !</strong> Un email de confirmation a été envoyé à <strong>{{ email }}</strong>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            
             <form (ngSubmit)="payer()" #paymentForm="ngForm">
               <!-- Card holder name -->
               <div class="mb-3">
@@ -160,6 +167,7 @@
                          placeholder="votre@email.com" 
                          required>
                 </div>
+                <small class="text-muted">Un email de confirmation sera envoyé à cette adresse</small>
               </div>
               
               <!-- Payment button -->
